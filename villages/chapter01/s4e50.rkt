@@ -1,16 +1,16 @@
 #lang racket
 
-(define sigma^2 24657511.0)
-(define sigma 20179.0)
+(define Σx² 24657511.0)
+(define Σx 20179.0)
 (define N 27.0)
 
-(define median 750.0)
+(define mean (/ Σx N))
 
-(define variance (/ (- sigma^2 (/ (expt sigma 2) N)) (sub1 N)))
-(define deviation (sqrt variance))
-(define 2deviation (* deviation 2))
+(define s² (/ (- Σx² (/ (expt Σx 2) N)) (sub1 N)))
+(define s (sqrt s²))
+(define 2s (* s 2))
 
-(define maximum (+ median 2deviation))
+(define maximum (+ mean 2s))
 maximum
 
 ;; TODO: do I understand the question?
