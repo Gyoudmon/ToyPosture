@@ -19,14 +19,15 @@
 
 (define S
   (for/fold ([S (seteq)])
-            ([i (in-range 1000)])
+            ([i (in-range (seed))])
     (tournament S)))
 
-(set-count S) ;;; 2 * (2*2 + 2*2)
 (define A (list->seteq (filter (λ [s] (< s 2000)) (set->list S))))
 (define B (list->seteq (filter (λ [s] (or (< 2000 s 3000) (< 200 (remainder s 1000) 300))) (set->list S))))
-A
-B
-(set-union A B)
-(set-intersect A B)
-(set-subtract S A)
+
+(cons (set-count S) S) ;;; 2 * (2*2 + 2*2)
+(cons 'A A)
+(cons 'B B)
+(cons 'A∪B (set-union A B))
+(cons 'A∩B (set-intersect A B))
+(cons '|A'| (set-subtract S A))
