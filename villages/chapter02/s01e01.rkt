@@ -2,6 +2,10 @@
 
 (define seed (make-parameter 1024))
 
+(define seteq-filter
+  (lambda [f s]
+    (list->seteq (filter f (set->list s)))))
+
 (define match
   (lambda [p1 p2]
     (if (even? (random (seed))) (values p1 p2) (values p2 p1))))
@@ -22,12 +26,15 @@
             ([i (in-range (seed))])
     (tournament S)))
 
-(define A (list->seteq (filter (λ [s] (< s 2000)) (set->list S))))
-(define B (list->seteq (filter (λ [s] (or (< 2000 s 3000) (< 200 (remainder s 1000) 300))) (set->list S))))
+(define A (seteq-filter (λ [s] (< s 2000)) S))
+(define B (seteq-filter (λ [s] (or (< 2000 s 3000) (< 200 (remainder s 1000) 300))) S))
+(define A∪B (set-union A B))
+(define A∩B (set-intersect A B))
+(define |A'| (set-subtract S A))
 
 (cons (set-count S) S) ;;; 2 * (2*2 + 2*2)
 (cons 'A A)
 (cons 'B B)
-(cons 'A∪B (set-union A B))
-(cons 'A∩B (set-intersect A B))
-(cons '|A'| (set-subtract S A))
+(cons 'A∪B A∪B)
+(cons 'A∩B A∩B)
+(cons '|A'| |A'|)
