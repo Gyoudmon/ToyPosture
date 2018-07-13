@@ -1,6 +1,6 @@
 #lang info
 
-(define collection 'use-pkg-name)
+(define collection 'multi)
 (define pkg-desc "Self Teaching Projects")
 
 (define deps '("digimon"))
@@ -9,5 +9,3 @@
 (define version "1.0")
 (define pkg-authors '(wargrey))
 (define test-omit-paths 'all)
-
-(define scribblings '(["tamer/PnSfEnS.scrbl" (main-doc) ("Gyoudmon")]))
