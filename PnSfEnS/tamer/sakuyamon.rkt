@@ -1,13 +1,13 @@
 #lang scribble/lp2
 
-@(require "tamer.rkt")
+@(require digimon/tamer)
 
 @handbook-story{Hello, Sakuyamon!}
 
 @tamer-smart-summary[]
 
 @chunk[|<sakuyamon taming start>|
-       (require "tamer.rkt")
+       (require digimon/tamer)
        (tamer-taming-start)
 
        (module+ tamer |<sakuyamon:*>|)]

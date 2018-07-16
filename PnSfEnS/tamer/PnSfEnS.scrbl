@@ -1,9 +1,8 @@
 #lang scribble/manual
 
-@(current-digimon "Laboratory")
+@(current-digimon "PnSfEnS")
 
-@require{tamer.rkt}
-
+@(require digimon/tamer)
 
 @handbook-title[]
 
