@@ -1,10 +1,10 @@
 #lang scribble/manual
 
-@(current-digimon "PnSfEnS")
-
 @(require digimon/tamer)
 
 @handbook-title[]
+
+@tamer-smart-summary[]
 
 @handbook-smart-table[]
 
