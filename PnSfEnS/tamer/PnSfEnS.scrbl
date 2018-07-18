@@ -2,13 +2,13 @@
 
 @(require digimon/tamer)
 
-@handbook-title[]
+@handbook-title{Probability and Statistics for Engineering and the Sciences}
 
 @tamer-smart-summary[]
 
 @handbook-smart-table[]
 
-@include-section[(submod "sakuyamon.rkt" doc)]
+@include-section[(submod "descriptive.statistics.rkt" doc)]
 
 @handbook-appendix[#:index? #true
  (bib-entry #:key      "PnSfEnS"
