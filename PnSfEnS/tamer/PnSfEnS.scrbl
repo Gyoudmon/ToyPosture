@@ -2,7 +2,7 @@
 
 @(require digimon/tamer)
 
-@handbook-title{Probability and Statistics for Engineering and the Sciences}
+@handbook-title/pkg-desc[]
 
 @tamer-smart-summary[]
 
@@ -12,7 +12,7 @@
 
 @handbook-appendix[#:index? #true
  (bib-entry #:key      "PnSfEnS"
-            #:title    "Probability and Statistics for Engineering and the Sciences"
+            #:title    @(#%info 'pkg-desc)
             #:author   (authors "JAY L. DEVORE")
             #:location (book-location #:edition "ninth" #:publisher "CENGAGE Learning")
             #:date     "2017"
