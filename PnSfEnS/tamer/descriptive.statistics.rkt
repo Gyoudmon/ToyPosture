@@ -15,7 +15,7 @@
 
 @handbook-scenario{Pictorial and Tabular Methods}
 
-@margin-note{Exercis 25 on Page 27}
+@margin-note{Exercise 25 on Page 27}
 
 @itemlist[
  @item{A @deftech{transformation} of data values by means of some mathematical function, such as
@@ -38,7 +38,7 @@ IDT data:
                 [lIDT @bold{log@subscript{10}(IDT)}]
                 [~num (λ [fl] (~r fl #:precision '(= 2)))])
             (list* (list IDT lIDT IDT lIDT IDT lIDT)
-                   (let ([metrics (tamer-story-require 'data)])
+                   (let ([metrics (tamer-require 'data)])
                      (append (for/list ([i (in-range 0 12)])
                                (let ([c1 (list-ref metrics (+ i 00))]
                                      [c2 (list-ref metrics (+ i 14))]
@@ -62,10 +62,9 @@ Use intervals @math{1.1-<1.2}, @math{1.2-<1.3},... to do the same for transforme
 of the transformation?
 
 @tamer-action[
- (plot (list (discrete-histogram IDTv #:label "IDT" #:color 1 #:line-color 1)
+ (plot #:legend-anchor 'top-right
+       (list (discrete-histogram IDTv #:label "IDT" #:color 1 #:line-color 1)
              (discrete-histogram lIDTv #:label "log10IDT" #:color 2 #:line-color 2 #:x-min (add1 (length IDTv)))))]
-
-@handbook-scenario{Measures of Location}
 
 @handbook-reference[]
 
@@ -79,11 +78,10 @@ of the transformation?
        (module+ tamer |<descriptive.statistics:*>|)]
 
 @chunk[|<descriptive.statistics:*>|
-       (module+ story
-         <do-s02e25>)]
+       <do-s02e25>]
 
 @chunk[<do-s02e25>
-       (require plot)
+       (require plot/pict)
        
        (define IDTs (make-hasheq))
        (define lIDTs (make-hasheq))

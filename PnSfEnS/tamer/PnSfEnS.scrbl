@@ -9,6 +9,7 @@
 @handbook-smart-table[]
 
 @include-section[(submod "descriptive.statistics.rkt" doc)]
+@include-section[(submod "discrete.probability.distribution.rkt" doc)]
 
 @handbook-appendix[#:index? #true
  (bib-entry #:key      "PnSfEnS"
