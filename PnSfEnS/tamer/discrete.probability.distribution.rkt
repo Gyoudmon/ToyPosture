@@ -2,11 +2,19 @@
 
 @(require digimon/tamer)
 
+@(require "../digitama/style.rkt")
+
 @(define-bib HtROC
    #:title    "How to Read an OC Curve"
    #:author   (authors "Fred Schenkelberg")
    #:date     2019
    #:url      "https://accendoreliability.com/how-to-read-an-oc-curve/")
+
+@(define-bib AEIoINaTR
+   #:title    "An Exploratory Investigation of Identity Negotiation and Tattoo Removal"
+   #:author   (authors "Jeremy A. Shelton" "Cara Peters")
+   #:date     2008
+   #:location (journal-location	"Academy of Marketing Science Review" #:number 6 #:volume 12))
 
 @handbook-story{Discrete Random Variables and Probability Distribution}
 
@@ -25,22 +33,22 @@
 
 @itemlist[
  @item{A very large batch of components has arrived at a distributor. The batch can be characterized as acceptable
-  only if the proportion of defective components is at most @math{10%}. The distributor decides to randomly
-  select @math{10} components and accept the batch only if the number of defective components in the sample
-  is at most @math{2}.
+  only if the proportion of defective components is at most @racket%[10]. The distributor decides to randomly
+  select @racket[10] components and accept the batch only if the number of defective components in the sample
+  is at most @racket[2].
 
   @itemlist[#:style 'ordered
             
             @item{What is the probability that the batch will be accepted when the actual proportion of defective is
-               @math{1%}? @math{5%}? @math{10%}? @math{20%}? @math{25%}?}
+               @racket%[1]? @racket%[5]? @racket%[10]? @racket%[20]? @racket%[25]?}
             
             @item{Let @math{p} denote the actual proportion of defective in the batch. A graph of @math{P}(batch is accepted)
                as a function of @math{p}, with @math{p} on the horizontal axis and @math{P}(batch is accepted) on the
                vertical axis, is called the @italic{operating characteristics curve} for the acceptance sampling plan.
-               Use the results of part(1) to sketch this curve for @math{0 ≤ p ≤ 1}.}
+               Use the results of part(1) to sketch this curve for @racketvalfont{0 ≤ p ≤ 1}.}
             
-            @item{Repeat parts (1) and (2) with @math{1} replacing @math{2} in the acceptance sampling plan.}
-            @item{Repeat parts (1) and (2) with @math{15} replacing @math{10} in the acceptance sampling plan.}
+            @item{Repeat parts (1) and (2) with @racket[1] replacing @racket[2] in the acceptance sampling plan.}
+            @item{Repeat parts (1) and (2) with @racket[15] replacing @racket[10] in the acceptance sampling plan.}
             @item{Which of the three sampling plans, that of part (1), (3), or (4), appears most satisfactory, and why?}]
  }]
 
@@ -66,19 +74,19 @@
 @itemlist[
  @item{An ordinance requiring that a smoke detector be installed in all previously constructed houses
   has been in effect in a particular city for 1 year. The fire department is concerned that many house
-  remains without smoke detectors. Let @math{p} = the true proportion of such houses having detectors,
-  and suppose that a random sample of @math{25} homes is inspected. If the sample strongly indicates
-  that fewer than @math{80%} of all houses have a detector, the fire department will campaign for a
+  remains without smoke detectors. Let @math{p = the true proportion of such houses having detectors},
+  and suppose that a random sample of @racket[25] homes is inspected. If the sample strongly indicates
+  that fewer than @racket%[80] of all houses have a detector, the fire department will campaign for a
   mandatory inspection program. Because of the costliness of the program, the department prefers not
   to call for such inspections unless sample evidence strongly argues for their necessity. Let @math{X}
-  denote the number of homes with detectors among the @math{25} sampled. Consider rejecting the claim
-  that @math{p ≥ 80%} if @math{x ≤ 15}.
+  denote the number of homes with detectors among the @racket[25] sampled. Consider rejecting the claim
+  that @math{p ≥ @racket%[80]} if @math{x ≤ @racket[15]}.
 
   @itemlist[#:style 'ordered
-            @item{What is the probability that the claim is rejected when the actual value of @math{p} is @math{80%}?}
-            @item{What is the probability of not rejecting the claim when @math{p = 70%}? When @math{p = 60%}?}
-            @item{How do the "error probability" of parts (1) and (2) change if the value @math{15} in the decision
-               rule is replaced by @math{14}?}]}
+            @item{What is the probability that the claim is rejected when the actual value of @math{p} is @racket%[80]?}
+            @item{What is the probability of not rejecting the claim when @math{p = @racket%[70]}? When @math{p = @racket%[60]}?}
+            @item{How do the "error probability" of parts (1) and (2) change if the value @racket[15] in the decision
+               rule is replaced by @racket[14]?}]}
  ]
 
 @tamer-action[
@@ -94,6 +102,46 @@
        (list (oc-curve 15 25 #:color 5)
              (oc-curve 14 25 #:color 6)
              (vrule 0.8 #:style 'long-dash #:color 4)))]
+
+@handbook-scenario{The Poisson Probability Distribution}
+
+@margin-note{Exercise 98 on Page 137}
+
+@margin-note{There is a typo in the formula in original book.}
+
+@itemlist[
+ @item{In some applications th distribution of a discrete rv @math{X} resembles the Poisson distrubution except
+  that zero is not a possible value of @math{X}. For example, let @math{X = the number of tattoos that an individual wants
+   removed when she or he arrives at a tattoo-removal facility}. Suppose the pmf of @math{X} is
+                                                               
+  @centered{@math{p(x) = ke@superscript{@math{-θ}}θ@superscript{@math{x}}/x!, x = 1, 2, 3...}}
+  
+  @itemlist[#:style 'ordered
+            @item{Determine the value of @math{k}. @italic{Hint:} The sum of all probabilities in the Poisson pmf is @racket[1],
+               and this pmf must also sum to @racket[1].}
+            
+            @item{If the mean value of @math{X} is @racket[2.313035], whatis the probability that an individual wants at most
+               @math{5} tattoos removed?}
+            
+            @item{Determine the standard deviation of @math{X} when the mean value is as given in (2).}]
+  
+  [@italic{NOTE:} The article @~cite[AEIoINaTR] gave a sample of @racket[22] observations on the number of tattoos
+  people wanted removed; @italic{estimates} of @math{μ} and @math{θ} calculated from the data were @racket[2.318182] and
+  @racket[1.249242], respectively.]}
+ ]
+
+@tamer-action[
+ (define (K θ) (/ 1.0 (- 1.0 (exp (- θ)))))
+ (define (p x θ)
+   (let ([k (K θ)])
+     (/ (* k (exp (- θ)) (expt θ x))
+        (factorial x))))
+
+ (define θ 2.313035)
+ (define k (K θ))
+ k
+ (for/sum ([x (in-range 1 6)])
+   (p x θ))]
 
 
 @handbook-reference[]
@@ -113,4 +161,5 @@
 @chunk[<do-s04e58>
        (require plot/pict)
        (require math/statistics)
-       (require math/distributions)]
+       (require math/distributions)
+       (require (only-in math/number-theory factorial))]

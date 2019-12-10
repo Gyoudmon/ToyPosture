@@ -19,7 +19,7 @@
 
 @itemlist[
  @item{A @deftech{transformation} of data values by means of some mathematical function, such as
-  @math{(sqrt x)} or @math{1/x}, can often yield a set of numbers that has "nicer" statistical properties
+  @racket[(sqrt x)] or @racketvalfont{1/x}, can often yield a set of numbers that has "nicer" statistical properties
   than the original data. In particular it may be possible to find a function for which the histogram
   of transformed values is more symmetric(or, even better, more like a bell-shaped curve) than the
   original data.}]
@@ -32,7 +32,7 @@ transformation, that is, @math{transformed value = log(original value)}. Conside
 IDT data:
 
 @(tabular #:style 'boxed
-          #:column-properties '(left center left center left center)
+          #:column-properties '(center center center center center center)
           #:row-properties '(bottom-border ())
           (let ([IDT @bold{IDT}]
                 [lIDT @bold{log@subscript{10}(IDT)}]
@@ -57,8 +57,8 @@ IDT data:
                                            (~num (car c14.2)) (~num (cdr c14.2))
                                            "" ""))))))))
 
-Use class intervals @math{10-<20}, @math{20-<30},... to construct a histogram of the original data.
-Use intervals @math{1.1-<1.2}, @math{1.2-<1.3},... to do the same for transformed data. What is the effect
+Use class intervals @racketvalfont{10-<20}, @racketvalfont{20-<30},... to construct a histogram of the original data.
+Use intervals @racketvalfont{1.1-<1.2}, @racketvalfont{1.2-<1.3},... to do the same for transformed data. What is the effect
 of the transformation?
 
 @tamer-action[
