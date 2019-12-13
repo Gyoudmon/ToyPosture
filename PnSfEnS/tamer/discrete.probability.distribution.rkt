@@ -147,8 +147,8 @@
               (factorial x))))]
 
 Since this unnamed distribution is just the @bold{Poisson Distribution} with a coefficient @math{k} for @math{x > 0}.
-For the @bold{Poission Distribution} we have @math{V@math-index{Po}(X) = E(X@math-prime{2}) - [E(X)]@math-prime{2} = θ}, also
- @math{x@math-prime{2}p(x) = 0 for x = 0}, hence
+For the @bold{Poisson Distribution} we have @math{V@math-index{Po}(X) = E@math-index{Po}(X) = E(X@math-prime{2}) - [E(X)]@math-prime{2} = θ},
+also @math{x@math-prime{2}p(x) = 0 for x = 0}, hence
 
 @itemlist[@item{V = @math{σ@math-prime{2} = (k - 1)θ@math-prime{2} + kθ}}]
 
