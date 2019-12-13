@@ -110,39 +110,61 @@
 @margin-note{There is a typo in the formula in original book.}
 
 @itemlist[
- @item{In some applications th distribution of a discrete rv @math{X} resembles the Poisson distrubution except
+ @item{In some applications the distribution of a discrete rv @math{X} resembles the Poisson distrubution except
   that zero is not a possible value of @math{X}. For example, let @math{X = the number of tattoos that an individual wants
    removed when she or he arrives at a tattoo-removal facility}. Suppose the pmf of @math{X} is
                                                                
-  @centered{@math{p(x) = ke@superscript{@math{-θ}}θ@superscript{@math{x}}/x!, x = 1, 2, 3...}}
+  @centered{@math{p(x) = ke@math-prime{-θ}θ@math-prime{x}/x!, x = 1, 2, 3...}}
   
   @itemlist[#:style 'ordered
             @item{Determine the value of @math{k}. @italic{Hint:} The sum of all probabilities in the Poisson pmf is @racket[1],
                and this pmf must also sum to @racket[1].}
             
-            @item{If the mean value of @math{X} is @racket[2.313035], whatis the probability that an individual wants at most
+            @item{If the mean value of @math{X} is @racket[2.313035], what is the probability that an individual wants at most
                @math{5} tattoos removed?}
             
             @item{Determine the standard deviation of @math{X} when the mean value is as given in (2).}]
   
   [@italic{NOTE:} The article @~cite[AEIoINaTR] gave a sample of @racket[22] observations on the number of tattoos
-  people wanted removed; @italic{estimates} of @math{μ} and @math{θ} calculated from the data were @racket[2.318182] and
+  people wanted removed; @italic{estimates} of @math{μ} and @math{σ} calculated from the data were @racket[2.318182] and
   @racket[1.249242], respectively.]}
  ]
 
+@bold{Solution}
+@itemlist[@item{@math{K(θ) = 1/(1-e@math-prime{-θ})}}]
+
+@chunk[<s04e98-K>
+       (define (K θ)
+         (/ 1.0
+            (- 1.0 (exp (- θ)))))]
+
+@itemlist[@item{@math{p(x) = ke@math-prime{-θ}θ@math-prime{x}/x!}}]
+
+@chunk[<s04e98-pmf>
+       (define (p x θ)
+         (let ([k (K θ)])
+           (/ (* k (exp (- θ)) (expt θ x))
+              (factorial x))))]
+
+Since this unnamed distribution is just the @bold{Poisson Distribution} with a coefficient @math{k} for @math{x > 0}.
+For the @bold{Poission Distribution} we have @math{V@math-index{Po}(X) = E(X@math-prime{2}) - [E(X)]@math-prime{2} = θ}, also
+ @math{x@math-prime{2}p(x) = 0 for x = 0}, hence
+
+@itemlist[@item{V = @math{σ@math-prime{2} = (k - 1)θ@math-prime{2} + kθ}}]
+
+@chunk[<s04e98-V>
+       (define (V θ)
+         (let ([k (K θ)])
+           (+ (* (- k 1.0) (expt θ 2))
+              (* k θ))))]
+
+@bold{Answers}
 @tamer-action[
- (define (K θ) (/ 1.0 (- 1.0 (exp (- θ)))))
- (define (p x θ)
-   (let ([k (K θ)])
-     (/ (* k (exp (- θ)) (expt θ x))
-        (factorial x))))
-
  (define θ 2.313035)
- (define k (K θ))
- k
+ (K θ)
  (for/sum ([x (in-range 1 6)])
-   (p x θ))]
-
+   (p x θ))
+ (sqrt (V θ))]
 
 @handbook-reference[]
 
@@ -156,10 +178,11 @@
        (module+ tamer |<discrete.random.variables.n.probability.distribution:*>|)]
 
 @chunk[|<discrete.random.variables.n.probability.distribution:*>|
-       <do-s04e58>]
-
-@chunk[<do-s04e58>
        (require plot/pict)
        (require math/statistics)
        (require math/distributions)
-       (require (only-in math/number-theory factorial))]
+       (require (only-in math/number-theory factorial))
+       
+       <s04e98-K>
+       <s04e98-pmf>
+       <s04e98-V>]
