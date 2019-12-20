@@ -61,7 +61,7 @@ Use class intervals @racketvalfont{10-<20}, @racketvalfont{20-<30},... to constr
 Use intervals @racketvalfont{1.1-<1.2}, @racketvalfont{1.2-<1.3},... to do the same for transformed data. What is the effect
 of the transformation?
 
-@tamer-action[
+@tamer-answer[
  (plot #:legend-anchor 'top-right
        (list (discrete-histogram IDTv #:label "IDT" #:color 1 #:line-color 1)
              (discrete-histogram lIDTv #:label "log10IDT" #:color 2 #:line-color 2 #:x-min (add1 (length IDTv)))))]

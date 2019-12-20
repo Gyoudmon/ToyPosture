@@ -9,7 +9,7 @@
   (lambda [v]
     (racketvalfont (format "~a%" v))))
 
-(define math-prime
+(define math-expt
   (lambda [v]
     (superscript (math v))))
 

@@ -4,6 +4,7 @@
 
 @(require "../digitama/style.rkt")
 
+@;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 @(define-bib HtROC
    #:title    "How to Read an OC Curve"
    #:author   (authors "Fred Schenkelberg")
@@ -16,6 +17,13 @@
    #:date     2008
    #:location (journal-location	"Academy of Marketing Science Review" #:number 6 #:volume 12))
 
+@(define-bib RMACaGT
+   #:title    "Random Multiple-Access Communication and Group Testing"
+   #:author   (authors "Mehravari, N." "Berger, T.")
+   #:date     1984
+   #:location (journal-location	"IEEE Transactions on Communications" #:pages (list 769 774)))
+
+@;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 @handbook-story{Discrete Random Variables and Probability Distribution}
 
 @tamer-smart-summary[]
@@ -52,7 +60,7 @@
             @item{Which of the three sampling plans, that of part (1), (3), or (4), appears most satisfactory, and why?}]
  }]
 
-@tamer-action[
+@tamer-answer[
  (for ([p (in-list (list 0.01 0.05 0.10 0.20 0.25))])
    (printf "B(~a; ~a, ~a) = ~a~n" 2 10 (~r p #:precision '(= 2))
            (B 2 10 p)))
@@ -89,7 +97,7 @@
                rule is replaced by @racket[14]?}]}
  ]
 
-@tamer-action[
+@tamer-answer[
  (B 15 25 0.80)
  (for ([x (in-list (list 15 14))])
    (for ([p (in-list (list 0.60 0.70))])
@@ -103,7 +111,7 @@
              (oc-curve 14 25 #:color 6)
              (vrule 0.8 #:style 'long-dash #:color 4)))]
 
-@handbook-scenario{The Poisson Probability Distribution}
+@handbook-scenario{SUPPLEMENTARY EXERCISES}
 
 @margin-note{Exercise 98 on Page 137}
 
@@ -114,7 +122,7 @@
   that zero is not a possible value of @math{X}. For example, let @math{X = the number of tattoos that an individual wants
    removed when she or he arrives at a tattoo-removal facility}. Suppose the pmf of @math{X} is
                                                                
-  @centered{@math{p(x) = ke@math-prime{-θ}θ@math-prime{x}/x!, x = 1, 2, 3...}}
+  @centered{@math{p(x) = ke@@math-expt{-θ}θ@@math-expt{x}/x!, x = 1, 2, 3...}}
   
   @itemlist[#:style 'ordered
             @item{Determine the value of @math{k}. @italic{Hint:} The sum of all probabilities in the Poisson pmf is @racket[1],
@@ -131,14 +139,14 @@
  ]
 
 @bold{Solution}
-@itemlist[@item{@math{K(θ) = 1/(1-e@math-prime{-θ})}}]
+@itemlist[@item{@math{K(θ) = 1/(1-e@@math-expt{-θ})}}]
 
 @chunk[<s04e98-K>
        (define (K θ)
          (/ 1.0
             (- 1.0 (exp (- θ)))))]
 
-@itemlist[@item{@math{p(x) = ke@math-prime{-θ}θ@math-prime{x}/x!}}]
+@itemlist[@item{@math{p(x) = ke@@math-expt{-θ}θ@@math-expt{x}/x!}}]
 
 @chunk[<s04e98-pmf>
        (define (p x θ)
@@ -147,10 +155,10 @@
               (factorial x))))]
 
 Since this unnamed distribution is just the @bold{Poisson Distribution} with a coefficient @math{k} for @math{x > 0}.
-For the @bold{Poisson Distribution} we have @math{V@math-index{Po}(X) = E@math-index{Po}(X) = E(X@math-prime{2}) - [E(X)]@math-prime{2} = θ},
-also @math{x@math-prime{2}p(x) = 0 for x = 0}, hence
+For the @bold{Poisson Distribution} we have @math{V@math-index{Po}(X) = E@math-index{Po}(X) = E(X@@math-expt{2}) - [E(X)]@@math-expt{2} = θ},
+also @math{x@@math-expt{2}p(x) = 0 for x = 0}, hence
 
-@itemlist[@item{V = @math{σ@math-prime{2} = (k - 1)θ@math-prime{2} + kθ}}]
+@itemlist[@item{V = @math{σ@@math-expt{2} = (k - 1)θ@@math-expt{2} + kθ}}]
 
 @chunk[<s04e98-V>
        (define (V θ)
@@ -158,13 +166,25 @@ also @math{x@math-prime{2}p(x) = 0 for x = 0}, hence
            (+ (* (- k 1.0) (expt θ 2))
               (* k θ))))]
 
-@bold{Answers}
-@tamer-action[
+@tamer-answer[
  (define θ 2.313035)
  (K θ)
  (for/sum ([x (in-range 1 6)])
    (p x θ))
  (sqrt (V θ))]
+
+@margin-note{Exercise 103 on Page 138}
+
+@itemlist[
+ @item{Consider a disease whose presence can be identified by carrying out a blood test. Let @math{p} denote the probability that a randomly
+  selected individual has the disease. Suppose @math{n} individuals are independently selected for testing. One way to proceed is to carry
+  out a separate test on each of the @math{n} blood samples. A potentially more economical approach, group testing, was introduced during
+  World War II to identify syphilitic men among army inductees. First, take a part of each blood sample, combine these specimens, and carry
+  out single test. If no one has the disease, the result will be negative, and only the one test is required. If at least one individual is
+  diseased, the test on the combined sample will yield a positive result, in which case the @math{n} individual tests are then carried out.
+  if @math{p = 0.1} and @math{n = 3}, what is the expected number of tests using this procedure? What is the expected number when @math{n = 5}?
+  [The article @~cite[RMACaGT] applied this ideas to a communication system in which the dichotomy was active/idle user rather than
+  diseased/nondiseased.]}]
 
 @handbook-reference[]
 
