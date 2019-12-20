@@ -141,14 +141,14 @@
 @bold{Solution}
 @itemlist[@item{@math{K(θ) = 1/(1-e@@math-expt{-θ})}}]
 
-@chunk[<s04e98-K>
+@chunk[<s03e98-K>
        (define (K θ)
          (/ 1.0
             (- 1.0 (exp (- θ)))))]
 
 @itemlist[@item{@math{p(x) = ke@@math-expt{-θ}θ@@math-expt{x}/x!}}]
 
-@chunk[<s04e98-pmf>
+@chunk[<s03e98-pmf>
        (define (p x θ)
          (let ([k (K θ)])
            (/ (* k (exp (- θ)) (expt θ x))
@@ -160,7 +160,7 @@ also @math{x@@math-expt{2}p(x) = 0 for x = 0}, hence
 
 @itemlist[@item{V = @math{σ@@math-expt{2} = (k - 1)θ@@math-expt{2} + kθ}}]
 
-@chunk[<s04e98-V>
+@chunk[<s03e98-V>
        (define (V θ)
          (let ([k (K θ)])
            (+ (* (- k 1.0) (expt θ 2))
@@ -183,8 +183,28 @@ also @math{x@@math-expt{2}p(x) = 0 for x = 0}, hence
   out single test. If no one has the disease, the result will be negative, and only the one test is required. If at least one individual is
   diseased, the test on the combined sample will yield a positive result, in which case the @math{n} individual tests are then carried out.
   if @math{p = 0.1} and @math{n = 3}, what is the expected number of tests using this procedure? What is the expected number when @math{n = 5}?
-  [The article @~cite[RMACaGT] applied this ideas to a communication system in which the dichotomy was active/idle user rather than
+  [The article @~cite[RMACaGT] applied these ideas to a communication system in which the dichotomy was active/idle user rather than
   diseased/nondiseased.]}]
+
+@bold{Solution}
+
+Let @math{X = the number of tests required}, with @math{pmf}
+@tabular[#:style 'boxed
+         #:column-properties '(center center center center)
+         #:row-properties '(bottom-border ())
+         (list (list @bold{@math{x}}    @math{1}                  @math{n+1})
+               (list @bold{@math{p(x)}} @math{(1-p)@math-expt{n}} @math{1 - (1-p)@math-expt{n}}))]
+thus, the expected number of tests is
+@centered{@math{E(X) = Σxp(x) = (1-p)@math-expt{n} + (n+1)[1 - (1-p)@math-expt{n}] = n + 1 - n(1-p)@math-expt{n}}}
+
+@chunk[<s03e103-E>
+       (define (E n p)
+         (- (+ n 1)
+            (* n (expt (- 1.0 p) n))))]
+
+@tamer-answer[
+ (E 3 0.1)
+ (E 5 0.1)]
 
 @handbook-reference[]
 
@@ -203,6 +223,8 @@ also @math{x@@math-expt{2}p(x) = 0 for x = 0}, hence
        (require math/distributions)
        (require (only-in math/number-theory factorial))
        
-       <s04e98-K>
-       <s04e98-pmf>
-       <s04e98-V>]
+       <s03e98-K>
+       <s03e98-pmf>
+       <s03e98-V>
+
+       <s03e103-E>]
