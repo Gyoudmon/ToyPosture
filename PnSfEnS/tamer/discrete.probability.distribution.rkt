@@ -190,7 +190,7 @@ also @math{x@@math-expt{2}p(x) = 0 for x = 0}, hence
 
 Let @math{X = the number of tests required}, with @math{pmf}
 @tabular[#:style 'boxed
-         #:column-properties '(center center center center)
+         #:column-properties '(center center center)
          #:row-properties '(bottom-border ())
          (list (list @bold{@math{x}}    @math{1}                  @math{n+1})
                (list @bold{@math{p(x)}} @math{(1-p)@math-expt{n}} @math{1 - (1-p)@math-expt{n}}))]
