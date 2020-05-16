@@ -66,7 +66,7 @@ of the transformation?
        (list (discrete-histogram IDTv #:label "IDT" #:color 1 #:line-color 1)
              (discrete-histogram lIDTv #:label "log10IDT" #:color 2 #:line-color 2 #:x-min (add1 (length IDTv)))))]
 
-@handbook-reference[]
+@handbook-reference[#:auto-hide? #false]
 
 @; Chunks after `handbook-reference[]` will never be rendered in documents
 @; <*> is the main chunk by convention.

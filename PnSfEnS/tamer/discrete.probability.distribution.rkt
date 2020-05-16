@@ -206,7 +206,7 @@ thus, the expected number of tests is
  (E 3 0.1)
  (E 5 0.1)]
 
-@handbook-reference[]
+@handbook-reference[#:auto-hide? #false]
 
 @; Chunks after `handbook-reference[]` will never be rendered in documents
 @; <*> is the main chunk by convention.

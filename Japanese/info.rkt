@@ -1,7 +1,7 @@
 #lang info
 
 (define collection 'use-pkg-name)
-(define pkg-desc "Japanese Grammar")
+(define pkg-desc "Japanese Language")
 
 (define deps '("digimon"))
 (define build-deps '("digimon" "scribble-lib" "racket-doc"))
@@ -10,4 +10,4 @@
 (define pkg-authors '(wargrey))
 (define test-omit-paths 'all)
 
-(define typesettings '(["tamer/Japanese.Grammar.scrbl" xelatex]))
+(define typesettings '(["tamer/Japanese.scrbl" xelatex]))
