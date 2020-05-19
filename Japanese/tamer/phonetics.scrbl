@@ -14,8 +14,8 @@
 
 @itemlist[
  #:style 'compact
- @item{The accents of 「Vます」 are fixed as type -2 regardless their original accents}
- @item{The accents of 「Vません」 are fixed as type -2 regardless their original accents}
+ @item{The accents of 「Vます」 are fixed as type - 2 regardless their original accents}
+ @item{The accents of 「Vません」 are fixed as type - 2 regardless their original accents}
 ]
 
 @handbook-reference[]
