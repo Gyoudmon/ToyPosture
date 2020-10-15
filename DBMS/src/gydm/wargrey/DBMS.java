@@ -1,5 +1,8 @@
 package gydm.wargrey;
 
+import gydm.wargrey.Interaction;
+
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -7,6 +10,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+
+import java.util.Scanner;
+
+import java.awt.Component;
+import javax.swing.BoxLayout;
 
 import java.io.IOException;
 import java.io.FileNotFoundException;
@@ -25,12 +35,50 @@ public class DBMS {
 				DBMS.self = DBMS.readFrame(self_gui);
 				System.out.println("JFrame has been loaded from " + self_gui.getAbsolutePath());
 			} else {
+				Interaction it = new Interaction();
+				int childrenCount = it.getUIRowCount();
+				
 				DBMS.self = new JFrame("Java DBMS");
-				DBMS.self.setLocationRelativeTo(null);
 				DBMS.self.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				
+				DBMS.self.setLocationRelativeTo(null); // centralize
 				DBMS.self.setExtendedState(DBMS.self.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 				
-				DBMS.writeFrame(self, self_gui);
+				DBMS.self.setJMenuBar(it.getMenuBar());
+				
+				if (childrenCount > 0) {
+					JPanel content = new JPanel();
+					BoxLayout rlayout = new BoxLayout(content, BoxLayout.X_AXIS);
+					boolean separator[] = { false };
+					
+					content.setLayout(rlayout);
+					
+					for (int idx = 0; idx < childrenCount; idx ++) {
+						Component children[] = it.getChildren(idx, separator);
+						
+						if (children != null) {
+							JPanel subcontent = new JPanel();
+							BoxLayout layout = new BoxLayout(subcontent, BoxLayout.Y_AXIS);
+						
+							subcontent.setLayout(layout);
+							subcontent.setAlignmentY(JPanel.TOP_ALIGNMENT);
+							content.add(new JSeparator(JSeparator.VERTICAL));
+							content.add(subcontent);
+							
+							for (int jdx = 0; jdx < children.length; jdx ++) {
+								if (separator[0]) {
+									subcontent.add(new JSeparator(JSeparator.HORIZONTAL));
+								}
+								
+								subcontent.add(children[jdx]);
+							}
+						}
+					}
+					
+					DBMS.self.setContentPane(content);
+				}
+				
+				// DBMS.writeFrame(self, self_gui);
 				System.out.println("New constructed JFrame has been write to " + self_gui.getAbsolutePath());
 			}
 		} catch (Exception e) {
@@ -39,7 +87,8 @@ public class DBMS {
 		}
 		
 		if (DBMS.self != null) {
-			self.setVisible(true);
+			//DBMS.self.pack();
+			//DBMS.self.setVisible(true);
 		}
 	}
 
