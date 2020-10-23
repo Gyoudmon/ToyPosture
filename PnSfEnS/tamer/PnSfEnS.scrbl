@@ -11,7 +11,7 @@
 @include-section[(submod "descriptive.statistics.rkt" doc)]
 @include-section[(submod "discrete.probability.distribution.rkt" doc)]
 
-@handbook-appendix[#:index? #true
+@handbook-appendix[#:index-section? #true
  (bib-entry #:key      "PnSfEnS"
             #:title    @(#%info 'pkg-desc)
             #:author   (authors "JAY L. DEVORE")

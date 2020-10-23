@@ -1,4 +1,4 @@
-# [🏡](http://#false/~#false:PnSfEnS)Probability and Statistics for Engineering and the Sciences
+# Probability and Statistics for Engineering and the Science
 
 wargrey
 
