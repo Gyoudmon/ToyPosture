@@ -14,7 +14,7 @@ pseudo_struct_t pseudo_instance;
 long long pseudo_address = (long long)&pseudo_instance;
 
 /*************************************************************************************************/
-size_t test_offsetof(int field_idx, const char* desc) {
+__lambda__ size_t test_offsetof(int field_idx, const char* desc) {
     size_t offset;
 
     switch (field_idx) {
@@ -27,7 +27,7 @@ size_t test_offsetof(int field_idx, const char* desc) {
     return offset;
 }
 
-long long test_containerof(int field_idx, const char* desc) {
+__lambda__ long long test_containerof(int field_idx, const char* desc) {
     pseudo_struct_t* src = &pseudo_instance;
     pseudo_struct_t* ptr = NULL;
 
