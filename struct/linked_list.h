@@ -1,5 +1,5 @@
-#ifndef __LINKED_LIST__
-#define __LINKED_LIST__
+#ifndef _LINKED_LIST_H
+#define _LINKED_LIST_H
 
 #include <stdlib.h>
 
@@ -25,10 +25,16 @@
 #define containerof(addr, type, field) (type*)((char*)(addr) - offsetof(type, field))
 
 /*************************************************************************************************/
-
 typedef struct linked_list_node {
+    struct linked_list_node *prev;
     struct linked_list_node *next;
 } linked_list_node_t;
 
-#endif /* __LINKED_LIST__ */
+/*************************************************************************************************/
+inline void linked_list_initialize(linked_list_node_t *self) {
+    self->prev = self;
+    self->next = self;
+}
+
+#endif /* _LINKED_LIST_H */
 
