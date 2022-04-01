@@ -26,14 +26,21 @@
 
 /*************************************************************************************************/
 typedef struct linked_list_node {
-    struct linked_list_node *prev;
     struct linked_list_node *next;
 } linked_list_node_t;
 
 /*************************************************************************************************/
-inline void linked_list_initialize(linked_list_node_t *self) {
-    self->prev = self;
-    self->next = self;
+static inline void linked_list_initialize(linked_list_node_t *self) {
+    self->next = NULL;
+}
+
+static inline void linked_list_add_between(linked_list_node_t* self, linked_list_node_t* prev, linked_list_node_t* next) {
+    prev->next = self;
+    self->next = next;
+}
+
+static inline void linked_list_remove_between(linked_list_node_t* prev, linked_list_node_t* next) {
+    prev->next = next;
 }
 
 #endif /* _LINKED_LIST_H */
