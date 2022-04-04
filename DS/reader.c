@@ -18,12 +18,16 @@ static const int minus = 0x2D;
 static const int dot = 0x2E;
 
 /**************************************************************************************************/
-static inline int char_whitespace(int ch) {
+static inline int char_space(int ch) {
     return isspace(ch);
 }
 
 static inline int char_end_of_line(int ch) {
     return (ch == linefeed) || (ch == carriage_return);
+}
+
+static inline int char_blank(int ch) {
+    return (char_space(ch) && !char_end_of_line(ch));
 }
 
 static inline int read_char(FILE* src) {
@@ -97,7 +101,18 @@ void discard_word(FILE* src) {
     int ch;
 
     while ((ch = read_char(src)) != EOF) {
-        if (char_whitespace(ch)) {
+        if (char_space(ch)) {
+            pushback_char(ch, src);
+            break;
+        }
+    }
+}
+
+void discard_blank(FILE* src) {
+    int ch;
+
+    while ((ch = read_char(src)) != EOF) {
+        if (!char_blank(ch)) {
             pushback_char(ch, src);
             break;
         }
@@ -108,7 +123,7 @@ void discard_space(FILE* src) {
     int ch;
 
     while ((ch = read_char(src)) != EOF) {
-        if (!char_whitespace(ch)) {
+        if (!char_space(ch)) {
             pushback_char(ch, src);
             break;
         }
@@ -127,11 +142,13 @@ void discard_newline(FILE* src) {
 }
 
 void discard_this_line(FILE* src) {
+    char crlf[3];
     int ch;
 
     while ((ch = read_char(src)) != EOF) {
         if (char_end_of_line(ch)) {
-            discard_newline(src);
+            pushback_char(ch, src);
+            fgets(crlf, sizeof(crlf)/sizeof(char), src);
             break;
         }
     }
@@ -140,7 +157,7 @@ void discard_this_line(FILE* src) {
 /************************************************************************************************/
 int has_reached_end_of_word(FILE* src) {
     int ch = read_char(src);
-    int yes = char_whitespace(ch);
+    int yes = (char_space(ch) || (ch == EOF));
 
     if (ch != EOF) {
         pushback_char(ch, src);

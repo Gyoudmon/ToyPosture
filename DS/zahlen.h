@@ -18,10 +18,15 @@ typedef struct zahlen_env {
 #define zahlen_entry_datum(self) zahlen_entry(self)->datum
 
 /*************************************************************************************************/
-zahlen_t* zahlen_create(long long int datum);
+zahlen_env_t* zahlen_env_construct();
+void zahlen_env_destruct(zahlen_env_t* master);
 
-zahlen_env_t* zahlen_env_initialize();
 void zahlen_env_push_datum(zahlen_env_t* master, long long int datum);
+int zahlen_env_pop_datum(zahlen_env_t* master, long long int* datum);
+
+long long int zahlen_env_size(zahlen_env_t* master);
+long long int zahlen_env_ref(zahlen_env_t* master, int idx, long long int default_value);
+
 void zahlen_env_sum(zahlen_env_t* master, long long int *odd_sum, long long int* even_sum);
 
 #endif /* _ZAHLEN_H */
