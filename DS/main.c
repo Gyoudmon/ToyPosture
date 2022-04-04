@@ -3,47 +3,69 @@
 
 #include "linked_list.h"
 #include "zahlen.h"
+#include "reader.h"
 
 /*************************************************************************************************/
-static int read_integer_from_line() {
-    char* line = NULL;
-    size_t size;
-    int n;
+static long long int read_fixnum_from_line(const char* prompt) {
+    long long int n;
+    int count;
+    int okay;
 
-    getline(&line, &size, stdin);
-    n = atoi(line);
-    free(line);
+    do {
+        if (prompt != NULL) {
+            printf("%s ", prompt);
+        }
+
+        n = read_integer(stdin, &count);
+        okay = has_reached_end_of_word(stdin);
+
+        if (!okay) {
+            printf("ignored invalid char, please try again!\n");
+            discard_word(stdin);
+        }
+    } while(!okay && !feof(stdin));
 
     return n;
 }
 
-static inline int read_choice() {
-    return read_integer_from_line();
+static inline int read_choice(const char* prompt) {
+    return (int)read_fixnum_from_line(prompt);
 }
 
 /*************************************************************************************************/
-static zahlen_env_t* zahlen_env_construct(int eof) {
-    zahlen_env_t* master = zahlen_env_initialize();
-    int n = 0;
+static int zahlen_env_check(const zahlen_env_t* env, const char* message) {
+    int okay = 1;
 
-    while (1) {
-        n = read_integer_from_line();
-
-        if (n == eof) {
-            break;
-        } else {
-            zahlen_env_push_value(master, n);
-        }
+    if (env == NULL) {
+        printf("%s\n", message);
+        okay = 0;
     }
 
+    return okay;
+}
+
+static zahlen_env_t* zahlen_env_construct(int sentry) {
+    zahlen_env_t* master = zahlen_env_initialize();
+    long long int n = sentry + 1;
+
+    printf("Please input a sort of integers separated by whitespaces, with the ending sentinel %d:\n", sentry);
+
+    do {
+        n = read_fixnum_from_line(NULL);
+
+        if (n != sentry) {
+            zahlen_env_push_datum(master, n);
+        }
+    } while ((n != sentry) && !feof(stdin));
+    
     return master;
 }
 
 static void zahlen_env_display(zahlen_env_t* master, int col_size) {
     int col_idx = 0;
 
-    for (linked_list_node_t* self = master->head; self != NULL; self = self->next) {
-        printf("%d", zahlen_entry_value(self));
+    linked_list_foreach(self, master->head) {
+        printf("%lld", zahlen_entry_datum(self));
         col_idx++;
 
         if (col_idx >= col_size) {
@@ -59,12 +81,20 @@ static void zahlen_env_display(zahlen_env_t* master, int col_size) {
     }
 }
 
+static void zahlen_env_sum_up(zahlen_env_t* master) {
+    long long int o_sum, e_sum;
+
+    zahlen_env_sum(master, &o_sum, &e_sum);
+    printf("Sum: odd = %lld; even = %lld\n", o_sum, e_sum);
+}
+
 /*************************************************************************************************/
 int main(int argc, char* argv[]) {
+    const char* null_message = "You need to construct the linked list first!";
     zahlen_env_t* master = NULL;
     int is_in_repl = 1;
 
-    while (is_in_repl) {
+    do {
         printf("1. construct an unordered linked list with integer values\n");
         printf("2. display all integers in the linked list\n");
         printf("3. sort the linked list in ascending order\n");
@@ -72,18 +102,29 @@ int main(int argc, char* argv[]) {
         printf("5. destruct the linked list\n");
         printf("0. Exit\n");
 
-        switch (read_choice()) {
+        switch (read_choice("Please select the operation[0 - 5]:")) {
             case 0: is_in_repl = 0; break;
             case 1: {
+                printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
                 master = zahlen_env_construct(-1);
+                printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
             }; break;
             case 2: {
-                if (master != NULL) {
+                if (zahlen_env_check(master, null_message)) {
+                    printf("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
                     zahlen_env_display(master, 8);
+                    printf("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+                }
+            }; break;
+            case 4: {
+                if (zahlen_env_check(master, null_message)) {
+                    printf("=====================================================\n");
+                    zahlen_env_sum_up(master);
+                    printf("=====================================================\n");
                 }
             }; break;
         }
-    }
+    } while (is_in_repl && !feof(stdin));
 
     return 0;
 }
