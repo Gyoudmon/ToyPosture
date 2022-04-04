@@ -112,16 +112,6 @@ __lambda__ long long int zahlen_env_ref(zahlen_env_t* master, int idx, long long
     return datum;
 }
 
-__lambda__ long long int zahlen_env_remove(zahlen_env_t* master, long long int datum) {
-    linked_list_foreach(self, master->head) {
-            datum = zahlen_entry_datum(self);
-
-            break;
-    }
-
-    return datum;
-}
-
 __lambda__ void zahlen_env_sum(zahlen_env_t* master, long long int* odd_sum, long long int* even_sum) {
     long long int o_sum = 0;
     long long int e_sum = 0;

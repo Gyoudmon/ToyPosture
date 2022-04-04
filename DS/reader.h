@@ -7,9 +7,9 @@ unsigned long long int read_natural(FILE* src, int* size);
 long long int read_integer(FILE* src, int* size);
 
 void discard_word(FILE* src);
-void discard_space(FILE* src);
 void discard_blank(FILE* src);
 void discard_newline(FILE* src);
+void discard_space(FILE* src); /* discard blank + newline */
 void discard_this_line(FILE* src);
 
 #endif /* _READER_H */

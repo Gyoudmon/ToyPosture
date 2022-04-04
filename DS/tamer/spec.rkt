@@ -22,6 +22,11 @@
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   (define-spec zahlen_env_construct (_fun -> _zahlen_env-pointer))
   (define-spec zahlen_env_push_datum (_fun _zahlen_env-pointer _llong -> _void))
+  
+  (define-spec zahlen_env_pop_datum
+    (_fun _zahlen_env-pointer [datum : (_ptr o _llong)]
+          -> [okay? : _bool]
+          -> (values datum okay?)))
 
   (define-spec zahlen_env_sum
     (_fun _zahlen_env-pointer
@@ -49,6 +54,7 @@
    [zahlen_env-tail (-> Zahlen-Env (Option Linked-List-Node))]
    [zahlen_env_construct (-> Zahlen-Env)]
    [zahlen_env_push_datum (-> Zahlen-Env Integer Void)]
+   [zahlen_env_pop_datum (-> Zahlen-Env (Values Integer Boolean))]
    [zahlen_env_sum (-> Zahlen-Env (Values Integer Integer))]
    
    [zahlen_env_size (-> Zahlen-Env Integer)]
@@ -63,20 +69,16 @@
    [ptr-equal? (-> (Option Linked-List-Node) (Option Linked-List-Node) Boolean)])
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  #;(define-context (zahlen-create-context value)
-    #:desc ["create zahlen with value ~a" value] #:do
-    (it-check-initial-zahlen value))
-  
-  #;(define-behavior (it-check-initial-zahlen value)
-    (let ([z (zahlen_create value)])
-      [#:it ["should associated with the value ~a" value] #:do
-       (expect-= (zahlen-datum z) value)]
-      [#:it "should associated with a node whose next node is NULL" #:do
-       (let* ([cnode (zahlen-node z)])
-         (expect-false (linked_list_node-next (zahlen-node z))))]))
-
   (define samples : (Listof Integer) (build-list 16 (λ [[i : Index]] (random 0 101))))
   (define-values (odd-samples even-samples) (partition odd? samples))
+
+  (define zahlen-pop : (-> Zahlen-Env Integer (Listof Integer))
+    (lambda [master N]
+      (let pop ([n : Index (assert N index?)]
+                [data : (Listof Integer) null])
+        (cond [(<= n 0) (reverse data)]
+              [else (let-values ([(datum okay?) (zahlen_env_pop_datum master)])
+                      (pop (sub1 n) (cons datum data)))]))))
   
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   (begin-spec prelude
@@ -93,7 +95,7 @@
                       (expect-= (zahlen_env_size master) 1))
                     (it ["should contain datum ~a" (car samples)] #:do
                       (expect-= (zahlen_env_ref master 0 -1) (car samples)))
-                    (it "should be equal for head and tail" #:do
+                    (it "should have both head and tail pointed to the same target" #:do
                       (expect-true (ptr-equal? (zahlen_env-head master)
                                                (zahlen_env-tail master)))))
                   (context ["when given another list of zahlen: ~a" (cdr samples)] #:do
@@ -113,4 +115,24 @@
                       (expect-= odd_sum odd-sum))
                     (it ["should be ~a when summing even elements" even-sum] #:do
                       (expect-= even_sum even-sum))))
-                (context "destruction" #:do))))
+                (context "destruction" #:do
+                  (let/spec ([rdata (zahlen-pop master (sub1 (length samples)))])
+                    (context ["when done poping datum ~a times" (sub1 (length samples))] #:do
+                      (it "should be left 1 in size" #:do
+                        (expect-= (zahlen_env_size master) 1))
+                      (it "should be poped in reversed order" #:do
+                        (expect-equal rdata (reverse (cdr samples))))
+                      (it "should have both head and tail pointed to the same target" #:do
+                        (expect-true (ptr-equal? (zahlen_env-head master)
+                                                 (zahlen_env-tail master))))))
+                  (context "when continue with the last datum" #:do
+                    #:before (λ [] (let-values ([(who cares) (zahlen_env_pop_datum master)]) (void))) #:do
+                    (it "should be 0 in size" #:do
+                      (expect-zero (zahlen_env_size master)))
+                    (it "should have both head and tail pointed to NULL" #:do
+                      (expect-false (zahlen_env-head master))
+                      (expect-false (zahlen_env-tail master))))
+                  (context "when continue with no datum" #:do
+                    (let-values ([(dirty okay?) (zahlen_env_pop_datum master)])
+                      (it "should be 0 in size" #:do
+                        (expect-false okay?))))))))
