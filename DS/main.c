@@ -70,7 +70,7 @@ static zahlen_env_t* zahlen_env_initialize(int sentry) {
 static void zahlen_env_display(zahlen_env_t* master, int col_size) {
     int col_idx = 0;
 
-    linked_list_foreach(self, master->head) {
+    singly_list_foreach(self, master->head) {
         printf("%lld", zahlen_entry_datum(self));
         col_idx++;
 
@@ -132,6 +132,15 @@ int main(int argc, char* argv[]) {
                     printf("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
                     zahlen_env_display(master, 8);
                     printf("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
+                }
+            }; break;
+            case 3: {
+                if (zahlen_env_check(master, null_message)) {
+                    printf("*****************************************************\n");
+                    zahlen_env_sort(master);
+                    printf("The linked list has been sorted:\n");
+                    zahlen_env_display(master, 8);
+                    printf("*****************************************************\n");
                 }
             }; break;
             case 4: {

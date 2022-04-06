@@ -25,25 +25,32 @@
 #define containerof(addr, type, field) (type*)((char*)(addr) - offsetof(type, field))
     
 /*************************************************************************************************/
-typedef struct linked_list_node {
-    struct linked_list_node *next;
-} linked_list_node_t;
+typedef struct singly_list_node {
+    struct singly_list_node *next;
+} singly_list_node_t;
+
+typedef long long int (*singly_list_entry_datum_f)(singly_list_node_t*);
 
 /*************************************************************************************************/
-static inline void linked_list_initialize(linked_list_node_t *self) {
+static inline void singly_list_initialize(singly_list_node_t *self) {
     self->next = NULL;
 }
 
-static inline void linked_list_add_between(linked_list_node_t* self, linked_list_node_t* prev, linked_list_node_t* next) {
+static inline void singly_list_add_between(singly_list_node_t* self, singly_list_node_t* prev, singly_list_node_t* next) {
     prev->next = self;
     self->next = next;
 }
 
-static inline void linked_list_remove_between(linked_list_node_t* prev, linked_list_node_t* next) {
+static inline void singly_list_remove_between(singly_list_node_t* prev, singly_list_node_t* next) {
     prev->next = next;
 }
 
-#define linked_list_foreach(self, head) for (linked_list_node_t* self = (head); self != NULL; self = self->next)
+#define singly_list_foreach(self, head) for (singly_list_node_t* self = (head); self != NULL; self = self->next)
+
+/*************************************************************************************************/
+long long int singly_list_size(singly_list_node_t* head, singly_list_node_t* nil);
+singly_list_node_t* singly_list_split_half(singly_list_node_t* head, singly_list_node_t* nil);
+singly_list_node_t* singly_list_merge_sort(singly_list_node_t* head, singly_list_node_t* nil, singly_list_entry_datum_f entry_datum);
 
 #endif /* _LINKED_LIST_H */
 

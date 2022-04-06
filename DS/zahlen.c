@@ -15,14 +15,14 @@ static zahlen_t* zahlen_create(long long int datum) {
     self = (zahlen_t*)malloc(size);
     self->datum = datum;
 
-    linked_list_initialize(&self->node);
+    singly_list_initialize(&self->node);
 
     return self;
 }
 
-static inline void zahlen_destroy(zahlen_t* self, linked_list_node_t* prev) {
+static inline void zahlen_destroy(zahlen_t* self, singly_list_node_t* prev) {
     if (prev != NULL) {
-        linked_list_remove_between(prev, self->node.next);
+        singly_list_remove_between(prev, self->node.next);
     }
 
     free(self);
@@ -54,13 +54,13 @@ __lambda__ void zahlen_env_push_datum(zahlen_env_t* master, long long int datum)
         master->head = &self->node;
         master->tail = &self->node;
     } else {
-        linked_list_add_between(&self->node, master->tail, NULL);
+        singly_list_add_between(&self->node, master->tail, NULL);
         master->tail = master->tail->next;
     }
 }
 
 __lambda__ int zahlen_env_pop_datum(zahlen_env_t* master, long long int* datum) {
-    linked_list_node_t* self = master->tail;
+    singly_list_node_t* self = master->tail;
     int okay = 1;
 
     if (self != NULL) {
@@ -72,7 +72,7 @@ __lambda__ int zahlen_env_pop_datum(zahlen_env_t* master, long long int* datum) 
             master->head = NULL;
             master->tail = NULL;
         } else {
-            linked_list_foreach(prev, master->head) {
+            singly_list_foreach(prev, master->head) {
                 if (prev->next == self) {
                     zahlen_destroy(zahlen_entry(self), prev);
                     master->tail = prev;
@@ -88,19 +88,17 @@ __lambda__ int zahlen_env_pop_datum(zahlen_env_t* master, long long int* datum) 
 }
 
 __lambda__ long long int zahlen_env_size(zahlen_env_t* master) {
-    long long int n = 0;
+    return singly_list_size(master->head, NULL);
+}
 
-    linked_list_foreach(self, master->head) {
-        n++;
-    }
-
-    return n;
+__lambda__ long long int zahlen_datum_from_node(singly_list_node_t* self) {
+    return zahlen_entry_datum(self);
 }
 
 __lambda__ long long int zahlen_env_ref(zahlen_env_t* master, int idx, long long int default_value) {
     long long int datum = default_value;
 
-    linked_list_foreach(self, master->head) {
+    singly_list_foreach(self, master->head) {
         if (idx == 0) {
             datum = zahlen_entry_datum(self);
             break;
@@ -116,7 +114,7 @@ __lambda__ void zahlen_env_sum(zahlen_env_t* master, long long int* odd_sum, lon
     long long int o_sum = 0;
     long long int e_sum = 0;
 
-    linked_list_foreach(self, master->head) {
+    singly_list_foreach(self, master->head) {
         long long int datum =  zahlen_entry_datum(self);
 
         if ((datum & 0b01) == 1) {
@@ -134,5 +132,21 @@ __lambda__ void zahlen_env_sum(zahlen_env_t* master, long long int* odd_sum, lon
         (*even_sum) = e_sum;
     }
 
+}
+
+__lambda__ void zahlen_env_sort(zahlen_env_t* master) {
+    if (master->head != master->tail) {
+        singly_list_node_t* head = singly_list_merge_sort(master->head, NULL, &zahlen_datum_from_node);
+
+        master->head = head;
+
+        do {
+            if (head->next == NULL) {
+                master->tail = head;
+            }
+
+            head = head->next;
+        } while (head != NULL);
+    }
 }
 
