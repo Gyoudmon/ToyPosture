@@ -10,7 +10,7 @@
  *   by supposing an instance of the `type` is located at position 0
  *   in which case addresses of members are just the same as their offsets.
  */
-#define offsetof(type, field) ((size_t)&((type*)0)->field)
+#define offset_of(type, field) ((size_t)&((type*)0)->field)
 
 
 /**
@@ -22,7 +22,7 @@
  *   so that explicitly casting the instance pointer to `char *` is required
  *   before substracting the offset
  */
-#define containerof(addr, type, field) (type*)((char*)(addr) - offsetof(type, field))
+#define containerof(addr, type, field) (type*)((char*)(addr) - offset_of(type, field))
     
 /*************************************************************************************************/
 typedef struct singly_list_node {
@@ -48,9 +48,8 @@ static inline void singly_list_remove_between(singly_list_node_t* prev, singly_l
 #define singly_list_foreach(self, head) for (singly_list_node_t* self = (head); self != NULL; self = self->next)
 
 /*************************************************************************************************/
-long long int singly_list_size(singly_list_node_t* head, singly_list_node_t* nil);
-singly_list_node_t* singly_list_split_half(singly_list_node_t* head, singly_list_node_t* nil);
-singly_list_node_t* singly_list_merge_sort(singly_list_node_t* head, singly_list_node_t* nil, singly_list_entry_datum_f entry_datum);
+__lambda__ long long int singly_list_size(singly_list_node_t* head, singly_list_node_t* nil);
+__lambda__ singly_list_node_t* singly_list_split_half(singly_list_node_t* head, singly_list_node_t* nil);
+__lambda__ singly_list_node_t* singly_list_merge_sort(singly_list_node_t* head, singly_list_node_t* nil, singly_list_entry_datum_f entry_datum);
 
 #endif /* _LINKED_LIST_H */
-

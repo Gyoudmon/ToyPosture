@@ -1,7 +1,5 @@
 #include "linked_list.h"
 
-#include <stdio.h>
-
 /*************************************************************************************************/
 #define reach_end(node, nil) ((node == nil) || (node == NULL))
 
@@ -91,4 +89,3 @@ __lambda__ singly_list_node_t* singly_list_merge_sort(singly_list_node_t* head, 
 
     return newhead;
 }
-

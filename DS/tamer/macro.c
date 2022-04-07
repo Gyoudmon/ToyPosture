@@ -18,10 +18,10 @@ __ffi__ size_t test_offsetof(int field_idx, const char* desc) {
     size_t offset;
 
     switch (field_idx) {
-        case 0: offset = offsetof(pseudo_struct_t, id); break;
-        case 1: offset = offsetof(pseudo_struct_t, name); break;
-        case 2: offset = offsetof(pseudo_struct_t, score); break;
-        case 3: offset = offsetof(pseudo_struct_t, unused); break;
+        case 0: offset = offset_of(pseudo_struct_t, id); break;
+        case 1: offset = offset_of(pseudo_struct_t, name); break;
+        case 2: offset = offset_of(pseudo_struct_t, score); break;
+        case 3: offset = offset_of(pseudo_struct_t, unused); break;
     }
 
     return offset;
