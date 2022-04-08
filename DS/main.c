@@ -13,14 +13,14 @@ static long long int read_fixnum_from_line(const char* prompt) {
 
     do {
         if (prompt != NULL) {
-            printf("\033[36m%s\033[0m ", prompt);
+            printf("\033[;38;5;10;49m%s\033[0m ", prompt);
         }
 
         n = read_integer(stdin, &count);
         okay = has_reached_end_of_word(stdin);
 
         if (!okay) {
-            printf("\033[31mignored invalid char, please try again!\033[0m\n");
+            printf("\033[;38;5;9;49mignored invalid char, please try again!\033[0m\n");
             discard_word(stdin);
         }
     } while(!okay && !feof(stdin));
@@ -33,7 +33,7 @@ static inline int read_choice(const char* prompt) {
 }
 
 static inline void pause() {
-    printf("\033[33mPress ENTER to continue...\033[0m\n");
+    printf("\033[;38;5;11;49mPress ENTER to continue...\033[0m\n");
     discard_this_line(stdin);
     getchar();
 }
@@ -43,7 +43,7 @@ static int zahlen_env_check(const zahlen_env_t* env, const char* message) {
     int okay = 1;
 
     if (env == NULL) {
-        printf("\033[31m%s\033[0m\n", message);
+        printf("\033[;38;5;9;49m%s\033[0m\n", message);
         okay = 0;
     }
 
@@ -54,7 +54,7 @@ static zahlen_env_t* zahlen_env_initialize(int sentry) {
     zahlen_env_t* master = zahlen_env_construct();
     long long int n = sentry + 1;
 
-    printf("\033[36mPlease input a sort of integers separated by whitespaces, with the ending sentinel %d:\033[0m\n", sentry);
+    printf("\033[;38;5;14;49mPlease input a sort of integers separated by whitespaces, with the ending sentinel %d:\033[0m\n", sentry);
 
     do {
         n = read_fixnum_from_line(NULL);
@@ -120,7 +120,7 @@ int main(int argc, char* argv[]) {
             case 1: {
                 if (master != NULL) {
                     zahlen_env_destruct(master);
-                    printf("\033[31mThe existed linked list has been destructed!\033[0m\n");
+                    printf("\033[;38;5;11;49mThe existed linked list has been destructed!\033[0m\n");
                 }
 
                 master = zahlen_env_initialize(-1);
@@ -158,4 +158,3 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
-
