@@ -78,7 +78,7 @@ static void zahlen_env_display(zahlen_env_t* master, int col_size) {
             printf("\n");
             col_idx = 0;
         } else {
-            printf(" ");
+            printf("\t");
         }
     }
 
