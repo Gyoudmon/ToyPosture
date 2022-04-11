@@ -36,7 +36,7 @@ CREATE Table scores (
     course_id int NOT NULL,
     timestamp int NOT NULL,
     type char(1),
-    point int NOT NULL,
+    point float NOT NULL,
 
     primary key(student_id, course_id, timestamp),
     foreign key(student_id) references students(id),
