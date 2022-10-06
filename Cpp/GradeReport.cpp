@@ -13,11 +13,11 @@ namespace {
             void construct(int argc, char* argv[]) {
                 game_text_size(NULL, NULL, &this->usrline_height, "%s", "成绩管理系统");
                 this->usrline_height += 2;
+                this->set_snapshot_folder("/Users/wargrey/Desktop");
             }
 
             void reflow(int width, int height) {
                 this->set_input_echo_area(0, height - this->usrline_height, width, this->usrline_height);
-                this->start_input_text("prompt: ");
             }
 
             void draw(SDL_Renderer* renderer, int x, int y, int width, int height) {
