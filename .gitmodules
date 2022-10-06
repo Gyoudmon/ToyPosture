@@ -1,0 +1,3 @@
+[submodule "Cpp/digitama"]
+	path = Cpp/digitama
+	url = https://github.com/Gyoudmon/digitama.cpp.git
