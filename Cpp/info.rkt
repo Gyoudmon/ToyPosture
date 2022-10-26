@@ -7,7 +7,7 @@
 (define pkg-authors '(wargrey))
 (define test-omit-paths 'all)
 
-(define native-launcher-names '(["GradeReport.cpp" console ;desktop
+(define native-launcher-names '(["GradeManagementSystem.cpp" console ;desktop
                                  ((config SDL2)
                                   (include [windows "C:\\opt\\vcpkg\\installed\\x64-windows\\include"])
                                   (libpath [windows "C:\\opt\\vcpkg\\installed\\x64-windows\\lib"]))]))
