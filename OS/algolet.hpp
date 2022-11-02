@@ -1,30 +1,49 @@
 #pragma once
 
-#include <vector>
+#include <SDL2/SDL_ttf.h>
+#include <deque>
 
 #include "digitama/graphlet.hpp"
 
+#include "digitama/datum/box.hpp"
+
 /*************************************************************************************************/
 namespace WarGrey::OS {
-    class IAlgolet : public IGraphlet {
+    enum PageState { DEFAULT, HIT, REPLACED };
+
+    class IAlgolet : public WarGrey::STEM::IGraphlet {
         public:
-            IAlgolet(float grid_size) : gsize(gsize) {}
-            virtual ~IAlgolet();
+            IAlgolet(const char* name, int phges, float gsize, int winsize)
+                : name(name), physical_page(phges), gridsize(gsize), window_size(winsize) {}
+            virtual ~IAlgolet() {}
 
         public:
             void fill_extent(float x, float y, float* width = nullptr, float* height = nullptr) override;
             void draw(SDL_Renderer* renderer, float x, float y, float Width, float Height) override;
 
         public:
-            void set_physical_page_number(int pno);
+            void reset();
+            void step(int vpno);
+
+        protected:
+            virtual void draw_body(SDL_Renderer* renderer, float x, float y, float Width, float Height) = 0;
+            virtual void on_reset() = 0;
+            virtual void on_step(int vpno) = 0;
+
+        protected:
+            int physical_page;
+            int window_size;
+            float gridsize;
+            int hit = 0;
+
+        protected:
+            TTF_Font* label_font = nullptr;
+            float chwidth = 0.0F;
+            float chheight = 0.0F;
 
         private:
-            float gsize;
-            int avail_phy_page;
-
-        private:
-            std::vector<int> v_pages;
-            int cusor;
+            std::deque<int> page_stream;
+            std::string name;
     };
 }
 
