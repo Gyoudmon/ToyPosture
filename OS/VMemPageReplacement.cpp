@@ -2,6 +2,7 @@
 #include "digitama/cosmos.hpp"
 
 #include "algolet/randomlet.hpp"
+#include "algolet/fifolet.hpp"
 
 #include "digitama/datum/string.hpp"
 #include "digitama/graphlet/ui/textlet.hpp"
@@ -17,7 +18,7 @@ using namespace WarGrey::OS;
 namespace {
     static const char* help_str = "<键盘操作: (V) 追加虚拟页流  (S) 手动调度  (A) 自动调度  (R) 重置>";
 
-    enum ReplacementAlgorithm { RANDOM };
+    enum ReplacementAlgorithm { RANDOM, FIFO };
     enum EditOperation { APPEND_VIRTUAL_PAGES, AUTO_REPLACING, MANUAL_STEPPING };
 
     class VMemPlanet : public Planet {
@@ -34,6 +35,7 @@ namespace {
                 this->help = this->insert_one(new Labellet(game_unicode_font, help_str));
                 this->queue = this->insert_one(new Labellet(game_monospace_font, ""));
                 this->algos[RANDOM] = this->insert_one(new Randomlet(this->physical_page, this->gridsize, this->replacement_window));
+                this->algos[FIFO] = this->insert_one(new FIFOlet(this->physical_page, this->gridsize, this->replacement_window));
 
                 /* setup initial page stream */ {
                     size_t maxidx = this->cmd_stream.size();
@@ -45,13 +47,14 @@ namespace {
             }
 
             void reflow(float width, float height) override {
-                float x = width / 2.0F;
-                float y = height / 2.0F;
+                float x = width * 0.5F;
+                float yspan = height * 0.25F;
 
                 this->move_to(this->help, 0.0F, height, GraphletAnchor::LB);
                 this->move_to(this->queue, width, height, GraphletAnchor::RB);
 
-                this->move_to(this->algos[RANDOM], x, y, GraphletAnchor::CB);
+                this->move_to(this->algos[RANDOM], x, yspan * 1.0F, GraphletAnchor::CC);
+                this->move_to(this->algos[FIFO],   x, yspan * 2.0F, GraphletAnchor::CC);
             }
 
             void update(long long count, long long interval, long long uptime) override {
