@@ -3,6 +3,7 @@
 
 #include "algolet/randomlet.hpp"
 #include "algolet/fifolet.hpp"
+#include "algolet/lrulet.hpp"
 
 #include "digitama/datum/string.hpp"
 #include "digitama/graphlet/ui/textlet.hpp"
@@ -18,7 +19,7 @@ using namespace WarGrey::OS;
 namespace {
     static const char* help_str = "<键盘操作: (V) 追加虚拟页流  (S) 手动调度  (A) 自动调度  (R) 重置>";
 
-    enum ReplacementAlgorithm { RANDOM, FIFO };
+    enum ReplacementAlgorithm { RANDOM, FIFO, LRU, STACK };
     enum EditOperation { APPEND_VIRTUAL_PAGES, AUTO_REPLACING, MANUAL_STEPPING };
 
     class VMemPlanet : public Planet {
@@ -26,7 +27,7 @@ namespace {
             VMemPlanet(int avail_phges, float gridsize, int repwin_size, const std::string& vpages) : Planet("Virtual Memory Page Replacement") {
                 this->physical_page = (avail_phges > 0) ? avail_phges : 4;
                 this->gridsize = (gridsize > 0.0) ? gridsize : 32.0F;
-                this->replacement_window = (repwin_size > 0) ? repwin_size : 32;
+                this->replacement_window = (repwin_size > 0) ? repwin_size : 16;
                 this->cmd_stream = vpages;
             }
 
@@ -36,6 +37,8 @@ namespace {
                 this->queue = this->insert_one(new Labellet(game_monospace_font, ""));
                 this->algos[RANDOM] = this->insert_one(new Randomlet(this->physical_page, this->gridsize, this->replacement_window));
                 this->algos[FIFO] = this->insert_one(new FIFOlet(this->physical_page, this->gridsize, this->replacement_window));
+                this->algos[LRU] = this->insert_one(new LRUlet(this->physical_page, this->gridsize, this->replacement_window));
+                this->algos[STACK] = this->insert_one(new LRUStacklet(this->physical_page, this->gridsize, this->replacement_window));
 
                 /* setup initial page stream */ {
                     size_t maxidx = this->cmd_stream.size();
@@ -47,14 +50,16 @@ namespace {
             }
 
             void reflow(float width, float height) override {
-                float x = width * 0.5F;
+                float xspan = width * 0.25F;
                 float yspan = height * 0.25F;
 
                 this->move_to(this->help, 0.0F, height, GraphletAnchor::LB);
                 this->move_to(this->queue, width, height, GraphletAnchor::RB);
 
-                this->move_to(this->algos[RANDOM], x, yspan * 1.0F, GraphletAnchor::CC);
-                this->move_to(this->algos[FIFO],   x, yspan * 2.0F, GraphletAnchor::CC);
+                this->move_to(this->algos[RANDOM], xspan * 1.0F, yspan * 1.0F, GraphletAnchor::CC);
+                this->move_to(this->algos[FIFO],   xspan * 3.0F, yspan * 1.0F, GraphletAnchor::CC);
+                this->move_to(this->algos[LRU],    xspan * 1.0F, yspan * 3.0F, GraphletAnchor::CC);
+                this->move_to(this->algos[STACK],  xspan * 3.0F, yspan * 3.0F, GraphletAnchor::CC);
             }
 
             void update(long long count, long long interval, long long uptime) override {

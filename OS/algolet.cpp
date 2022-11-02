@@ -52,16 +52,16 @@ void WarGrey::OS::IAlgolet::draw(SDL_Renderer* renderer, float x, float y, float
                 }
             }
     
-            /* draw replacement window numbers */ {
-                float win_x0 = x + body_xoff;
-                float win_y = y + line_yoff + lineheight * 1.0F;
+            /* draw timeline */ {
+                float t_x0 = x + body_xoff;
+                float t_y = y + line_yoff + lineheight * 1.0F;
 
                 for (int i = 1; i <= this->window_size; i++) {
                     std::string mark = std::to_string(i);
                     float xoff = (this->gridsize - this->chwidth * float(mark.size())) * 0.5F;
-                    float win_x = win_x0 + this->gridsize * float(i - 1) + xoff;
+                    float t_x = t_x0 + this->gridsize * float(i - 1) + xoff;
 
-                    game_draw_blended_text(this->label_font, renderer, DIMGRAY, win_x, win_y, mark);
+                    game_draw_blended_text(this->label_font, renderer, DIMGRAY, t_x, t_y, mark);
                 }
             }
     
@@ -108,5 +108,18 @@ void WarGrey::OS::IAlgolet::step(int vpno) {
 
     this->on_step(vpno);
     this->notify_updated();
+}
+
+/*************************************************************************************************/
+unsigned int WarGrey::OS::IAlgolet::grid_background(PageState state) {
+    unsigned int gcolor = 0x0U;
+
+    switch (state) {
+        case PageState::HIT: gcolor = GREEN; break;
+        case PageState::REPLACED: gcolor = ORANGE; break;
+        default: { /* Nothing to do */ }; break;
+    }
+
+    return gcolor;
 }
 

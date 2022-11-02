@@ -31,6 +31,9 @@ namespace WarGrey::OS {
             virtual void on_step(int vpno) = 0;
 
         protected:
+            unsigned int grid_background(WarGrey::OS::PageState state);
+
+        protected:
             int physical_page;
             int window_size;
             float gridsize;
