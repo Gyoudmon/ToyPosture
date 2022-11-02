@@ -28,14 +28,16 @@ void WarGrey::OS::IAlgolet::draw(SDL_Renderer* renderer, float x, float y, float
     float body_xoff = this->chwidth * 4.0F - 1.0F;
     float body_yoff = lineheight * 3.0F - 1.0F;
 
-    if (this->hit <= 0) {
+    /* draw title */ {
+        std::string title = this->name;
+
+        if (this->hit > 0) {
+            title += " (HIT: " + std::to_string(this->hit) + ")";
+        }
+
         game_draw_blended_text(this->label_font, renderer, GHOSTWHITE,
-                x + (Width - this->chwidth * this->name.size()) * 0.5F, y + line_yoff,
-                this->name);
-    } else {
-        game_draw_blended_text(this->label_font, renderer, GHOSTWHITE,
-                x + (Width - this->chwidth * this->name.size()) * 0.5F, y + line_yoff,
-                "%s (HIT: %d)", this->name.c_str(), this->hit);
+                x + body_xoff + (Width - body_xoff - this->chwidth * title.size()) * 0.5F, y + line_yoff,
+                title);
     }
 
     if ((this->physical_page > 0) && (this->window_size > 0)) {
