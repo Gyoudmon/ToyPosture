@@ -32,7 +32,8 @@ void WarGrey::OS::IAlgolet::draw(SDL_Renderer* renderer, float x, float y, float
         std::string title = this->name;
 
         if (this->hit > 0) {
-            title += " (HIT: " + std::to_string(this->hit) + ")";
+            title += " (HIT: " + std::to_string(this->hit)
+                + "/" + std::to_string(this->total) + ")";
         }
 
         game_draw_blended_text(this->label_font, renderer, GHOSTWHITE,
@@ -97,6 +98,7 @@ void WarGrey::OS::IAlgolet::draw(SDL_Renderer* renderer, float x, float y, float
 void WarGrey::OS::IAlgolet::reset() {
     this->label_font = nullptr;
     this->hit = 0;
+    this->total = 0;
     this->page_stream.clear();
     this->on_reset();
 }
@@ -108,6 +110,7 @@ void WarGrey::OS::IAlgolet::step(int vpno) {
         this->page_stream.pop_front();
     }
 
+    this->total ++;
     this->on_step(vpno);
     this->notify_updated();
 }

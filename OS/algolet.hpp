@@ -38,6 +38,7 @@ namespace WarGrey::OS {
             int window_size;
             float gridsize;
             int hit = 0;
+            int total = 0;
 
         protected:
             TTF_Font* label_font = nullptr;

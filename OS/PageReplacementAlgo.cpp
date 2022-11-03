@@ -11,20 +11,22 @@
 #include <map>
 #include <deque>
 #include <cstdlib>
+#include <cstring>
 
 using namespace WarGrey::STEM;
 using namespace WarGrey::OS;
 
 /*************************************************************************************************/
 namespace {
-    static const char* help_str = "<键盘操作: (V) 追加虚拟页流  (S) 手动调度  (A) 自动调度  (R) 重置>";
+    static const char* help_str = "<快捷键: (V) 追加虚拟页流  (S) 手动调度  (A) 自动调度  (R) 重置  (Q) 退出>";
 
     enum ReplacementAlgorithm { RANDOM, FIFO, LRU, STACK };
-    enum EditOperation { APPEND_VIRTUAL_PAGES, AUTO_REPLACING, MANUAL_STEPPING };
+    enum EditOperation { APPEND_VIRTUAL_PAGES, AUTO_REPLACING, MANUAL_STEPPING, EXIT };
+    enum CmdlineOpts { PHYSICAL_PAGE, WINDOW_SIZE, GRIDSIZE, _ };
 
-    class VMemPlanet : public Planet {
+    class PageReplacementPlanet : public Planet {
         public:
-            VMemPlanet(int avail_phges, float gridsize, int repwin_size, const std::string& vpages) : Planet("Virtual Memory Page Replacement") {
+            PageReplacementPlanet(int avail_phges, float gridsize, int repwin_size, const std::string& vpages) : Planet("Page Replacement Algorithms") {
                 this->physical_page = (avail_phges > 0) ? avail_phges : 4;
                 this->gridsize = (gridsize > 0.0) ? gridsize : 32.0F;
                 this->replacement_window = (repwin_size > 0) ? repwin_size : 16;
@@ -93,6 +95,9 @@ namespace {
                             this->op = MANUAL_STEPPING;
                             this->reset_algorithms();
                         }; break;
+                        case 'Q': case 'q': {
+                            this->op = EXIT;
+                        }; break;
                     }
                     this->end_update_sequence();
                 }
@@ -112,6 +117,10 @@ namespace {
         public:
             bool can_select(IGraphlet* g) override {
                 return false;
+            }
+
+            bool can_exit() override {
+                return (this->op == EditOperation::EXIT);
             }
 
         private:
@@ -193,46 +202,49 @@ namespace {
             float gridsize;
     };
 
-    class VMemPageReplacement : public Cosmos {
+    class PageReplacementCosmos : public Cosmos {
         public:
-            VMemPageReplacement(int fps) : Cosmos(fps) {}
+            PageReplacementCosmos(int fps) : Cosmos(fps) {}
         
         public:
             void construct(int argc, char* argv[]) {
+                CmdlineOpts opt = CmdlineOpts::_;
                 std::string vpages;
                 int avail_phges = 0;
                 int rep_window = 0;
                 float gridsize = 0.0F;
 
-                if (argc > 2) {
-                    avail_phges = std::atoi(argv[1]);
-
-                    if (argc > 3) {
-                        rep_window = std::atoi(argv[2]);
-
-                        if (argc > 4) {
-                            gridsize = std::atof(argv[3]);
-
-                            for (int i = 4; i < argc; i++) {
+                for (int i = 1; i < argc; i++) {
+                    switch (opt) {
+                        case CmdlineOpts::PHYSICAL_PAGE: avail_phges = std::atoi(argv[i]); opt = _; break;
+                        case CmdlineOpts::GRIDSIZE: gridsize = std::atof(argv[i]); opt = _; break;
+                        case CmdlineOpts::WINDOW_SIZE: rep_window = std::atoi(argv[i]); opt = _; break;
+                        default: {
+                            if (strncmp("-p", argv[i], 2) == 0) {
+                                opt = CmdlineOpts::PHYSICAL_PAGE;
+                            } else if (strncmp("-g", argv[i], 2) == 0) {
+                                opt = CmdlineOpts::GRIDSIZE;
+                            } else if (strncmp("-w", argv[i], 2) == 0) {
+                                opt = CmdlineOpts::WINDOW_SIZE;
+                            } else {
                                 vpages.append(" ");
                                 vpages.append(argv[i]);
                             }
-                        }
+                        }; break;
                     }
                 }
 
-                this->set_snapshot_folder("/Users/wargrey/Desktop");
-                this->push_planet(new VMemPlanet(avail_phges, gridsize, rep_window, vpages));
+                this->push_planet(new PageReplacementPlanet(avail_phges, gridsize, rep_window, vpages));
             }
     };
 }
 
 /*************************************************************************************************/
 int main(int argc, char* args[]) {
-    VMemPageReplacement universe(2);
+    PageReplacementCosmos cosmos(2);
 
-    universe.construct(argc, args);
-    universe.big_bang();
+    cosmos.construct(argc, args);
+    cosmos.big_bang();
 
     return 0;
 }
