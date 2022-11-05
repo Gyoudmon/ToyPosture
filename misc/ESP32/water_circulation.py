@@ -6,8 +6,6 @@ from machine import Timer as SysTimer
 
 from random import randint
 
-import time
-
 ###############################################
 class Timer(object):
   _id = 0
@@ -94,53 +92,120 @@ oled_height = 64
 ###############################################
 def display_background():
   oled.Bitmap(0, 0, background, oled_width, oled_height, 0)
-  
-def oled_refresh():
-  display_background()
-  oled.show()
 
 ###############################################
 class WaterCirculation(Timer):
   def __init__(self, interval):
     super(WaterCirculation, self).__init__(interval)
+    
+    self.vapors = []
+    self.falls = []
+    self.reset()
   
   def __getattr__(self, name):
     def method(*args): pass
     return method
+    
+  def reset(self):
+    self.vapors.clear()
+    self.falls.clear()
+    self.status = 0
+    self.cloud_size = 0
+    oled.contrast(255)
   
   def on_tick(self, _):
-    pass
+    display_background()
+    
+    if self.status == 1:
+      self.evaporate()
+    elif self.status == 2:
+      self.rain()
+    else:
+      self.snow()
+    
+    oled.show()
   
   def on_button_pressed(self, who):
     if who == 'A':
-      self.rain()
+      if self.status == 0 or (self.status == 1 and self.cloud_size == len(self.vapors)):
+        self.status = 2
+        self.cloud_size = len(self.vapors)
     elif who == 'B':
-      self.snow()
+      if self.status == 0 or (self.status == 1 and self.cloud_size == len(self.vapors)):
+        self.status = 3
+        self.cloud_size = len(self.vapors)
     
   def on_touchpad_key(self, keyname, frequency, key_idx):
-    self.evaporate(keyname, frequency, key_idx)
+    if self.status == 0 or self.status == 1:
+      self.status = 1
+      if len(self.vapors) < 256:
+        span = oled_width // 6
+        self.vapors.append((randint(0, span) + span * key_idx, oled_height))
   
-  def evaporate(self, keyname, frequency, key_idx):
-    oled.DispChar("evaporate", 0, 0)
-    oled.show()
-    pass
+  def evaporate(self):
+    for i in range(0, len(self.vapors)):
+      x = self.vapors[i][0]
+      y = self.vapors[i][1]
+      
+      if y > 0:
+        x += randint(0, 2) - 1
+        y -= 1
+        self.vapors[i] = (x, y)
+        oled.pixel(x, y, 1)
+        
+        if y == 0:
+          self.cloud_size += 1
+          oled.contrast(255 - self.cloud_size)
+      else:
+        oled.pixel(x, y, 0)
+      
+    if self.cloud_size == 255:
+      self.status = randint(2, 3)
   
   def rain(self):
-    oled.DispChar("rain", 0, 0)
-    oled.show()
-    pass
+    if len(self.falls) < self.cloud_size:
+      self.falls.append((randint(0, oled_width), 0))
+    
+    left = 0
+    for i in range(0, len(self.falls)):
+      x = self.falls[i][0]
+      y = self.falls[i][1]
+      
+      if y < oled_height:
+        left += 1
+        oled.vline(x, y, 3, 0)
+        y += 4
+        self.falls[i] = (x, y)
+      
+    if left == 0:
+      self.reset()
   
   def snow(self):
-    oled.DispChar("snow", 0, 0)
-    oled.show()
-    pass
+    if len(self.falls) < self.cloud_size:
+      self.falls.append((randint(0, oled_width), 0))
+    
+    left = 0
+    for i in range(0, len(self.falls)):
+      x = self.falls[i][0]
+      y = self.falls[i][1]
+      
+      if y < oled_height:
+        left += 1
+        oled.fill_circle(x, y, 1, 0)
+        x += randint(0, 2) - 2
+        y += 2
+        self.falls[i] = (x, y)
+      
+    if left == 0:
+      self.reset()
 
 ###############################################
 if __name__ == "__main__":
-  oled_refresh()
+  display_background()
+  oled.show()
+  
   universe = WaterCirculation(100)
   touchpad_watcher = TouchpadWatcher(400, universe)
   button_watcher = ButtonWatcher(universe)
   physics_watcher = PhysicsWatcher(universe)
-
-
+  
