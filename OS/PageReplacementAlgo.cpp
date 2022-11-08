@@ -217,7 +217,7 @@ namespace {
                 for (int i = 1; i < argc; i++) {
                     switch (opt) {
                         case CmdlineOpts::PHYSICAL_PAGE: avail_phges = std::atoi(argv[i]); opt = _; break;
-                        case CmdlineOpts::GRIDSIZE: gridsize = std::atof(argv[i]); opt = _; break;
+                        case CmdlineOpts::GRIDSIZE: gridsize = float(std::atof(argv[i])); opt = _; break;
                         case CmdlineOpts::WINDOW_SIZE: rep_window = std::atoi(argv[i]); opt = _; break;
                         default: {
                             if (strncmp("-p", argv[i], 2) == 0) {
