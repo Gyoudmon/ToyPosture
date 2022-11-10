@@ -22,12 +22,24 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define uc-exmaple
-  (lambda content
-    (tabular #:sep (hspace 4)
-             #:column-properties '(left vcenter)
-             (for/list ([row (in-list content)])
-               (list* (tt (car row))
-                      (for/list ([c (in-list (cdr row))])
-                        (cond [(block? c) c]
-                              [else (make-compound-paragraph placeholder-style
-                                                             (list (para c)))])))))))
+  (let ([sep (hspace 4)])
+    (lambda content
+      (tabular #:sep #false
+               #:column-properties '(left vcenter)
+               (for/list ([row (in-list content)])
+                 (list* (list (tt (car row)) sep)
+                        (for/list ([c (in-list (cdr row))])
+                          (cond [(block? c) c]
+                                [else (make-compound-paragraph placeholder-style
+                                                               (list (para c)))]))))))))
+
+(define ac-table
+  (let ([sep (hspace 1)])
+    (lambda content
+      (tabular #:sep #false
+               #:column-properties '(center)
+               #:row-properties '(bottom-border ())
+               (cons (list (bold "潜在的分析类") (bold "类型") (bold "满足的特征") (bold "分析类名"))
+                     (for/list ([row (in-list content)])
+                       (for/list ([c (in-list row)])
+                         (list sep c sep))))))))
