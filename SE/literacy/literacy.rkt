@@ -25,6 +25,7 @@
   (let ([sep (hspace 4)])
     (lambda content
       (tabular #:sep #false
+               #:style 'block
                #:column-properties '(left vcenter)
                (for/list ([row (in-list content)])
                  (list* (list (tt (car row)) sep)
@@ -37,6 +38,7 @@
   (let ([sep (hspace 1)])
     (lambda content
       (tabular #:sep #false
+               #:style 'block
                #:column-properties '(center)
                #:row-properties '(bottom-border ())
                (cons (list (bold "潜在的分析类") (bold "类型") (bold "满足的特征") (bold "分析类名"))
