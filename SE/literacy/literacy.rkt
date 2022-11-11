@@ -45,3 +45,7 @@
                      (for/list ([row (in-list content)])
                        (for/list ([c (in-list row)])
                          (list sep c sep))))))))
+
+(define pk
+  (lambda [attr]
+    (elem #:style "underline" attr)))
