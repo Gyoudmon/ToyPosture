@@ -36,7 +36,7 @@ namespace {
                 this->rbox = this->insert_one(new GMSlet(0xFF0000U));
                 this->gbox = this->insert_one(new GMSlet(0x00FF00U));
                 this->bbox = this->insert_one(new GMSlet(0x0000FFU));
-                this->label = this->insert_one(new Labellet(game_unicode_font, "中文测试"));
+                this->label = this->insert_one(new Labellet(game_font::unicode, "中文测试"));
             }
 
             void reflow(float width, float height) override {

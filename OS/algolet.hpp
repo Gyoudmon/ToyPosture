@@ -14,7 +14,7 @@ namespace WarGrey::OS {
     class IAlgolet : public WarGrey::STEM::IGraphlet {
         public:
             IAlgolet(const char* name, int phges, float gsize, int winsize)
-                : name(name), physical_page(phges), gridsize(gsize), window_size(winsize) {}
+                : physical_page(phges), window_size(winsize), gridsize(gsize), name(name) {}
             virtual ~IAlgolet() {}
 
         public:
