@@ -1,5 +1,5 @@
 #include "digitama/game.hpp"
-#include "digitama/cosmos.hpp"
+#include "digitama/world.hpp"
 
 #include "algolet/randomlet.hpp"
 #include "algolet/fifolet.hpp"
@@ -24,23 +24,53 @@ namespace {
     enum EditOperation { APPEND_VIRTUAL_PAGES, AUTO_REPLACING, MANUAL_STEPPING, EXIT };
     enum CmdlineOpts { PHYSICAL_PAGE, WINDOW_SIZE, GRIDSIZE, _ };
 
-    class PageReplacementPlanet : public Planet {
+    class PageReplacementCosmos : public World {
         public:
-            PageReplacementPlanet(int avail_phges, float gridsize, int repwin_size, const std::string& vpages) : Planet("Page Replacement Algorithms") {
-                this->physical_page = (avail_phges > 0) ? avail_phges : 4;
-                this->gridsize = (gridsize > 0.0) ? gridsize : 32.0F;
-                this->replacement_window = (repwin_size > 0) ? repwin_size : 16;
-                this->cmd_stream = vpages;
+            PageReplacementCosmos(int fps) : World("Page Replacement Algorithms", fps, 0xFFFFFFU, 0x000000U) {
+                this->set_cmdwin_height(24);
             }
 
         public:
+            void construct(int argc, char* argv[]) override {
+                CmdlineOpts opt = CmdlineOpts::_;
+                std::string vpages;
+                int avail_phges = 0;
+                int rep_window = 0;
+                float gridsize = 0.0F;
+
+                for (int i = 1; i < argc; i++) {
+                    switch (opt) {
+                        case CmdlineOpts::PHYSICAL_PAGE: avail_phges = std::atoi(argv[i]); opt = _; break;
+                        case CmdlineOpts::GRIDSIZE: gridsize = float(std::atof(argv[i])); opt = _; break;
+                        case CmdlineOpts::WINDOW_SIZE: rep_window = std::atoi(argv[i]); opt = _; break;
+                        default: {
+                            if (strncmp("-p", argv[i], 2) == 0) {
+                                opt = CmdlineOpts::PHYSICAL_PAGE;
+                            } else if (strncmp("-g", argv[i], 2) == 0) {
+                                opt = CmdlineOpts::GRIDSIZE;
+                            } else if (strncmp("-w", argv[i], 2) == 0) {
+                                opt = CmdlineOpts::WINDOW_SIZE;
+                            } else {
+                                vpages.append(" ");
+                                vpages.append(argv[i]);
+                            }
+                        }; break;
+                    }
+                }
+    
+                this->physical_page = (avail_phges > 0) ? avail_phges : 4;
+                this->gridsize = (gridsize > 0.0) ? gridsize : 32.0F;
+                this->replacement_window = (rep_window > 0) ? rep_window : 16;
+                this->cmd_stream = vpages;
+            }
+
             void load(float width, float height) override {
-                this->help = this->insert_one(new Labellet(game_font::unicode, help_str));
-                this->queue = this->insert_one(new Labellet(game_font::monospace, ""));
-                this->algos[RANDOM] = this->insert_one(new Randomlet(this->physical_page, this->gridsize, this->replacement_window));
-                this->algos[FIFO] = this->insert_one(new FIFOlet(this->physical_page, this->gridsize, this->replacement_window));
-                this->algos[LRU] = this->insert_one(new LRUlet(this->physical_page, this->gridsize, this->replacement_window));
-                this->algos[STACK] = this->insert_one(new LRUStacklet(this->physical_page, this->gridsize, this->replacement_window));
+                this->help = self->insert_one(new Labellet(game_font::unicode, help_str));
+                this->queue = self->insert_one(new Labellet(game_font::monospace, ""));
+                this->algos[RANDOM] = self->insert_one(new Randomlet(this->physical_page, this->gridsize, this->replacement_window));
+                this->algos[FIFO] = self->insert_one(new FIFOlet(this->physical_page, this->gridsize, this->replacement_window));
+                this->algos[LRU] = self->insert_one(new LRUlet(this->physical_page, this->gridsize, this->replacement_window));
+                this->algos[STACK] = self->insert_one(new LRUStacklet(this->physical_page, this->gridsize, this->replacement_window));
 
                 /* setup initial page stream */ {
                     size_t maxidx = this->cmd_stream.size();
@@ -55,16 +85,16 @@ namespace {
                 float xspan = width * 0.25F;
                 float yspan = height * 0.25F;
 
-                this->move_to(this->help, 0.0F, height, GraphletAnchor::LB);
-                this->move_to(this->queue, width, height, GraphletAnchor::RB);
+                self->move_to(this->help, 0.0F, height, GraphletAnchor::LB);
+                self->move_to(this->queue, width, height, GraphletAnchor::RB);
 
-                this->move_to(this->algos[RANDOM], xspan * 1.0F, yspan * 1.0F, GraphletAnchor::CC);
-                this->move_to(this->algos[FIFO],   xspan * 3.0F, yspan * 1.0F, GraphletAnchor::CC);
-                this->move_to(this->algos[LRU],    xspan * 1.0F, yspan * 3.0F, GraphletAnchor::CC);
-                this->move_to(this->algos[STACK],  xspan * 3.0F, yspan * 3.0F, GraphletAnchor::CC);
+                self->move_to(this->algos[RANDOM], xspan * 1.0F, yspan * 1.0F, GraphletAnchor::CC);
+                self->move_to(this->algos[FIFO],   xspan * 3.0F, yspan * 1.0F, GraphletAnchor::CC);
+                self->move_to(this->algos[LRU],    xspan * 1.0F, yspan * 3.0F, GraphletAnchor::CC);
+                self->move_to(this->algos[STACK],  xspan * 3.0F, yspan * 3.0F, GraphletAnchor::CC);
             }
 
-            void update(long long count, long long interval, long long uptime) override {
+            void update(uint32_t count, uint32_t interval, uint32_t uptime) override {
                 if (this->op == AUTO_REPLACING) {
                     if (!this->virtual_page_step()) {
                         this->op = MANUAL_STEPPING;
@@ -115,10 +145,6 @@ namespace {
             }
 
         public:
-            bool can_select(IGraphlet* g) override {
-                return false;
-            }
-
             bool can_exit() override {
                 return (this->op == EditOperation::EXIT);
             }
@@ -200,42 +226,6 @@ namespace {
             int physical_page;
             int replacement_window;
             float gridsize;
-    };
-
-    class PageReplacementCosmos : public Cosmos {
-        public:
-            PageReplacementCosmos(int fps) : Cosmos(fps) {}
-        
-        public:
-            void construct(int argc, char* argv[]) {
-                CmdlineOpts opt = CmdlineOpts::_;
-                std::string vpages;
-                int avail_phges = 0;
-                int rep_window = 0;
-                float gridsize = 0.0F;
-
-                for (int i = 1; i < argc; i++) {
-                    switch (opt) {
-                        case CmdlineOpts::PHYSICAL_PAGE: avail_phges = std::atoi(argv[i]); opt = _; break;
-                        case CmdlineOpts::GRIDSIZE: gridsize = float(std::atof(argv[i])); opt = _; break;
-                        case CmdlineOpts::WINDOW_SIZE: rep_window = std::atoi(argv[i]); opt = _; break;
-                        default: {
-                            if (strncmp("-p", argv[i], 2) == 0) {
-                                opt = CmdlineOpts::PHYSICAL_PAGE;
-                            } else if (strncmp("-g", argv[i], 2) == 0) {
-                                opt = CmdlineOpts::GRIDSIZE;
-                            } else if (strncmp("-w", argv[i], 2) == 0) {
-                                opt = CmdlineOpts::WINDOW_SIZE;
-                            } else {
-                                vpages.append(" ");
-                                vpages.append(argv[i]);
-                            }
-                        }; break;
-                    }
-                }
-
-                this->push_planet(new PageReplacementPlanet(avail_phges, gridsize, rep_window, vpages));
-            }
     };
 }
 
