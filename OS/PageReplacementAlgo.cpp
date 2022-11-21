@@ -85,13 +85,13 @@ namespace {
                 float xspan = width * 0.25F;
                 float yspan = height * 0.25F;
 
-                self->move_to(this->help, 0.0F, height, GraphletAnchor::LB);
-                self->move_to(this->queue, width, height, GraphletAnchor::RB);
+                self->move_to(this->help, 0.0F, height, MatterAnchor::LB);
+                self->move_to(this->queue, width, height, MatterAnchor::RB);
 
-                self->move_to(this->algos[RANDOM], xspan * 1.0F, yspan * 1.0F, GraphletAnchor::CC);
-                self->move_to(this->algos[FIFO],   xspan * 3.0F, yspan * 1.0F, GraphletAnchor::CC);
-                self->move_to(this->algos[LRU],    xspan * 1.0F, yspan * 3.0F, GraphletAnchor::CC);
-                self->move_to(this->algos[STACK],  xspan * 3.0F, yspan * 3.0F, GraphletAnchor::CC);
+                self->move_to(this->algos[RANDOM], xspan * 1.0F, yspan * 1.0F, MatterAnchor::CC);
+                self->move_to(this->algos[FIFO],   xspan * 3.0F, yspan * 1.0F, MatterAnchor::CC);
+                self->move_to(this->algos[LRU],    xspan * 1.0F, yspan * 3.0F, MatterAnchor::CC);
+                self->move_to(this->algos[STACK],  xspan * 3.0F, yspan * 3.0F, MatterAnchor::CC);
             }
 
             void update(uint32_t count, uint32_t interval, uint32_t uptime) override {
@@ -209,7 +209,7 @@ namespace {
                     q.append(std::to_string((*it)));
                 }
 
-                this->queue->set_text(q, GraphletAnchor::RB);
+                this->queue->set_text(q, MatterAnchor::RB);
             }
 
         private:

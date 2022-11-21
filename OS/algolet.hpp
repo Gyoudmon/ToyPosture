@@ -3,7 +3,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <deque>
 
-#include "digitama/graphlet.hpp"
+#include "digitama/graphlet/graphlet.hpp"
 
 #include "digitama/datum/box.hpp"
 

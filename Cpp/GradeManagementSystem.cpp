@@ -1,7 +1,6 @@
 #include "digitama/game.hpp"
 #include "digitama/world.hpp"
 
-#include "digitama/graphlet.hpp"
 #include "digitama/datum/box.hpp"
 
 #include "digitama/graphlet/shapelet.hpp"
