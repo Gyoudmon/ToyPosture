@@ -1,9 +1,9 @@
 #include "digitama/game.hpp"
 #include "digitama/world.hpp"
 
-#include "village/OS/algolet/randomlet.hpp"
-#include "village/OS/algolet/fifolet.hpp"
-#include "village/OS/algolet/lrulet.hpp"
+#include "algolet/randomlet.hpp"
+#include "algolet/fifolet.hpp"
+#include "algolet/lrulet.hpp"
 
 #include "digitama/datum/string.hpp"
 #include "digitama/graphlet/ui/textlet.hpp"
