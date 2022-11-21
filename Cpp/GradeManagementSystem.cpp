@@ -31,9 +31,9 @@ namespace {
                 float x = width / 2.0F;
                 float y = height / 2.0F;
 
-                self->move_to(this->rbox, x, y, GraphletAnchor::CB);
-                self->move_to(this->gbox, x, y, GraphletAnchor::RT);
-                self->move_to(this->bbox, x, y, GraphletAnchor::LT);
+                self->move_to(this->rbox, x, y, MatterAnchor::CB);
+                self->move_to(this->gbox, x, y, MatterAnchor::RT);
+                self->move_to(this->bbox, x, y, MatterAnchor::LT);
             }
 
         private:
