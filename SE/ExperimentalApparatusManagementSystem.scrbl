@@ -3,9 +3,7 @@
 @(require (except-in "literacy/literacy.rkt" author))
 
 @;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-@handbook-title/pkg-desc[#:hide-author? #true]
-
-@authorinfo[@unsafe-author-info["WHOAMI"] @unsafe-author-info["DEPARTMENT"] ""]
+@handbook-title/pkg-desc[#:author @authorinfo[@unsafe-author-info["WHOAMI"] @unsafe-author-info["DEPARTMENT"] ""]]
  
 @abstract{近年来，随着STEAM教育在世界范围内的推广，各类STEAM校外教育机构也逐渐在各地兴起。
           这是好事，但是该行业的从业人员大多不具备专业的计算机工程技术，因此日常工作流程比较粗放；
