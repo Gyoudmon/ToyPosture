@@ -1,10 +1,10 @@
 #include "algolet.hpp"
 
-#include "digitama/colorspace.hpp"
-#include "digitama/geometry.hpp"
-#include "digitama/named_colors.hpp"
-#include "digitama/font.hpp"
-#include "digitama/text.hpp"
+#include "digitama/graphics/colorspace.hpp"
+#include "digitama/graphics/geometry.hpp"
+#include "digitama/graphics/named_colors.hpp"
+#include "digitama/graphics/font.hpp"
+#include "digitama/graphics/text.hpp"
 
 using namespace WarGrey::STEM;
 using namespace WarGrey::OS;

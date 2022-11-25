@@ -1,5 +1,4 @@
 #include "digitama/game.hpp"
-#include "digitama/world.hpp"
 
 #include "digitama/datum/box.hpp"
 
@@ -22,18 +21,18 @@ namespace {
             }
 
             void load(float width, float height) override {
-                this->rbox = self->insert_one(new RegularPolygonlet(6, 32.0F, 0xFF0000U));
-                this->gbox = self->insert_one(new RegularPolygonlet(6, 32.0F, 0x00FF00U));
-                this->bbox = self->insert_one(new RegularPolygonlet(6, 32.0F, 0x0000FFU));
+                this->rbox = this->insert(new RegularPolygonlet(6, 32.0F, 0xFF0000U));
+                this->gbox = this->insert(new RegularPolygonlet(6, 32.0F, 0x00FF00U));
+                this->bbox = this->insert(new RegularPolygonlet(6, 32.0F, 0x0000FFU));
             }
 
             void reflow(float width, float height) override {
                 float x = width / 2.0F;
                 float y = height / 2.0F;
 
-                self->move_to(this->rbox, x, y, MatterAnchor::CB);
-                self->move_to(this->gbox, x, y, MatterAnchor::RT);
-                self->move_to(this->bbox, x, y, MatterAnchor::LT);
+                this->move_to(this->rbox, x, y, MatterAnchor::CB);
+                this->move_to(this->gbox, x, y, MatterAnchor::RT);
+                this->move_to(this->bbox, x, y, MatterAnchor::LT);
             }
 
         private:

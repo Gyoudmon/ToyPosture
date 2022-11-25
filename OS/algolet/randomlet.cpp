@@ -1,10 +1,10 @@
 #include "randomlet.hpp"
 
-#include "../digitama/text.hpp"
-#include "../digitama/geometry.hpp"
-#include "../digitama/named_colors.hpp"
+#include "../digitama/graphics/text.hpp"
+#include "../digitama/graphics/geometry.hpp"
+#include "../digitama/graphics/named_colors.hpp"
 
-#include "../digitama/random.hpp"
+#include "../digitama/physics/random.hpp"
 
 using namespace WarGrey::STEM;
 using namespace WarGrey::OS;

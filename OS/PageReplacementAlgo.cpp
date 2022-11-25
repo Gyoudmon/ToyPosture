@@ -1,5 +1,4 @@
 #include "digitama/game.hpp"
-#include "digitama/world.hpp"
 
 #include "algolet/randomlet.hpp"
 #include "algolet/fifolet.hpp"
@@ -65,12 +64,12 @@ namespace {
             }
 
             void load(float width, float height) override {
-                this->help = self->insert_one(new Labellet(game_font::unicode, help_str));
-                this->queue = self->insert_one(new Labellet(game_font::monospace, ""));
-                this->algos[RANDOM] = self->insert_one(new Randomlet(this->physical_page, this->gridsize, this->replacement_window));
-                this->algos[FIFO] = self->insert_one(new FIFOlet(this->physical_page, this->gridsize, this->replacement_window));
-                this->algos[LRU] = self->insert_one(new LRUlet(this->physical_page, this->gridsize, this->replacement_window));
-                this->algos[STACK] = self->insert_one(new LRUStacklet(this->physical_page, this->gridsize, this->replacement_window));
+                this->help = this->insert(new Labellet(game_font::unicode, help_str));
+                this->queue = this->insert(new Labellet(game_font::monospace, ""));
+                this->algos[RANDOM] = this->insert(new Randomlet(this->physical_page, this->gridsize, this->replacement_window));
+                this->algos[FIFO] = this->insert(new FIFOlet(this->physical_page, this->gridsize, this->replacement_window));
+                this->algos[LRU] = this->insert(new LRUlet(this->physical_page, this->gridsize, this->replacement_window));
+                this->algos[STACK] = this->insert(new LRUStacklet(this->physical_page, this->gridsize, this->replacement_window));
 
                 /* setup initial page stream */ {
                     size_t maxidx = this->cmd_stream.size();
@@ -85,13 +84,13 @@ namespace {
                 float xspan = width * 0.25F;
                 float yspan = height * 0.25F;
 
-                self->move_to(this->help, 0.0F, height, MatterAnchor::LB);
-                self->move_to(this->queue, width, height, MatterAnchor::RB);
+                this->move_to(this->help, 0.0F, height, MatterAnchor::LB);
+                this->move_to(this->queue, width, height, MatterAnchor::RB);
 
-                self->move_to(this->algos[RANDOM], xspan * 1.0F, yspan * 1.0F, MatterAnchor::CC);
-                self->move_to(this->algos[FIFO],   xspan * 3.0F, yspan * 1.0F, MatterAnchor::CC);
-                self->move_to(this->algos[LRU],    xspan * 1.0F, yspan * 3.0F, MatterAnchor::CC);
-                self->move_to(this->algos[STACK],  xspan * 3.0F, yspan * 3.0F, MatterAnchor::CC);
+                this->move_to(this->algos[RANDOM], xspan * 1.0F, yspan * 1.0F, MatterAnchor::CC);
+                this->move_to(this->algos[FIFO],   xspan * 3.0F, yspan * 1.0F, MatterAnchor::CC);
+                this->move_to(this->algos[LRU],    xspan * 1.0F, yspan * 3.0F, MatterAnchor::CC);
+                this->move_to(this->algos[STACK],  xspan * 3.0F, yspan * 3.0F, MatterAnchor::CC);
             }
 
             void update(uint32_t count, uint32_t interval, uint32_t uptime) override {
