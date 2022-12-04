@@ -2,8 +2,7 @@
 
 #include "digitama/datum/box.hpp"
 
-#include "digitama/graphlet/shapelet.hpp"
-#include "digitama/graphlet/ui/textlet.hpp"
+#include "digitama/matter/graphlet/shapelet.hpp"
 
 using namespace WarGrey::STEM;
 
@@ -51,4 +50,3 @@ int main(int argc, char* args[]) {
 
     return 0;
 }
-

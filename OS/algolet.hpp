@@ -3,7 +3,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <deque>
 
-#include "digitama/graphlet/graphlet.hpp"
+#include "digitama/matter/graphlet.hpp"
 
 #include "digitama/datum/box.hpp"
 
@@ -18,7 +18,7 @@ namespace WarGrey::OS {
             virtual ~IAlgolet() {}
 
         public:
-            void fill_extent(float x, float y, float* width = nullptr, float* height = nullptr) override;
+            void feed_extent(float x, float y, float* width = nullptr, float* height = nullptr) override;
             void draw(SDL_Renderer* renderer, float x, float y, float Width, float Height) override;
 
         public:
@@ -50,4 +50,3 @@ namespace WarGrey::OS {
             std::string name;
     };
 }
-

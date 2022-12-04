@@ -5,7 +5,6 @@
 #include "algolet/lrulet.hpp"
 
 #include "digitama/datum/string.hpp"
-#include "digitama/graphlet/ui/textlet.hpp"
 
 #include <map>
 #include <deque>
@@ -237,4 +236,3 @@ int main(int argc, char* args[]) {
 
     return 0;
 }
-

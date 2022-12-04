@@ -12,7 +12,7 @@ using namespace WarGrey::OS;
 const float label_lineheight_ratio = 1.2F;
 
 /*************************************************************************************************/
-void WarGrey::OS::IAlgolet::fill_extent(float x, float y, float* width, float* height) {
+void WarGrey::OS::IAlgolet::feed_extent(float x, float y, float* width, float* height) {
     if (this->label_font == nullptr) {
         this->label_font = game_font::monospace;
         game_text_size(this->label_font, &this->chwidth, &this->chheight, "8");
@@ -127,4 +127,3 @@ unsigned int WarGrey::OS::IAlgolet::grid_background(PageState state) {
 
     return gcolor;
 }
-
