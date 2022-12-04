@@ -1,6 +1,6 @@
 [submodule "OS/digitama"]
 	path = OS/digitama
-	url = https://github.com/Gyoudmon/digitama.cpp.git
+	url = https://github.com/Gyoudmon/big-bang.cpp.git
 [submodule "Cpp/digitama"]
 	path = Cpp/digitama
-	url = https://github.com/Gyoudmon/digitama.cpp
+	url = https://github.com/Gyoudmon/big-bang.cpp.git
