@@ -1,10 +1,6 @@
 #include "algolet.hpp"
 
-#include "digitama/graphics/colorspace.hpp"
-#include "digitama/graphics/geometry.hpp"
-#include "digitama/graphics/named_colors.hpp"
-#include "digitama/graphics/font.hpp"
-#include "digitama/graphics/text.hpp"
+#include "big_bang/game.hpp"
 
 using namespace WarGrey::STEM;
 using namespace WarGrey::OS;
@@ -19,7 +15,7 @@ void WarGrey::OS::IAlgolet::feed_extent(float x, float y, float* width, float* h
     }
 
     SET_BOX(width,  this->gridsize * float(this->window_size) + this->chwidth * 4.0F);
-    SET_BOX(height, this->gridsize * float(this->physical_page) + this->chheight * label_lineheight_ratio * 3.0F);
+    SET_BOX(height, this->gridsize * float(this->physical_page) + this->chheight * label_lineheight_ratio * 3.0F + 1.0F);
 }
 
 void WarGrey::OS::IAlgolet::draw(SDL_Renderer* renderer, float x, float y, float Width, float Height) {

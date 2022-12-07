@@ -1,10 +1,7 @@
 #include "randomlet.hpp"
 
-#include "../digitama/graphics/text.hpp"
-#include "../digitama/graphics/geometry.hpp"
-#include "../digitama/graphics/named_colors.hpp"
-
-#include "../digitama/physics/random.hpp"
+#include "../big_bang/game.hpp"
+#include "../big_bang/physics/random.hpp"
 
 using namespace WarGrey::STEM;
 using namespace WarGrey::OS;
@@ -82,4 +79,3 @@ void WarGrey::OS::Randomlet::on_step(int vpno) {
 void WarGrey::OS::Randomlet::on_reset() {
     this->history.clear();
 }
-

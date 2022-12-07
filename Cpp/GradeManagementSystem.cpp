@@ -1,8 +1,8 @@
-#include "digitama/game.hpp"
+#include "digitama/big_bang/game.hpp"
 
-#include "digitama/datum/box.hpp"
+#include "digitama/big_bang/datum/box.hpp"
 
-#include "digitama/matter/graphlet/shapelet.hpp"
+#include "digitama/big_bang/matter/graphlet/shapelet.hpp"
 
 using namespace WarGrey::STEM;
 
