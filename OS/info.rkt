@@ -1,7 +1,7 @@
 #lang info
 
 (define collection 'use-pkg-name)
-(define pkg-desc "Virtual Memory Page Replacement Simulation")
+(define pkg-desc "Operating System Mechanisms")
 
 (define version "1.0")
 (define pkg-authors '(wargrey))

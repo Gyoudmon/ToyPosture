@@ -1,8 +1,6 @@
 #include "fifolet.hpp"
 
-#include "../digitama/text.hpp"
-#include "../digitama/geometry.hpp"
-#include "../digitama/named_colors.hpp"
+#include "../big_bang/game.hpp"
 
 using namespace WarGrey::STEM;
 using namespace WarGrey::OS;
@@ -88,4 +86,3 @@ void WarGrey::OS::FIFOlet::on_step(int vpno) {
 void WarGrey::OS::FIFOlet::on_reset() {
     this->history.clear();
 }
-

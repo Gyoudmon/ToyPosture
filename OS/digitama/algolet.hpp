@@ -3,9 +3,9 @@
 #include <SDL2/SDL_ttf.h>
 #include <deque>
 
-#include "digitama/graphlet.hpp"
+#include "big_bang/matter/graphlet.hpp"
 
-#include "digitama/datum/box.hpp"
+#include "big_bang/datum/box.hpp"
 
 /*************************************************************************************************/
 namespace WarGrey::OS {
@@ -14,11 +14,11 @@ namespace WarGrey::OS {
     class IAlgolet : public WarGrey::STEM::IGraphlet {
         public:
             IAlgolet(const char* name, int phges, float gsize, int winsize)
-                : name(name), physical_page(phges), gridsize(gsize), window_size(winsize) {}
+                : physical_page(phges), window_size(winsize), gridsize(gsize), name(name) {}
             virtual ~IAlgolet() {}
 
         public:
-            void fill_extent(float x, float y, float* width = nullptr, float* height = nullptr) override;
+            void feed_extent(float x, float y, float* width = nullptr, float* height = nullptr) override;
             void draw(SDL_Renderer* renderer, float x, float y, float Width, float Height) override;
 
         public:
@@ -50,4 +50,3 @@ namespace WarGrey::OS {
             std::string name;
     };
 }
-

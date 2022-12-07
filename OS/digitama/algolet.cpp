@@ -1,10 +1,6 @@
 #include "algolet.hpp"
 
-#include "digitama/colorspace.hpp"
-#include "digitama/geometry.hpp"
-#include "digitama/named_colors.hpp"
-#include "digitama/font.hpp"
-#include "digitama/text.hpp"
+#include "big_bang/game.hpp"
 
 using namespace WarGrey::STEM;
 using namespace WarGrey::OS;
@@ -12,14 +8,14 @@ using namespace WarGrey::OS;
 const float label_lineheight_ratio = 1.2F;
 
 /*************************************************************************************************/
-void WarGrey::OS::IAlgolet::fill_extent(float x, float y, float* width, float* height) {
+void WarGrey::OS::IAlgolet::feed_extent(float x, float y, float* width, float* height) {
     if (this->label_font == nullptr) {
-        this->label_font = game_monospace_font;
+        this->label_font = game_font::monospace;
         game_text_size(this->label_font, &this->chwidth, &this->chheight, "8");
     }
 
     SET_BOX(width,  this->gridsize * float(this->window_size) + this->chwidth * 4.0F);
-    SET_BOX(height, this->gridsize * float(this->physical_page) + this->chheight * label_lineheight_ratio * 3.0F);
+    SET_BOX(height, this->gridsize * float(this->physical_page) + this->chheight * label_lineheight_ratio * 3.0F + 1.0F);
 }
 
 void WarGrey::OS::IAlgolet::draw(SDL_Renderer* renderer, float x, float y, float Width, float Height) {
@@ -127,4 +123,3 @@ unsigned int WarGrey::OS::IAlgolet::grid_background(PageState state) {
 
     return gcolor;
 }
-
