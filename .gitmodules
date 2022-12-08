@@ -4,6 +4,3 @@
 [submodule "Cpp/digitama"]
 	path = Cpp/digitama/big_bang
 	url = https://github.com/Gyoudmon/big-bang.cpp.git
-[submodule "misc/ESP32/digitama/big_bang"]
-	path = misc/ESP32/digitama/big_bang
-	url = https://github.com/Gyoudmon/big-bang.mpy.git
