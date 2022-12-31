@@ -1,9 +1,9 @@
 #include "digitama/big_bang/game.hpp"
 #include "digitama/big_bang/datum/string.hpp"
 
-#include "digitama/algolet/randomlet.hpp"
-#include "digitama/algolet/fifolet.hpp"
-#include "digitama/algolet/lrulet.hpp"
+#include "digitama/OS/algolet/randomlet.hpp"
+#include "digitama/OS/algolet/fifolet.hpp"
+#include "digitama/OS/algolet/lrulet.hpp"
 
 #include <map>
 #include <deque>

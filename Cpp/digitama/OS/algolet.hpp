@@ -3,9 +3,9 @@
 #include <SDL2/SDL_ttf.h>
 #include <deque>
 
-#include "big_bang/matter/graphlet.hpp"
+#include "../big_bang/matter/graphlet.hpp"
 
-#include "big_bang/datum/box.hpp"
+#include "../big_bang/datum/box.hpp"
 
 /*************************************************************************************************/
 namespace WarGrey::OS {

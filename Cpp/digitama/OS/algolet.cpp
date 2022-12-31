@@ -1,6 +1,6 @@
 #include "algolet.hpp"
 
-#include "big_bang/game.hpp"
+#include "../big_bang/game.hpp"
 
 using namespace WarGrey::STEM;
 using namespace WarGrey::OS;

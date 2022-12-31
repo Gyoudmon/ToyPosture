@@ -1,7 +1,7 @@
 #include "randomlet.hpp"
 
-#include "../big_bang/game.hpp"
-#include "../big_bang/physics/random.hpp"
+#include "../../big_bang/game.hpp"
+#include "../../big_bang/physics/random.hpp"
 
 using namespace WarGrey::STEM;
 using namespace WarGrey::OS;
