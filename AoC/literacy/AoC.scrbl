@@ -1,4 +1,4 @@
-#lang scribble/report
+#lang scribble/sigplan @nocopyright
 
 @(require "literacy.rkt")
 @(require "graphviz.rkt")
@@ -6,8 +6,24 @@
 @;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 @handbook-title/pkg-desc[]
 
-@handbook-statistics[#:ignore '(#px"Cpp/digitama") #:filter '(#px"^AoC/")
-                     #:gitstat-width 420 #:gitstat-radius 75
+@abstract{代码降临节（Advent of Code）是起始于2015年的年度编程挑战活动，
+ 也是圣诞日历文化在科技圈的延伸。活动每年12月1日开始，每天用代码解一个谜题，
+ 一直到圣诞节当天结束，共计25天25个谜题。谜题由一个或一系列虚构的故事引出，
+ 每题包含两部分，必须先完成第一部分才能解锁第二部分。
+
+ 此挑战活动不要求参与者有计算机科班背景，对语言、软件和硬件配置也没有要求（你甚至可以只用纸笔演算）。
+ 懂点编程基础知识、有一定的问题求解技巧即可开始。总之，从青少练手、到面试热身、
+ 再到企业培训，各种等级的参与者都能从中找到价值。目前，全世界热衷于此的参与者超过百万，
+ 一般都能在几分钟到一小时内完成挑战。
+
+ 此活动的主旨只有一个：用代码迎接圣诞节的到来。创始人鼓励你借这样的活动来做对你自己有用的事，
+ 也即要对自己有认识、有目标、完全没必要随大流。比如，你可以先选定一个主题，再选25门程序语言，
+ 每天变着花子地用不同语言做一遍，做完之后再有理有据地吐槽外行设计的语言是有多糟糕、难用。
+
+ 本土化思路可以是：从元旦开始，用代码迎接新年。}
+
+@handbook-statistics[#:ignore '(#px"Cpp/digitama/big_bang") #:filter '(#px"AoC/")
+                     #:gitstat-width 460 #:gitstat-radius 80
                      #:altcolors '(["Racket" . "Green"]
                                    ["Python" . "Khaki"])]
 
