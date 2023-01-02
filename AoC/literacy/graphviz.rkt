@@ -246,14 +246,14 @@
         flwidth flheight)))
 
 (define handbook-statistics
-  (lambda [#:gitstat-width [git-width #false] #:gitstat-radius [git-radius #false]
-           #:ignore [exclude-submodules null] #:filter [filter null]
+  (lambda [#:gitstat-width [git-width #false] #:gitstat-radius [git-radius #false] #:recursive? [recursive? #true]
+           #:ignore [exclude-submodules null] #:filter [filter null] #:subgroups [subgroups git-default-subgroups]
            #:altcolors [altcolors null] #:since [since #false]]
-    (define all-files (git-list-tree #:recursive? #true #:ignore-submodule exclude-submodules #:filter filter))
-    (define all-numstats (git-numstat #:recursive? #true #:ignore-submodule exclude-submodules #:since since #:filter filter))
-    (define lang-files (git-files->langfiles all-files null git-default-subgroups))
-    (define lang-sizes (git-files->langsizes all-files null git-default-subgroups))
-    (define lang-stats (git-numstats->langstats all-numstats null git-default-subgroups))
+    (define all-files (git-list-tree #:recursive? recursive? #:ignore-submodule exclude-submodules #:filter filter))
+    (define all-numstats (git-numstat #:recursive? recursive? #:ignore-submodule exclude-submodules #:since since #:filter filter))
+    (define lang-files (git-files->langfiles all-files null subgroups))
+    (define lang-sizes (git-files->langsizes all-files null subgroups))
+    (define lang-stats (git-numstats->langstats all-numstats null subgroups))
     
     (define src-file (for/fold ([count 0]) ([lf (in-hash-values lang-files)]) (+ count (length (git-language-content lf)))))
     (define-values (insertions deletions) (git-numstats->additions+deletions* all-numstats))

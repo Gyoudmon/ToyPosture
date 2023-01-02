@@ -21,9 +21,11 @@
 (tamer-default-figure-label-style 'bold)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define stone-image
-  (lambda [path #:scale [scale 1.0]]
-    (image (digimon-path 'stone path) #:scale scale)))
+(define call-with-data-file*
+  (lambda [path f . argv]
+    (call-with-input-file* (digimon-path 'stone path)
+      (lambda [/dev/stdin]
+        (apply f /dev/stdin argv)))))
 
 (define question
   (lambda argv

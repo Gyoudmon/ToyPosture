@@ -1,7 +1,7 @@
-#lang scribble/sigplan @nocopyright
+#lang scribble/acmart @sigplan @nonacm @screen @timestamp
 
-@(require "literacy.rkt")
-@(require "graphviz.rkt")
+@require{literacy.rkt}
+@require{graphviz.rkt}
 
 @;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 @handbook-title/pkg-desc[]
@@ -30,8 +30,8 @@
  那都是些能在几分钟到一个小时之内就秒杀谜题的怪物（跟考试、竞赛一样，任何竞技活动
  都需要专门训练和大量练习以成为该项活动的熟练工，而这显然不是我们参与此活动的目的）。}
 
-@handbook-statistics[#:ignore '(#px"Cpp/digitama/big_bang") #:filter '(#px"AoC/")
-                     #:gitstat-width 460 #:gitstat-radius 80
+@handbook-statistics[#:recursive? #false #:filter '(#px"AoC/")
+                     #:gitstat-width 400 #:gitstat-radius 80 #:subgroups null
                      #:altcolors '(["Racket" . "Green"]
                                    ["Python" . "Khaki"])]
 

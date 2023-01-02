@@ -16,7 +16,7 @@
 采集水果的方式是解谜，一天两个谜题，解完第一个谜才会解锁第二个。
 每个谜题价值一颗水果，祝你好运。
 
-@include-section{2022/01.calorie.counting.scrbl}
+@include-section[(submod "2022/01.calorie.counting.rkt" doc)]
 
 @;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 @handbook-reference[]
