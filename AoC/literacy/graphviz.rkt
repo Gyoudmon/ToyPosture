@@ -24,7 +24,7 @@
         [legend-pen (make-pen #:color (make-color #xbb #xbb #xbb))]
         [legend-brush (make-brush #:color (make-color #xFF #xFF #xFF 0.618))])
     (lambda [#:radian0 [r0 0.0] #:bytes-fx [fx 0.5] #:bytes-fy [fy 0.5]
-             #:legend-font [legend-font (make-font #:family 'modern #:weight 'bold #:size 10)]
+             #:legend-font [legend-font (make-font #:family 'modern #:weight 'bold #:size 9)]
              #:label-color [label-color "black"] #:%-color [%-color (make-color #x6a #x72 #x8f)] #:total-color [total-color (make-color 0 0 0 0.2)]
              flradius datasource altcolors]
       (define flwidth (* flradius 2.0))
