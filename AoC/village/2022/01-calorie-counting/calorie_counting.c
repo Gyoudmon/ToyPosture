@@ -11,7 +11,7 @@ void find_maximum_calorie(FILE* in) {
     long self_cal = 0L;
 
     while ((read = getline(&line, &capacity, in)) != -1) {
-        long cal = strtol(line, &line[read], 10);
+        long cal = strtol(line, NULL, 10);
         
         if (cal > 0L) {
             self_cal += cal;
@@ -42,7 +42,7 @@ void find_maximum_calories(FILE* in, int n) {
     long total = 0L;
 
     while ((read = getline(&line, &capacity, in)) != -1) {
-        long cal = strtol(line, &line[read], 10);
+        long cal = strtol(line, NULL, 10);
         
         if (cal > 0L) {
             self_cal += cal;
