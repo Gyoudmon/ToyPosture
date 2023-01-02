@@ -24,3 +24,7 @@
 (define stone-image
   (lambda [path #:scale [scale 1.0]]
     (image (digimon-path 'stone path) #:scale scale)))
+
+(define question
+  (lambda argv
+    (racketresultfont argv)))
