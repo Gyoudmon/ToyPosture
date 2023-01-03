@@ -10,3 +10,8 @@
 (define test-omit-paths 'all)
 
 (define typesettings '(["literacy/AoC.scrbl" xelatex #:always-make]))
+
+(define native-launcher-names '(["village/2022/BigBang.cpp" console ;desktop
+                                 ((config SDL2)
+                                  (include [windows "C:\\opt\\vcpkg\\installed\\x64-windows\\include"])
+                                  (libpath [windows "C:\\opt\\vcpkg\\installed\\x64-windows\\lib"]))]))

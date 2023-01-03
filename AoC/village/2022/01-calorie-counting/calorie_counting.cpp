@@ -1,73 +1,96 @@
+#include "calorie_counting.hpp"
+
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <vector>
+
+using namespace WarGrey::STEM;
+using namespace WarGrey::AoC;
 
 /*************************************************************************************************/
-void find_maximum_calorie(std::istream& in) {
-    std::string line;
-    int max_cal = 0;
-    int self_cal = 0;
+// 实现 AoCWorld::construct 方法，加载输入数据
+void WarGrey::AoC::AoCWorld::construct(int argc, char* argv[]) {
+    std::string pathname;
 
-    while (std::getline(in, line)) {
-        if (line.size() == 0) {
-            if (self_cal > max_cal) {
-                max_cal = self_cal;
-            }
-
-            self_cal = 0;
-        } else {
-            self_cal += std::stoi(line);
-        }
-    }
-
-    std::cout << max_cal << std::endl;
-}
-
-void find_maximum_calories(std::istream& in, int n) {
-    std::string line;
-    std::vector<int> calories;
-    int cal = 0;
-
-    while (std::getline(in, line)) {
-        if (line.size() == 0) {
-            calories.push_back(cal);
-            cal = 0;
-        } else {
-            cal += std::stoi(line);
-        }
-    }
-
-    for (int i = 0; i < n; i ++) {
-        for (int j = i + 1; j < calories.size(); j ++) {
-            if (calories[i] < calories[j]) {
-                cal = calories[i];
-                calories[i] = calories[j];
-                calories[j] = cal;
-            }
-        }
-    }
-
-    cal = 0;
-    for (int i = 0; i < n; i ++) {
-        cal += calories[i];
-    }
-
-    std::cout << cal << std::endl;
-}
-
-/*************************************************************************************************/
-int main(int argc, char* argv[]) {
     if (argc > 1) {
-        std::ifstream src(argv[1]);
-
-        if (src.is_open()) {
-            find_maximum_calories(src, 3);
-            src.close();
-        }
+        pathname = argv[1];
     } else {
-        find_maximum_calorie(std::cin);
+        pathname = std::string(__ZONE__).append("stone/2022/calorie.counting.dat");
     }
 
-    return 0;
+    this->load_calories(pathname);
+    this->big_font = game_create_font(font_basename(game_font::DEFAULT), 72);
+}
+
+// 实现 AoCWorld::load 方法，加载精灵
+void WarGrey::AoC::AoCWorld::load(float width, float height) {
+    this->top1_cal = this->insert(new Labellet(this->big_font, BLACK, "%d", this->find_maximum_calories(1)));
+    this->top3_cal = this->insert(new Labellet(this->big_font, BLACK, "%d", this->find_maximum_calories(3)));
+}
+
+// 实现 AoCWorld::reflow 方法，调整精灵位置
+void WarGrey::AoC::AoCWorld::reflow(float width, float height) {
+    this->move_to(this->top3_cal, 0.0F, height, MatterAnchor::LB);
+}
+
+// 实现 AoCWorld::update 方法
+void WarGrey::AoC::AoCWorld::update(uint32_t interval, uint32_t count, uint32_t uptime) {
+}
+
+/*************************************************************************************************/
+// 实现 AoCWorld::load_calories 方法，加载输入数据
+void WarGrey::AoC::AoCWorld::load_calories(std::string& pathname) {
+    std::ifstream datin(pathname);
+    Elf elf;
+
+    this->elves.clear();
+
+    if (datin.is_open()) {    
+        std::string line;
+
+        while (std::getline(datin, line)) {
+            if (line.size() == 0) {
+                this->elves.push_back(elf);
+                elf.calories.clear();
+            } else {
+                elf.calories.push_back(std::stoi(line));
+            }
+        }
+
+        datin.close();
+    }
+}
+
+// 实现 AoCWorld::find_maximum_calories 方法，计算携带最多卡路里的 n 个精灵所带卡路里的总和
+int WarGrey::AoC::AoCWorld::find_maximum_calories(int n) {
+    std::vector<int> calories(n);
+    int total = 0;
+
+    for (int eidx = 0; eidx < this->elves.size(); eidx ++) {
+        int cal = this->elves[eidx].calorie_total();
+
+        for (int cidx = 0; cidx < n; cidx ++) {
+            if (cal > calories[cidx]) {
+                calories[cidx] = cal;
+                break;
+            }
+        }
+    }
+
+    for (int idx = 0; idx < n; idx ++) {
+        total += calories[idx];
+    }
+
+    return total;
+}
+
+/*************************************************************************************************/
+int WarGrey::AoC::Elf::calorie_total() {
+    int total = 0;
+
+    for (auto cal : this->calories) {
+        total += cal;        
+    }
+
+    return total;  
 }
