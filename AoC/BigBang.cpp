@@ -1,4 +1,4 @@
-#include "01-calorie-counting/calorie_counting.hpp"
+#include "digitama/2022/calorie_counting.hpp"
 
 using namespace WarGrey::AoC;
 

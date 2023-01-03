@@ -31,7 +31,7 @@
  都需要专门训练和大量练习以成为该项活动的熟练工，而这显然不是我们参与此活动的目的）。}
 
 @handbook-statistics[#:recursive? #false #:filter '(#px"AoC/") #:date-delta (* 3600 24)
-                     #:gitstat-width 400 #:gitstat-radius 80 #:subgroups null
+                     #:gitstat-width 460 #:gitstat-radius 80 #:subgroups null
                      #:altcolors '(["Racket" . "Green"]
                                    ["Python" . "Khaki"])]
 
