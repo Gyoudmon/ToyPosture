@@ -2,8 +2,12 @@
 
 @(require "../literacy.rkt")
 
+@(define-aoc-bib D1CC "Calorie Counting" 1)
+
 @;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 @handbook-root-story{Day 1: Calorie Counting}
+
+故事原文见 @~cite[D1CC]。
 
 丛林杂草丛生，没法使用交通工具，也没法空降，因此精灵们传统上只能徒步远征。
 当小船靠岸时，精灵们开始清点存货，食物是重点清点对象之一。具体来说，
@@ -75,8 +79,7 @@
 接下来就可以通过传入清单文件来执行了：
 
 @tamer-action[#:requires ["../literacy.rkt"]
-              (call-with-data-file*
-                    "2022/01.calorie.counting.dat"
+              (with-aoc-data-from "2022/calorie.counting.dat"
                   find-maximum-calorie)]
 
 这里多说一句，上面的算法是@bold{纯函数式}风格，虽然定义了两个变量，但实际上它们的值从头到尾都没有变过；
@@ -140,18 +143,17 @@
                       (rrsl calories 0)
                       (rrsl (list-set calories idx self:cal) 0)))]
 
-至此，问题解决，我们来对比一下两个问题在逻辑上的一致：
+至此，问题解决：
 
-@tamer-action[#:requires ["../literacy.rkt"]
-              (call-with-data-file*
-                  "2022/01.calorie.counting.dat"
-                find-maximum-calorie)
-              (call-with-data-file*
-                  "2022/01.calorie.counting.dat"
-                find-maximum-calories 1)
-              (call-with-data-file*
-                  "2022/01.calorie.counting.dat"
+@tamer-action[(with-aoc-data-from "2022/calorie.counting.dat"
                 find-maximum-calories 3)]
+
+我们还可以对比一下这两个谜题在逻辑上的一致：
+
+@tamer-action[(with-aoc-data-from "2022/calorie.counting.dat"
+                find-maximum-calorie)
+              (with-aoc-data-from "2022/calorie.counting.dat"
+                find-maximum-calories 1)]
 
 最后，为了让程序能正常运行，我们还需要写点额外代码来将上述代码碎片合并到正确的位置：
 

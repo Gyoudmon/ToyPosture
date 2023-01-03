@@ -21,7 +21,17 @@
 (tamer-default-figure-label-style 'bold)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define call-with-data-file*
+(define-syntax (define-aoc-bib stx)
+  (syntax-case stx []
+    [(_ id title day)
+     (syntax/loc stx
+       (define-bib id
+         #:title  title
+         #:author "Eric Wastl"
+         #:date   2022
+         #:url    (format "https://adventofcode.com/2022/day/~a" day)))]))
+
+(define with-aoc-data-from
   (lambda [path f . argv]
     (call-with-input-file* (digimon-path 'stone path)
       (lambda [/dev/stdin]
