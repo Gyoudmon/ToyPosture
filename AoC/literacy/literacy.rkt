@@ -26,7 +26,7 @@
     [(_ id title day)
      (syntax/loc stx
        (define-bib id
-         #:title  title
+         #:title  (format "Day ~a: ~a" day title)
          #:author "Eric Wastl"
          #:date   2022
          #:url    (format "https://adventofcode.com/2022/day/~a" day)))]))
