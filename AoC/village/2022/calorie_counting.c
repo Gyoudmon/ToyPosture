@@ -24,6 +24,10 @@ void find_maximum_calorie(FILE* in) {
         }
     }
 
+    if (max_cal < self_cal) {
+        max_cal = self_cal;
+    }
+
     printf("%ld\n", max_cal);
 
     if (line != NULL) {
@@ -59,6 +63,11 @@ void find_maximum_calories(FILE* in, int n) {
     }
 
     for (int idx = 0; idx < n; idx++) {
+        if (self_cal > calories[idx]) {
+            calories[idx] = self_cal;
+            self_cal = 0;
+        }
+
         total += calories[idx];
     }
 

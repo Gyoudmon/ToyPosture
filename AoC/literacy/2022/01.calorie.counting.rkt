@@ -53,9 +53,8 @@
 总的来说，这个任务比较简单。需要两个变量 @racketvalfont{max:cal} 和 @racketvalfont{self:cal}，
 分别代表@racketcommentfont{已知最大卡路里数}和@racketcommentfont{当前精灵账目上的卡路里总数}。
 检阅清单的过程就是个简单的@racketcommentfont{读取-记录-替换}循环（@racketidfont{rrsl}, read-record-substitute-loop），
-即逐行读取清单，直到没有更多内容为止，此时已知的最大卡路里数就是最终的结果，将它作为函数返回值即可。
-每读到一行，就尝试将该行内容转化成@bold{正整数}，如果能转化成功，说明读到的是卡路里含量，
-应当记在当前精灵的账上；否则，准备换个精灵记账。
+即逐行读取清单，每读到一行，就尝试将该行内容转化成@bold{正整数}，如果能转化成功，说明读到的是卡路里含量，
+应当记在当前精灵的账上；否则，准备换个精灵记账。直到没有更多内容为止，函数返回最大值。
 
 @handbook-chunk[<读取-记录-替换-循环>
                 (let rrsl ([max:cal 0]
@@ -65,16 +64,15 @@
                       (let ([?cal (string->number line 10)])
                         (if (exact-positive-integer? ?cal)
                             (rrsl max:cal (+ self:cal ?cal))
-                            <换精灵记账>))
-                      max:cal))]
+                            (rrsl <确定最大值> 0)))
+                      <确定最大值>))]
 
-换精灵记账的逻辑不复杂，但比较考验细心程度。简单来说，无论当前精灵账目上的卡路里数是否最大，
-下次记账时都应该清零；而只有当已知最大的卡路里数比当前卡路里数小时，才需要替换最大值。
+算法的总体逻辑不复杂，但是却隐藏着一个极大的陷阱。在上面的代码中，为什么有两处地方填充着“确定最大值”？
+例子里只强调了精灵与精灵之间用空行分隔，那最后一个精灵后面有没有空行呢？其实没有，因为每个精灵写清单时
+只负责与前面的精灵隔开，不负责后面的精灵。因此，循环结束时，最后一只精灵的账目还没有清点，需要额外处理一下。
 
-@handbook-chunk[<换精灵记账>
-                (if (< max:cal self:cal)
-                    (rrsl self:cal 0)
-                    (rrsl max:cal 0))]
+@handbook-chunk[<确定最大值>
+                (max max:cal self:cal)]
 
 接下来就可以通过传入清单文件来执行了：
 
@@ -121,7 +119,7 @@
                         (let ([?cal (string->number line 10)])
                           (if (exact-positive-integer? ?cal)
                               (rrsl calories (+ self:cal ?cal))
-                              <换精灵记账:列表版>))
+                              (rrsl <确定最大值列表> 0)))
                         <高卡路里合计>)))]
 
 相比于上面的 @racketid[find-maximum-calorie] 函数，这个复数形式的 @racketid[find-maximum-calories]
@@ -131,32 +129,38 @@
 @handbook-chunk[<初始化卡路里列表>
                 [calories (make-list n 0)]]
 
-最终结果变为了对列表的求和运算：
+最终结果变为了对最大值列表的求和运算：
 
 @handbook-chunk[<高卡路里合计>
-                (apply + calories)]
+                (apply + <确定最大值列表>)]
 
 
-以及，针对列表设计的换精灵记账逻辑：列表中如果存在比当前卡路里含量低的就替换之。
+以及，针对列表设计的确定最大值逻辑：列表中如果存在比当前卡路里含量低的就替换之。
 
-@handbook-chunk[<换精灵记账:列表版>
-                (let* ([smaller (λ [max:cal] (< max:cal self:cal))]
-                       [idx (index-where calories smaller)])
+@handbook-chunk[<确定最大值列表>
+                (let* ([smaller? (λ [max:cal] (< max:cal self:cal))]
+                       [idx (index-where calories smaller?)])
                   (if (not idx)
-                      (rrsl calories 0)
-                      (rrsl (list-set calories idx self:cal) 0)))]
+                      calories
+                      (list-set calories idx self:cal)))]
 
 至此，问题解决：
 
 @tamer-action[(with-aoc-data-from "2022/calorie.counting.dat"
                 find-maximum-calories 3)]
 
-我们还可以对比验证这两个谜题在逻辑上的一致：
+我们还可以对比一下这两个谜题在逻辑上的一致：
 
 @tamer-action[(with-aoc-data-from "2022/calorie.counting.dat"
                 find-maximum-calorie)
               (with-aoc-data-from "2022/calorie.counting.dat"
                 find-maximum-calories 1)]
+
+不过，还是要谨记，比较两种算法的执行结果并不是严密的证明。
+两个结果相等也可能说明两个算法都不对，只不过用题目给的数据测试不出来。
+比如，本次解谜就有可能掉进前文所说的陷阱里，导致漏算了最后一只精灵，
+而那只精灵又恰好不影响最终结果。可见，这个挑战活动本身也有问题，
+远征之前竟然没有清点人数，太不应该了。
 
 最后，为了让程序能正常运行，我们还需要写点额外代码来将上述代码碎片合并到正确的位置：
 
