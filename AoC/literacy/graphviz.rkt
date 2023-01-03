@@ -130,7 +130,7 @@
            #:mark-font [mark-font (make-font #:family 'system #:size 10)]
            #:mark-color [mark-color (make-color #x6A #x73 #x7D)]
            #:axis-color [axis-color (make-color #x00 #x00 #x00 0.3)]
-           flwidth flheight datasource altcolors]
+           flwidth flheight datasource altcolors date-delta]
     (dc (λ [dc dx dy]
           (define saved-font (send dc get-font))
           (define saved-color (send dc get-text-foreground))
@@ -181,20 +181,21 @@
           (define line-interval (- linen line0))
           (define date-fraction (/ x-range date-interval))
           (define line-fraction (/ y-range line-interval))
-          
+
           (send dc set-pen axis-color 1 'solid)
           (send dc set-text-foreground mark-color)
           
           (let draw-x-axis ([this-endx 0.0]
-                            [this-sec sec0])
+                            [this-sec sec0]
+                            [last-month 0])
             (if (< this-sec secn)
                 (let ([the-date (seconds->date this-sec)])
                   (define-values (year month) (values (date-year the-date) (date-month the-date)))
-                  (define month-sec0 (find-seconds 0 0 0 1 month year))
                   (define-values (x-axis x-mark year?)
-                    (cond [(= month 1) (values (if (= this-sec sec0) sec0 month-sec0) (number->string year) #true)]
+                    (cond [(and (= month 1) (not (= month last-month))) (values this-sec (number->string year) #true)]
                           [(= this-sec sec0) (values this-sec (~day (date-day the-date)) #false)]
-                          [else (values month-sec0 (~month month) #false)]))
+                          [(= last-month month) (values this-sec (~day (date-day the-date)) #false)]
+                          [else (values this-sec (~month month) #false)]))
 
                   (when (and year?)
                     (let ([self-x (+ x-start (* (- x-axis sec0) date-fraction))])
@@ -205,7 +206,8 @@
                   (draw-x-axis (draw-x dc (- x-axis sec0) x-mark this-endx
                                        mark-font x-start y-start
                                        date-fraction 1ex)
-                               (+ month-sec0 (* 3600 24 31))))
+                               (+ this-sec date-delta)
+                               month))
                 (draw-x dc (- secn sec0)
                         (~day (date-day (seconds->date secn)))
                         this-endx mark-font x-start y-start
@@ -248,7 +250,7 @@
 (define handbook-statistics
   (lambda [#:gitstat-width [git-width #false] #:gitstat-radius [git-radius #false] #:recursive? [recursive? #true]
            #:ignore [exclude-submodules null] #:filter [filter null] #:subgroups [subgroups git-default-subgroups]
-           #:altcolors [altcolors null] #:since [since #false]]
+           #:altcolors [altcolors null] #:since [since #false] #:date-delta [date-delta (* 3600 24 31)]]
     (define all-files (git-list-tree #:recursive? recursive? #:ignore-submodule exclude-submodules #:filter filter))
     (define all-numstats (git-numstat #:recursive? recursive? #:ignore-submodule exclude-submodules #:since since #:filter filter))
     (define lang-files (git-files->langfiles all-files null subgroups))
@@ -269,7 +271,7 @@
                                            [series-height (* (or git-radius pie-radius) 2)]
                                            [series-width (or git-width 380)])
                                       (list (pie-chart #:bytes-fy 0.618 #:radian0 (* pi 0.5) pie-radius sorted-langfiles altcolors)
-                                            (git-loc-series series-width series-height langstats altcolors)))))))))
+                                            (git-loc-series series-width series-height langstats altcolors date-delta)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define (draw-x dc x-axis x-mark last-mark-endx mark-font x-start y-start date-fraction 1ex)
