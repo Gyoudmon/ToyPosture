@@ -21,46 +21,17 @@ namespace {
     enum EditOperation { APPEND_VIRTUAL_PAGES, AUTO_REPLACING, MANUAL_STEPPING, EXIT };
     enum CmdlineOpts { PHYSICAL_PAGE, WINDOW_SIZE, GRIDSIZE, _ };
 
-    class PageReplacementCosmos : public World {
+    class PageReplacementPlane : public Plane {
         public:
-            PageReplacementCosmos(int fps) : World("Page Replacement Algorithms", fps, 0xFFFFFFU, 0x000000U) {
-                this->set_cmdwin_height(24);
-            }
-
-        public:
-            void construct(int argc, char* argv[]) override {
-                CmdlineOpts opt = CmdlineOpts::_;
-                std::string vpages;
-                int avail_phges = 0;
-                int rep_window = 0;
-                float gridsize = 0.0F;
-
-                for (int i = 1; i < argc; i++) {
-                    switch (opt) {
-                        case CmdlineOpts::PHYSICAL_PAGE: avail_phges = std::atoi(argv[i]); opt = _; break;
-                        case CmdlineOpts::GRIDSIZE: gridsize = float(std::atof(argv[i])); opt = _; break;
-                        case CmdlineOpts::WINDOW_SIZE: rep_window = std::atoi(argv[i]); opt = _; break;
-                        default: {
-                            if (strncmp("-p", argv[i], 2) == 0) {
-                                opt = CmdlineOpts::PHYSICAL_PAGE;
-                            } else if (strncmp("-g", argv[i], 2) == 0) {
-                                opt = CmdlineOpts::GRIDSIZE;
-                            } else if (strncmp("-w", argv[i], 2) == 0) {
-                                opt = CmdlineOpts::WINDOW_SIZE;
-                            } else {
-                                vpages.append(" ");
-                                vpages.append(argv[i]);
-                            }
-                        }; break;
-                    }
-                }
-    
+            PageReplacementPlane(int avail_phges, float gridsize, int repwin_size, const std::string& vpages)
+                    : Plane("Page Replacement Algorithms") {
                 this->physical_page = (avail_phges > 0) ? avail_phges : 4;
                 this->gridsize = (gridsize > 0.0) ? gridsize : 32.0F;
-                this->replacement_window = (rep_window > 0) ? rep_window : 16;
+                this->replacement_window = (repwin_size > 0) ? repwin_size : 16;
                 this->cmd_stream = vpages;
             }
 
+        public:
             void load(float width, float height) override {
                 this->help = this->insert(new Labellet(game_font::unicode, help_str));
                 this->queue = this->insert(new Labellet(game_font::monospace, ""));
@@ -123,7 +94,7 @@ namespace {
                             this->reset_algorithms();
                         }; break;
                         case 'Q': case 'q': {
-                            this->op = EXIT;
+                            this->mission_complete();
                         }; break;
                     }
                     this->end_update_sequence();
@@ -139,11 +110,6 @@ namespace {
                     }
                     this->end_update_sequence();
                 }
-            }
-
-        public:
-            bool can_exit() override {
-                return (this->op == EditOperation::EXIT);
             }
 
         private:
@@ -223,6 +189,49 @@ namespace {
             int physical_page;
             int replacement_window;
             float gridsize;
+    };
+
+    class PageReplacementCosmos : public Cosmos {
+        public:
+            PageReplacementCosmos(int fps) : Cosmos(fps, 0xFFFFFFU, 0x000000U) {
+                this->set_cmdwin_height(24);
+            }
+
+        public:
+            void construct(int argc, char* argv[]) override {
+                CmdlineOpts opt = CmdlineOpts::_;
+                std::string vpages;
+                int avail_phges = 0;
+                int rep_window = 0;
+                float gridsize = 0.0F;
+
+                for (int i = 1; i < argc; i++) {
+                    switch (opt) {
+                        case CmdlineOpts::PHYSICAL_PAGE: avail_phges = std::atoi(argv[i]); opt = _; break;
+                        case CmdlineOpts::GRIDSIZE: gridsize = float(std::atof(argv[i])); opt = _; break;
+                        case CmdlineOpts::WINDOW_SIZE: rep_window = std::atoi(argv[i]); opt = _; break;
+                        default: {
+                            if (strncmp("-p", argv[i], 2) == 0) {
+                                opt = CmdlineOpts::PHYSICAL_PAGE;
+                            } else if (strncmp("-g", argv[i], 2) == 0) {
+                                opt = CmdlineOpts::GRIDSIZE;
+                            } else if (strncmp("-w", argv[i], 2) == 0) {
+                                opt = CmdlineOpts::WINDOW_SIZE;
+                            } else {
+                                vpages.append(" ");
+                                vpages.append(argv[i]);
+                            }
+                        }; break;
+                    }
+                }
+    
+                this->push_plane(new PageReplacementPlane(avail_phges, gridsize, rep_window, vpages));
+            }
+
+        public:
+            bool can_exit() override {
+                return this->has_current_mission_completed();
+            }
     };
 }
 

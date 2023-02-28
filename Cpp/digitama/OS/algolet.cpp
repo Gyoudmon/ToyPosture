@@ -85,7 +85,7 @@ void WarGrey::OS::IAlgolet::draw(SDL_Renderer* renderer, float x, float y, float
             this->draw_body(renderer, bx, by, Width - body_xoff, Height - body_yoff);
             
             RGB_SetRenderDrawColor(renderer, SILVER);
-            game_draw_grid(renderer, this->window_size, this->physical_page, this->gridsize, bx, by);
+            game_draw_grid(renderer, this->physical_page, this->window_size, this->gridsize, this->gridsize, bx, by);
         }
     }
 }
