@@ -9,8 +9,8 @@ const float label_lineheight_ratio = 1.2F;
 
 /*************************************************************************************************/
 void WarGrey::OS::IAlgolet::feed_extent(float x, float y, float* width, float* height) {
-    if (this->label_font == nullptr) {
-        this->label_font = game_font::monospace;
+    if (!this->label_font->okay()) {
+        this->label_font = GameFont::monospace();
         game_text_size(this->label_font, &this->chwidth, &this->chheight, "8");
     }
 

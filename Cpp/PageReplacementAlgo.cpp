@@ -33,8 +33,8 @@ namespace {
 
         public:
             void load(float width, float height) override {
-                this->help = this->insert(new Labellet(game_font::unicode, help_str));
-                this->queue = this->insert(new Labellet(game_font::monospace, ""));
+                this->help = this->insert(new Labellet(GameFont::Tooltip(), help_str));
+                this->queue = this->insert(new Labellet(GameFont::monospace(), ""));
                 this->algos[RANDOM] = this->insert(new Randomlet(this->physical_page, this->gridsize, this->replacement_window));
                 this->algos[FIFO] = this->insert(new FIFOlet(this->physical_page, this->gridsize, this->replacement_window));
                 this->algos[LRU] = this->insert(new LRUlet(this->physical_page, this->gridsize, this->replacement_window));

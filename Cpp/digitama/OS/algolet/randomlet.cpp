@@ -20,9 +20,9 @@ void WarGrey::OS::Randomlet::draw_body(SDL_Renderer* renderer, float x, float y,
 
             if (vp_no > 0) {
                 std::string mark = std::to_string(vp_no);
-                float xoff = (this->gridsize - this->chwidth * float(mark.size())) * 0.5F;
                 uint32_t gcolor = this->grid_background(self[j].second);
-
+                float xoff = (this->gridsize - this->chwidth * float(mark.size())) * 0.5F;
+                
                 game_fill_rect(renderer, gx, gy, this->gridsize, this->gridsize, gcolor);
                 game_draw_blended_text(this->label_font, renderer, SNOW, gx + xoff, gy + yoff, mark);
             } else {

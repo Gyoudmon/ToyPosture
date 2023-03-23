@@ -1,11 +1,11 @@
 #pragma once
 
-#include <SDL2/SDL_ttf.h>
-#include <deque>
-
-#include "../big_bang/matter/graphlet.hpp"
+#include "../big_bang/game.hpp"
+#include "../big_bang/bang.hpp"
 
 #include "../big_bang/datum/box.hpp"
+
+#include <deque>
 
 /*************************************************************************************************/
 namespace WarGrey::OS {
@@ -41,7 +41,7 @@ namespace WarGrey::OS {
             int total = 0;
 
         protected:
-            TTF_Font* label_font = nullptr;
+            WarGrey::STEM::shared_font_t label_font = WarGrey::STEM::invalid_font;
             float chwidth = 0.0F;
             float chheight = 0.0F;
 
