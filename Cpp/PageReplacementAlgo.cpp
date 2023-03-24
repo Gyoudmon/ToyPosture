@@ -62,7 +62,7 @@ namespace {
                 this->move_to(this->algos[STACK],  xspan * 3.0F, yspan * 3.0F, MatterAnchor::CC);
             }
 
-            void update(uint32_t count, uint32_t interval, uint32_t uptime) override {
+            void update(uint64_t count, uint32_t interval, uint64_t uptime) override {
                 if (this->op == AUTO_REPLACING) {
                     if (!this->virtual_page_step()) {
                         this->op = MANUAL_STEPPING;
