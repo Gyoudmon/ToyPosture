@@ -27,6 +27,7 @@ namespace {
             
             this->bracers.push_back(this->insert(new Estelle()));
             this->bracers.push_back(this->insert(new Joshua()));
+            this->bracers.push_back(this->insert(new Klose()));
             this->bracers.push_back(this->insert(new Agate()));
 
             for (auto name : TrailKid::list_names()) {
