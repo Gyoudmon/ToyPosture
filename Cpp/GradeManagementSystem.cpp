@@ -26,6 +26,7 @@ namespace {
             this->title = this->insert(new Labellet(GameFont::Title(), BLACK, "%s", this->name()));
             
             this->bracers.push_back(this->insert(new Estelle()));
+            this->bracers.push_back(this->insert(new Joshua()));
             this->bracers.push_back(this->insert(new Agate()));
 
             for (auto name : TrailKid::list_names()) {
@@ -66,22 +67,12 @@ namespace {
 
             this->move_to(this->platform, (width - sidebar_pos) * 0.50F + sidebar_pos, height * 0.95F, MatterAnchor::CC);
 
-            for (int idx = 0; idx < this->bracers.size(); idx ++) {
-                if (idx < DESK_COUNT) {
-                    this->move_to(this->bracers[idx], this->desks[idx], MatterAnchor::CC, MatterAnchor::CC);
-                } else {
-                    this->move_to(this->bracers[idx], this->platform, MatterAnchor::CB, MatterAnchor::CB);
-                }
-            }
-
             for (int idx = 0; idx < this->kids.size(); idx ++) {
                 if (idx == 0) {
-                    this->move_to(this->kids[idx], this->title, MatterAnchor::LB, MatterAnchor::LT, 0.0F, 20.0F);
+                    this->move_to(this->kids[idx], this->agent, MatterAnchor::CB, MatterAnchor::CT, 0.0F, 20.0F);
                 } else {
                     this->move_to(this->kids[idx], this->kids[idx - 1], MatterAnchor::CB, MatterAnchor::CT, 0.0F, 10.0F);
                 }
-
-                this->glide(0.1F, this->kids[idx], 0.0, 1.0F);
             }
 
             for (int idx = 0; idx < this->students.size(); idx ++) {
@@ -90,8 +81,6 @@ namespace {
                 } else {
                     this->move_to(this->students[idx], this->students[idx - 1], MatterAnchor::CB, MatterAnchor::CT, 0.0F, 10.0F);
                 }
-
-                this->glide(0.1F, this->students[idx], 0.0, 1.0F);
             }
 
             for (int idx = 0; idx < this->specials.size(); idx ++) {
@@ -100,8 +89,14 @@ namespace {
                 } else {
                     this->move_to(this->specials[idx], this->specials[idx - 1], MatterAnchor::CB, MatterAnchor::CT, 0.0F, 10.0F);
                 }
+            }
 
-                this->glide(0.1F, this->specials[idx], 0.0, 1.0F);
+            for (int idx = 0; idx < this->bracers.size(); idx ++) {
+                if (idx == 0) {
+                    this->move_to(this->bracers[idx], this->specials[idx], MatterAnchor::RB, MatterAnchor::LB, 80.0F);
+                } else {
+                    this->move_to(this->bracers[idx], this->bracers[idx - 1], MatterAnchor::CB, MatterAnchor::CT, 0.0F, 10.0F);
+                }
             }
         }
 
@@ -112,29 +107,30 @@ namespace {
 
         void after_select(IMatter* m, bool yes) override {
             if (yes) {
-                auto bracer = dynamic_cast<Citizen*>(m);
-                float distance = 64.0F;
-                float duration = 1.0F;
-
-                if (bracer != nullptr) {
-                    this->glide(duration, bracer, distance, 0.0F);
-                    this->glide(duration, bracer, 0.0F, distance);
-                    this->glide(duration, bracer, -distance, 0.0F);
-                    this->glide(duration, bracer, 0.0F, -distance);
-                    this->glide(duration, bracer, distance, distance);
-                    this->glide(duration, bracer, -distance, distance);
-                    this->glide(duration, bracer, -distance, -distance);
-                    this->glide(duration, bracer, distance, -distance);
+                auto citizen = dynamic_cast<Citizen*>(m);
+                
+                if (citizen != nullptr) {
+                    auto bracer = dynamic_cast<Bracer*>(m);
+                
+                    if (bracer != nullptr) {
+                        if (is_ctrl_pressed()) {
+                            this->bracer_winpose_demo(bracer);
+                        } else if (is_shift_pressed()) {
+                            bracer->switch_mode(BracerMode::Run);
+                            this->citizen_motion_demo(bracer);
+                        } else {
+                            bracer->switch_mode(BracerMode::Walk);
+                            this->citizen_motion_demo(bracer);
+                        }
+                    } else {
+                        this->citizen_motion_demo(citizen);
+                    }
                 }
             }
         }
 
         void on_tap_selected(IMatter* m, float x, float y) override {
-            auto bracer = dynamic_cast<Bracer*>(m);
-            
-            if (bracer != nullptr) {
-                bracer->play("win", 1);
-            }
+            this->after_select(m, true);
         }
 
         bool update_tooltip(IMatter* m, float lx, float ly, float gx, float gy) override {
@@ -147,6 +143,29 @@ namespace {
             }
 
             return updated;
+        }
+
+    private:
+        void citizen_motion_demo(Citizen* citizen) {
+            float distance = 64.0F;
+            float duration = 1.0F;
+
+            if (citizen->motion_stopped()) {
+                this->glide(duration, citizen, distance, 0.0F);
+                this->glide(duration, citizen, 0.0F, distance);
+                this->glide(duration, citizen, -distance, 0.0F);
+                this->glide(duration, citizen, 0.0F, -distance);
+                this->glide(duration, citizen, distance, distance);
+                this->glide(duration, citizen, -distance, distance);
+                this->glide(duration, citizen, -distance, -distance);
+                this->glide(duration, citizen, distance, -distance);
+            }
+        }
+
+        void bracer_winpose_demo(Bracer* bracer) {
+            if (bracer->motion_stopped()) {
+                bracer->switch_mode(BracerMode::Win, 1);
+            }
         }
 
     private:
