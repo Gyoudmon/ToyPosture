@@ -1,8 +1,6 @@
 #include "digitama/big_bang/game.hpp"
 #include "digitama/big_bang/bang.hpp"
 
-#include "digitama/big_bang/mascot/character.hpp"
-
 using namespace WarGrey::STEM;
 
 /*************************************************************************************************/
