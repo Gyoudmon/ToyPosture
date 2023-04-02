@@ -25,6 +25,8 @@ namespace {
             
             this->bracers.push_back(this->insert(new Estelle()));
             this->bracers.push_back(this->insert(new Joshua()));
+            this->bracers.push_back(this->insert(new Scherazard()));
+            this->bracers.push_back(this->insert(new Olivier()));
             this->bracers.push_back(this->insert(new Klose()));
             this->bracers.push_back(this->insert(new Agate()));
             this->bracers.push_back(this->insert(new Tita()));
@@ -126,6 +128,34 @@ namespace {
                     } else {
                         this->citizen_motion_demo(citizen);
                     }
+                }
+            }
+        }
+
+        void on_char(char key, uint16_t modifiers, uint8_t repeats, bool pressed) override {
+            double direction = flnan;
+            BracerMode mode = BracerMode::Walk;
+
+            if (is_shift_pressed()) {
+                mode = BracerMode::Run;
+            }
+            
+            switch (key) {
+            case 'a': direction = 180.0; break;
+            case 's': direction = 90.0; break;
+            case 'd': direction = 0.0; break;
+            case 'w': direction = -90.0; break;
+            case 'q': direction = -135.0; break;
+            case 'e': direction = -45.0; break;
+            case 'z': direction = 135.0; break;
+            case 'c': direction = 45.0; break;
+            }
+
+            
+            if (!flisnan(direction)) {
+                for (auto bracer : this->bracers) {
+                    bracer->switch_mode(mode);
+                    bracer->set_heading(direction);
                 }
             }
         }
