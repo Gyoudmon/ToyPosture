@@ -1,106 +1,43 @@
 #include "digitama/big_bang/game.hpp"
-#include "digitama/big_bang/bang.hpp"
+
+#include "digitama/IMS/menu.hpp"
+#include "digitama/IMS/model.hpp"
+
+#include "digitama/IMS/view/class.hpp"
+
+#include <vector>
+#include <map>
 
 using namespace WarGrey::STEM;
+using namespace WarGrey::IMS;
 
 /*************************************************************************************************/
 namespace {
     static const size_t DESK_COUNT = 7;
+    static float platform_width = 512.0F;
+    static float platform_height = 64.0F;
 
-    class GradeManagementPlane : public Plane {
+    class GradeManagementPlane : public Plane, public IMenuEventListener, public IModelListener {
     public:
-        GradeManagementPlane() : Plane("成绩管理系统") { }
+        GradeManagementPlane() : Plane("成绩管理系统") {
+            this->model = new GradeManagementSystemModel(this);
+        }
+
+        virtual ~GradeManagementPlane() {
+            delete this->model;
+        }
 
     public:
         void load(float width, float height) override {
-            this->platform = this->insert(new Rectanglet(400.0F, 64.0F, STEELBLUE));
-            this->side_border = this->insert(new VLinelet(height, GRAY));
-            
-            for (size_t idx = 0; idx < DESK_COUNT; idx ++) {
-                this->desks.push_back(this->insert(new RegularPolygonlet(6, 90.0F, DARKORANGE)));
-            }
-
-            this->agent = this->insert(new Linkmon());
-            this->title = this->insert(new Labellet(GameFont::Title(), BLACK, "%s", this->name()));
-            
-            this->bracers.push_back(this->insert(new Estelle()));
-            this->bracers.push_back(this->insert(new Joshua()));
-            this->bracers.push_back(this->insert(new Scherazard()));
-            this->bracers.push_back(this->insert(new Olivier()));
-            this->bracers.push_back(this->insert(new Klose()));
-            this->bracers.push_back(this->insert(new Agate()));
-            this->bracers.push_back(this->insert(new Tita()));
-            this->bracers.push_back(this->insert(new Zin()));
-
-            for (auto name : TrailKid::list_names()) {
-                this->kids.push_back(this->insert(new TrailKid(name)));
-            }
-
-            for (auto name : TrailStudent::list_names()) {
-                this->students.push_back(this->insert(new TrailStudent(name)));
-            }
-
-            for (auto name : Citizen::list_special_names()) {
-                this->specials.push_back(this->insert(Citizen::create_special(name)));
-            }
-
-            this->tooltip = this->insert(make_label_for_tooltip(GameFont::Tooltip()));
-
-            this->set_sentry_sprite(this->agent);
-            this->set_tooltip_matter(this->tooltip);
-            this->agent->scale(-1.0F, 1.0F);
+            this->load_gui_elements(width, height);
+            this->load_menus(width, height);
+            this->load_classroom(width, height);
         }
 
         void reflow(float width, float height) override {
-            float sidebar_pos;
-
-            this->move_to(this->title, this->agent, MatterAnchor::RB, MatterAnchor::LB);
-
-            this->feed_matter_location(this->title, &sidebar_pos, nullptr, MatterAnchor::RC);
-            sidebar_pos += float(generic_font_size(FontSize::medium));
+            float sidebar_pos = this->reflow_gui_elements(width, height);
             
-            this->move_to(this->side_border, sidebar_pos, height, MatterAnchor::CB);
-            this->move_to(this->desks[0], (width - sidebar_pos) * 0.25F + sidebar_pos, height * 0.64F, MatterAnchor::CC);
-            this->move_to(this->desks[1], (width - sidebar_pos) * 0.50F + sidebar_pos, height * 0.75F, MatterAnchor::CC);
-            this->move_to(this->desks[2], (width - sidebar_pos) * 0.75F + sidebar_pos, height * 0.64F, MatterAnchor::CC);
-            this->move_to(this->desks[3], (width - sidebar_pos) * 0.25F + sidebar_pos, height * 0.32F, MatterAnchor::CC);
-            this->move_to(this->desks[4], (width - sidebar_pos) * 0.50F + sidebar_pos, height * 0.45F, MatterAnchor::CC);
-            this->move_to(this->desks[5], (width - sidebar_pos) * 0.75F + sidebar_pos, height * 0.32F, MatterAnchor::CC);
-            this->move_to(this->desks[6], (width - sidebar_pos) * 0.50F + sidebar_pos, height * 0.15F, MatterAnchor::CC);
-
-            this->move_to(this->platform, (width - sidebar_pos) * 0.50F + sidebar_pos, height * 0.95F, MatterAnchor::CC);
-
-            for (int idx = 0; idx < this->kids.size(); idx ++) {
-                if (idx == 0) {
-                    this->move_to(this->kids[idx], this->agent, MatterAnchor::CB, MatterAnchor::CT, 0.0F, 20.0F);
-                } else {
-                    this->move_to(this->kids[idx], this->kids[idx - 1], MatterAnchor::CB, MatterAnchor::CT, 0.0F, 10.0F);
-                }
-            }
-
-            for (int idx = 0; idx < this->students.size(); idx ++) {
-                if (idx == 0) {
-                    this->move_to(this->students[idx], this->kids[idx], MatterAnchor::RB, MatterAnchor::LB, 40.0F);
-                } else {
-                    this->move_to(this->students[idx], this->students[idx - 1], MatterAnchor::CB, MatterAnchor::CT, 0.0F, 10.0F);
-                }
-            }
-
-            for (int idx = 0; idx < this->specials.size(); idx ++) {
-                if (idx == 0) {
-                    this->move_to(this->specials[idx], this->students[idx], MatterAnchor::RB, MatterAnchor::LB, 80.0F);
-                } else {
-                    this->move_to(this->specials[idx], this->specials[idx - 1], MatterAnchor::CB, MatterAnchor::CT, 0.0F, 10.0F);
-                }
-            }
-
-            for (int idx = 0; idx < this->bracers.size(); idx ++) {
-                if (idx == 0) {
-                    this->move_to(this->bracers[idx], this->specials[idx], MatterAnchor::RB, MatterAnchor::LB, 80.0F);
-                } else {
-                    this->move_to(this->bracers[idx], this->bracers[idx - 1], MatterAnchor::CB, MatterAnchor::CT, 0.0F, 10.0F);
-                }
-            }
+            this->reflow_classroom(width, height, sidebar_pos);
         }
 
     public:
@@ -110,53 +47,6 @@ namespace {
 
         void after_select(IMatter* m, bool yes) override {
             if (yes) {
-                auto citizen = dynamic_cast<Citizen*>(m);
-                
-                if (citizen != nullptr) {
-                    auto bracer = dynamic_cast<Bracer*>(m);
-                
-                    if (bracer != nullptr) {
-                        if (is_ctrl_pressed()) {
-                            this->bracer_winpose_demo(bracer);
-                        } else if (is_shift_pressed()) {
-                            bracer->switch_mode(BracerMode::Run);
-                            this->citizen_motion_demo(bracer);
-                        } else {
-                            bracer->switch_mode(BracerMode::Walk);
-                            this->citizen_motion_demo(bracer);
-                        }
-                    } else {
-                        this->citizen_motion_demo(citizen);
-                    }
-                }
-            }
-        }
-
-        void on_char(char key, uint16_t modifiers, uint8_t repeats, bool pressed) override {
-            double direction = flnan;
-            BracerMode mode = BracerMode::Walk;
-
-            if (is_shift_pressed()) {
-                mode = BracerMode::Run;
-            }
-            
-            switch (key) {
-            case 'a': direction = 180.0; break;
-            case 's': direction = 90.0; break;
-            case 'd': direction = 0.0; break;
-            case 'w': direction = -90.0; break;
-            case 'q': direction = -135.0; break;
-            case 'e': direction = -45.0; break;
-            case 'z': direction = 135.0; break;
-            case 'c': direction = 45.0; break;
-            }
-
-            
-            if (!flisnan(direction)) {
-                for (auto bracer : this->bracers) {
-                    bracer->switch_mode(mode);
-                    bracer->set_heading(direction);
-                }
             }
         }
 
@@ -166,36 +56,154 @@ namespace {
 
         bool update_tooltip(IMatter* m, float lx, float ly, float gx, float gy) override {
             bool updated = false;
-            auto citizen = dynamic_cast<Citizen*>(m);
+            auto entity = dynamic_cast<ISprite*>(m);
 
-            if (citizen != nullptr) {
-                this->tooltip->set_text(" %s ", citizen->name());
+            if (entity != nullptr) {
+                this->tooltip->set_text(" %s ", entity->name());
                 updated = true;
             }
 
             return updated;
         }
 
-    private:
-        void citizen_motion_demo(Citizen* citizen) {
-            float distance = 64.0F;
-            float duration = 1.0F;
+    public:
+        void on_char(char key, uint16_t modifiers, uint8_t repeats, bool pressed) override {
+            if (!pressed) {
+                if (isdigit(key)) {
+                    int idx = key - '0';
+                    IMenu* self = this->menus[this->current_menu_type]->unsafe_plane<IMenu>();
 
-            if (citizen->motion_stopped()) {
-                this->glide(duration, citizen, distance, 0.0F);
-                this->glide(duration, citizen, 0.0F, distance);
-                this->glide(duration, citizen, -distance, 0.0F);
-                this->glide(duration, citizen, 0.0F, -distance);
-                this->glide(duration, citizen, distance, distance);
-                this->glide(duration, citizen, -distance, distance);
-                this->glide(duration, citizen, -distance, -distance);
-                this->glide(duration, citizen, distance, -distance);
+                    if ((idx >= 0) && (idx < self->count())) {
+                        self->on_menu_char(this, this->current_menu_type, key);
+                    }
+                }
             }
         }
 
-        void bracer_winpose_demo(Bracer* bracer) {
-            if (bracer->motion_stopped()) {
-                bracer->switch_mode(BracerMode::Win, 1);
+        void on_text(const char* text, size_t size, bool entire) override {
+            if (entire) {
+                try {
+                    switch (this->current_task) {
+                        case MenuTask::CreateClass: this->model->create_class_from_user_input(text, size); break;
+                        case MenuTask::DeleteClass: this->model->delete_class_as_user_required(text, size); break;
+                        default: /* do nothing */;
+                    }
+                } catch (std::exception& e) {
+                    this->log_message(CRIMSON, "%s", e.what());
+                }
+            }
+        }
+
+    public:
+        void on_menu_switch(MenuType self, MenuType to) override {
+            if (this->menus.find(to) != this->menus.end()) {
+                this->menus[self]->unsafe_plane<IMenu>()->select_menu('\0');
+                this->menus[self]->show(false);
+                this->menus[to]->show(true);
+                this->current_menu_type = to;
+            }
+        }
+        
+        void on_menu_task(MenuType self, MenuTask task) override {
+            this->current_task = task;
+
+            switch (task) {
+            case MenuTask::Exit: this->mission_complete(); break;
+            case MenuTask::CreateClass: this->start_input_text("请输入班级信息(%s): ", ClassEntity::prompt()); break;
+            case MenuTask::DeleteClass: this->start_input_text("请输入班级唯一编号: "); break;
+            default: /* do nothing */;
+            }
+        }
+
+    public:
+        void on_class_created(uint64_t id, shared_class_t entity) override {
+            this->classes[id] = this->insert(new ClassSprite(id));
+            this->classes[id]->resize_by_height(platform_height * 0.618F);
+            this->reflow_classroom_logos();
+        }
+
+        void on_class_deleted(uint64_t id, shared_class_t entity) override {
+            this->remove(this->classes[id]);
+            this->classes.erase(id);
+            this->reflow_classroom_logos();
+        }
+
+    private:
+        void load_gui_elements(float width, float height) {
+            this->agent = this->insert(new Linkmon());
+            this->title = this->insert(new Labellet(GameFont::Title(), BLACK, "%s", this->name()));
+            this->side_border = this->insert(new VLinelet(height, GRAY));
+            this->tooltip = this->insert(make_label_for_tooltip(GameFont::Tooltip()));
+            
+            this->set_sentry_sprite(this->agent);
+            this->set_tooltip_matter(this->tooltip);
+            this->agent->scale(-1.0F, 1.0F);
+        }
+
+        float reflow_gui_elements(float width, float height) {
+            float sidebar_pos, agent_width;
+
+            this->move_to(this->title, this->agent, MatterAnchor::RB, MatterAnchor::LB);
+
+            this->agent->feed_extent(0.0F, 0.0F, &agent_width, nullptr);
+            this->feed_matter_location(this->title, &sidebar_pos, nullptr, MatterAnchor::RC);
+            sidebar_pos += agent_width;
+            
+            this->move_to(this->side_border, sidebar_pos, height, MatterAnchor::CB);
+
+            for (auto menu : this->menus) {
+                this->move_to(menu.second, this->agent, MatterAnchor::LB, MatterAnchor::LT, 4.0F, 4.0F);
+            }
+            
+            return sidebar_pos;
+        }
+
+    private:
+        void load_classroom(float width, float height) {
+            this->platform = this->insert(new Rectanglet(platform_width, platform_height, STEELBLUE));
+            
+            for (size_t idx = 0; idx < DESK_COUNT; idx ++) {
+                this->desks.push_back(this->insert(new RegularPolygonlet(6, 90.0F, DARKORANGE)));
+            }
+        }
+
+        void reflow_classroom(float width, float height, float sidebar_pos) {
+            this->move_to(this->platform, (width - sidebar_pos) * 0.50F + sidebar_pos, height * 0.95F, MatterAnchor::CC);
+
+            this->move_to(this->desks[0], (width - sidebar_pos) * 0.25F + sidebar_pos, height * 0.64F, MatterAnchor::CC);
+            this->move_to(this->desks[1], (width - sidebar_pos) * 0.50F + sidebar_pos, height * 0.75F, MatterAnchor::CC);
+            this->move_to(this->desks[2], (width - sidebar_pos) * 0.75F + sidebar_pos, height * 0.64F, MatterAnchor::CC);
+            this->move_to(this->desks[3], (width - sidebar_pos) * 0.25F + sidebar_pos, height * 0.32F, MatterAnchor::CC);
+            this->move_to(this->desks[4], (width - sidebar_pos) * 0.50F + sidebar_pos, height * 0.45F, MatterAnchor::CC);
+            this->move_to(this->desks[5], (width - sidebar_pos) * 0.75F + sidebar_pos, height * 0.32F, MatterAnchor::CC);
+            this->move_to(this->desks[6], (width - sidebar_pos) * 0.50F + sidebar_pos, height * 0.15F, MatterAnchor::CC);
+        }
+
+        void reflow_classroom_logos() {
+            ClassSprite* prev_cls = nullptr;
+
+            for (auto cls : this->classes) {
+                if (prev_cls == nullptr) {
+                    this->move_to(cls.second, this->platform, MatterAnchor::LB, MatterAnchor::LB);
+                } else {
+                    this->move_to(cls.second, prev_cls, MatterAnchor::RB, MatterAnchor::LB);
+                }
+
+                prev_cls = cls.second;
+            }
+        }
+
+    private:
+        void load_menus(float width, float height) {
+            this->menus[MenuType::TopLevel] = this->insert(new Continent(new TopLevelMenu()));
+            this->menus[MenuType::Class] = this->insert(new Continent(new ClassMenu()));
+
+            for (auto menu : this->menus) {
+                if (this->current_menu_type != menu.first) {
+                    menu.second->show(false);
+                }
+
+                menu.second->camouflage(true);
             }
         }
 
@@ -207,13 +215,18 @@ namespace {
         Labellet* title;
         Labellet* tooltip;
         Linelet* side_border;
-        std::vector<Bracer*> bracers;
-        std::vector<Citizen*> kids;
-        std::vector<Citizen*> students;
-        std::vector<Citizen*> specials;
+        std::map<uint64_t, ClassSprite*> classes;
+        std::map<MenuType, Continent*> menus;
         Linkmon* agent;
+
+    private:
+        MenuType current_menu_type = MenuType::TopLevel;
+        MenuTask current_task = MenuTask::ImportData;
+        uint64_t current_class = 0;
+        GradeManagementSystemModel* model;
     };
 
+    /*********************************************************************************************/
     class GradeManagementSystem : public Cosmos {
     public:
         GradeManagementSystem() : Cosmos(60) {}
@@ -224,7 +237,6 @@ namespace {
 
             this->set_snapshot_folder("/Users/wargrey/Desktop");
             this->set_cmdwin_height(24);
-            this->set_window_size(1400, 0);
 
             this->push_plane(new GradeManagementPlane());
         }
