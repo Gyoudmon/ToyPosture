@@ -7,7 +7,12 @@
 
 /*************************************************************************************************/
 namespace WarGrey::IMS {
+#define FIELD_DELIM ','
+
     class GMSEntity {
+    protected:
+        static bool match(const std::string& line, char mark, int* offset);
+        
     public:
         virtual ~GMSEntity() {}
 

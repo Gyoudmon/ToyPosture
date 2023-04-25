@@ -5,7 +5,7 @@
 namespace WarGrey::IMS {
     class ClassEntity : public WarGrey::IMS::GMSEntity {
     public:
-        static int match(const std::string& line);
+        static bool match(const std::string& line, int* offset);
         static const char* prompt();
 
     public:

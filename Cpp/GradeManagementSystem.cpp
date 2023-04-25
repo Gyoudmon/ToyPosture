@@ -4,6 +4,7 @@
 #include "digitama/IMS/model.hpp"
 
 #include "digitama/IMS/view/class.hpp"
+#include "digitama/IMS/view/discipline.hpp"
 
 #include <vector>
 #include <map>
@@ -14,13 +15,16 @@ using namespace WarGrey::IMS;
 /*************************************************************************************************/
 namespace {
     static const size_t DESK_COUNT = 7;
-    static float platform_width = 512.0F;
-    static float platform_height = 64.0F;
+    static const float platform_width = 512.0F;
+    static const float platform_height = 64.0F;
+    static const double gliding_duration = 0.5;
 
     class GradeManagementPlane : public Plane, public IMenuEventListener, public IModelListener {
     public:
-        GradeManagementPlane() : Plane("成绩管理系统") {
+        GradeManagementPlane(std::string gmsin, std::string gmsout) : Plane("成绩管理系统") {
             this->model = new GradeManagementSystemModel(this);
+            this->gmsin = gmsin;
+            this->gmsout = (gmsout.empty()) ? this->gmsin : gmsout;
         }
 
         virtual ~GradeManagementPlane() {
@@ -32,12 +36,16 @@ namespace {
             this->load_gui_elements(width, height);
             this->load_menus(width, height);
             this->load_classroom(width, height);
+
+            this->on_menu_task(MenuType::TopLevel, MenuTask::ImportData);
         }
 
         void reflow(float width, float height) override {
             float sidebar_pos = this->reflow_gui_elements(width, height);
             
             this->reflow_classroom(width, height, sidebar_pos);
+            this->reflow_class_logos();
+            this->reflow_discipline_logos();
         }
 
     public:
@@ -56,11 +64,14 @@ namespace {
 
         bool update_tooltip(IMatter* m, float lx, float ly, float gx, float gy) override {
             bool updated = false;
-            auto entity = dynamic_cast<ISprite*>(m);
 
-            if (entity != nullptr) {
-                this->tooltip->set_text(" %s ", entity->name());
-                updated = true;
+            if (m != this->agent) {
+                auto entity = dynamic_cast<ISprite*>(m);
+
+                if (entity != nullptr) {
+                    this->tooltip->set_text(" %s ", entity->name());
+                    updated = true;
+                }
             }
 
             return updated;
@@ -81,14 +92,17 @@ namespace {
         }
 
         void on_text(const char* text, size_t size, bool entire) override {
-            if (entire) {
+            if (entire && (size > 0)) {
                 try {
                     switch (this->current_task) {
                         case MenuTask::CreateClass: this->model->create_class_from_user_input(text, size); break;
                         case MenuTask::DeleteClass: this->model->delete_class_as_user_required(text, size); break;
+                        case MenuTask::CreateDiscipline: this->model->create_discipline_from_user_input(text, size); break;
+                        case MenuTask::UpdateDiscipline: this->model->update_discipline_from_user_input(text, size); break;
+                        case MenuTask::DeleteDiscipline: this->model->delete_discipline_as_user_required(text, size); break;
                         default: /* do nothing */;
                     }
-                } catch (std::exception& e) {
+                } catch (const std::exception& e) {
                     this->log_message(CRIMSON, "%s", e.what());
                 }
             }
@@ -107,25 +121,58 @@ namespace {
         void on_menu_task(MenuType self, MenuTask task) override {
             this->current_task = task;
 
-            switch (task) {
-            case MenuTask::Exit: this->mission_complete(); break;
-            case MenuTask::CreateClass: this->start_input_text("请输入班级信息(%s): ", ClassEntity::prompt()); break;
-            case MenuTask::DeleteClass: this->start_input_text("请输入班级唯一编号: "); break;
-            default: /* do nothing */;
+            try {
+                switch (task) {
+                case MenuTask::Exit: this->mission_complete(); break;
+                case MenuTask::CreateClass: this->start_input_text("请按格式输入待创建班级信息(%s): ", ClassEntity::prompt()); break;
+                case MenuTask::DeleteClass: this->start_input_text("请输入待删除班级代号: "); break;
+                case MenuTask::CreateDiscipline: this->start_input_text("请按格式输入待创建课程信息(%s): ", DisciplineEntity::prompt()); break;
+                case MenuTask::UpdateDiscipline: this->start_input_text("请按格式输入待修改课程信息(%s)【代号不可能修改，“_”提示保留字段】: ", DisciplineEntity::prompt()); break;
+                case MenuTask::DeleteDiscipline: this->start_input_text("请输入待删除课程代号: "); break;
+                case MenuTask::ImportData: this->model->import_from_file(this->gmsin); this->reflow_model_sprites(gliding_duration); break;
+                case MenuTask::ExportData: this->model->export_to_file(this->gmsout); this->log_message(GREEN, "done."); break;
+                default: /* do nothing */;
+                }
+            } catch (const std::exception& e) {
+                this->log_message(CRIMSON, "%s", e.what());
             }
         }
 
     public:
-        void on_class_created(uint64_t id, shared_class_t entity) override {
+        void on_class_created(uint64_t id, shared_class_t entity, bool in_batching) override {
             this->classes[id] = this->insert(new ClassSprite(id));
             this->classes[id]->resize_by_height(platform_height * 0.618F);
-            this->reflow_classroom_logos();
+
+            if (!in_batching) {
+                this->reflow_class_logos(gliding_duration);
+            }
         }
 
-        void on_class_deleted(uint64_t id, shared_class_t entity) override {
+        void on_class_deleted(uint64_t id, shared_class_t entity, bool in_batching) override {
             this->remove(this->classes[id]);
             this->classes.erase(id);
-            this->reflow_classroom_logos();
+
+            if (!in_batching) {
+                this->reflow_class_logos(gliding_duration);
+            }
+        }
+
+        void on_discipline_created(uint64_t id, shared_discipline_t entity, bool in_batching) override {
+            this->disciplines[id] = this->insert(new DisciplineSprite(id, entity->discipline_type()));
+            this->disciplines[id]->resize_by_height(platform_height * 0.85F);
+
+            if (!in_batching) {
+                this->reflow_discipline_logos(gliding_duration);
+            }
+        }
+
+        void on_discipline_deleted(uint64_t id, shared_discipline_t entity, bool in_batching) override {
+            this->remove(this->disciplines[id]);
+            this->disciplines.erase(id);
+
+            if (!in_batching) {
+                this->reflow_discipline_logos(gliding_duration);
+            }
         }
 
     private:
@@ -177,19 +224,44 @@ namespace {
             this->move_to(this->desks[4], (width - sidebar_pos) * 0.50F + sidebar_pos, height * 0.45F, MatterAnchor::CC);
             this->move_to(this->desks[5], (width - sidebar_pos) * 0.75F + sidebar_pos, height * 0.32F, MatterAnchor::CC);
             this->move_to(this->desks[6], (width - sidebar_pos) * 0.50F + sidebar_pos, height * 0.15F, MatterAnchor::CC);
+
+            this->reflow_model_sprites(0.0);
         }
 
-        void reflow_classroom_logos() {
-            ClassSprite* prev_cls = nullptr;
+        void reflow_model_sprites(double duration = gliding_duration) {
+            this->reflow_class_logos(duration);
+            this->reflow_discipline_logos(duration);
+        }
 
-            for (auto cls : this->classes) {
-                if (prev_cls == nullptr) {
-                    this->move_to(cls.second, this->platform, MatterAnchor::LB, MatterAnchor::LB);
-                } else {
-                    this->move_to(cls.second, prev_cls, MatterAnchor::RB, MatterAnchor::LB);
+        void reflow_class_logos(double duration = gliding_duration) {
+            if (!this->classes.empty()) {
+                float cls_x, cls_y, grid_width;
+         
+                this->feed_matter_location(this->platform, &cls_x, &cls_y, MatterAnchor::LB);
+                this->classes.begin()->second->feed_extent(0.0F, 0.0F, &grid_width);
+                grid_width += 4.0F;
+
+                for (auto cls : this->classes) {
+                    this->glide_to(duration, cls.second, cls_x, cls_y, MatterAnchor::LB);
+                    cls_x += grid_width;
                 }
+            }
+        }
 
-                prev_cls = cls.second;
+        void reflow_discipline_logos(double duration = gliding_duration) {
+            if (!this->disciplines.empty()) {
+                float dis_x, dis_y, grid_width;
+         
+                this->feed_matter_location(this->side_border, &dis_x, &dis_y, MatterAnchor::RB);
+                this->disciplines.begin()->second->feed_extent(0.0F, 0.0F, &grid_width);
+                grid_width += 4.0F;
+                dis_x += 2.0F;
+                dis_y -= 2.0F;
+
+                for (auto dis : this->disciplines) {
+                    this->glide_to(duration, dis.second, dis_x, dis_y, MatterAnchor::LB);
+                    dis_x += grid_width;
+                }
             }
         }
 
@@ -197,6 +269,7 @@ namespace {
         void load_menus(float width, float height) {
             this->menus[MenuType::TopLevel] = this->insert(new Continent(new TopLevelMenu()));
             this->menus[MenuType::Class] = this->insert(new Continent(new ClassMenu()));
+            this->menus[MenuType::Discipline] = this->insert(new Continent(new DisciplineMenu()));
 
             for (auto menu : this->menus) {
                 if (this->current_menu_type != menu.first) {
@@ -216,6 +289,7 @@ namespace {
         Labellet* tooltip;
         Linelet* side_border;
         std::map<uint64_t, ClassSprite*> classes;
+        std::map<uint64_t, DisciplineSprite*> disciplines;
         std::map<MenuType, Continent*> menus;
         Linkmon* agent;
 
@@ -223,23 +297,60 @@ namespace {
         MenuType current_menu_type = MenuType::TopLevel;
         MenuTask current_task = MenuTask::ImportData;
         uint64_t current_class = 0;
+        uint64_t current_discipline = 0;
         GradeManagementSystemModel* model;
+
+    private:
+        std::string gmsin;
+        std::string gmsout;
     };
 
     /*********************************************************************************************/
+    enum GMSCmdOpt { GMSIn, GMSOut, _ };
+
     class GradeManagementSystem : public Cosmos {
     public:
         GradeManagementSystem() : Cosmos(60) {}
 
     public:
         void construct(int argc, char* argv[]) override {
-            enter_digimon_zone(argv[0]);    
+            enter_digimon_zone(argv[0]);
 
+            this->parse_commandline_argument(argc, argv);
             this->set_snapshot_folder("/Users/wargrey/Desktop");
             this->set_cmdwin_height(24);
 
-            this->push_plane(new GradeManagementPlane());
+            this->push_plane(new GradeManagementPlane(this->gmsin, this->gmsout));
         }
+
+    private:
+        void parse_commandline_argument(int argc, char* argv[]) {
+            GMSCmdOpt opt = GMSCmdOpt::_;
+
+            for (int idx = 1; idx < argc; idx ++) {
+                switch (opt) {
+                case GMSCmdOpt::GMSIn: {
+                    this->gmsin = argv[idx];
+                    opt = GMSCmdOpt::_;
+                 }; break;
+                case GMSCmdOpt::GMSOut: {
+                    this->gmsin = argv[idx];
+                    opt = GMSCmdOpt::_;
+                }; break;
+                default: {
+                    if ((strcmp(argv[idx], "-i") == 0) || (strcmp(argv[idx], "--in") == 0)) {
+                        opt = GMSCmdOpt::GMSIn;
+                    } else if ((strcmp(argv[idx], "-o") == 0) || (strcmp(argv[idx], "--out") == 0)) {
+                        opt = GMSCmdOpt::GMSOut;
+                    }
+                }; break;
+                }
+            }
+        }
+
+    private:
+        std::string gmsin;
+        std::string gmsout;
     };
 }
 

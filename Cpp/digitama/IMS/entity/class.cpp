@@ -6,16 +6,8 @@ using namespace WarGrey::STEM;
 /*************************************************************************************************/
 static const char line_mark = 'c';
 
-int WarGrey::IMS::ClassEntity::match(const std::string& line) {
-    int idx = -1;
-
-    if (line.size() > 2) {
-        if ((line[0] == line_mark) && (line[1] == ':')) {
-            idx = 2;
-        }
-    }
-
-    return idx;
+bool WarGrey::IMS::ClassEntity::match(const std::string& line, int* offset) {
+    return GMSEntity::match(line, line_mark, offset);
 }
 
 const char* WarGrey::IMS::ClassEntity::prompt() {
@@ -26,7 +18,7 @@ const char* WarGrey::IMS::ClassEntity::prompt() {
 WarGrey::IMS::ClassEntity::ClassEntity(const std::string& s, int idx) {
     size_t pos = size_t(idx);
     size_t end = s.size();
-    const char* src = &s[idx];
+    const char* src = s.c_str();
 
     this->id = scan_natural(src, &pos, end);
 }
