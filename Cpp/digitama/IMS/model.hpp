@@ -10,16 +10,16 @@
 namespace WarGrey::IMS {
     class IModelListener {
     public:
-        virtual void on_class_created(uint64_t id, shared_class_t entity, bool in_batching) = 0;
-        virtual void on_class_deleted(uint64_t id, shared_class_t entity, bool in_batching) = 0;
+        virtual void on_class_created(uint64_t pk, shared_class_t entity, bool in_batching) = 0;
+        virtual void on_class_deleted(uint64_t pk, shared_class_t entity, bool in_batching) = 0;
 
-        virtual void on_discipline_created(uint64_t id, shared_discipline_t entity, bool in_batching) = 0;
-        virtual void on_discipline_updated(uint64_t id, shared_discipline_t entity) {}
-        virtual void on_discipline_deleted(uint64_t id, shared_discipline_t entity, bool in_batching) = 0;
+        virtual void on_discipline_created(uint64_t pk, shared_discipline_t entity, bool in_batching) = 0;
+        virtual void on_discipline_updated(uint64_t pk, shared_discipline_t entity) {}
+        virtual void on_discipline_deleted(uint64_t pk, shared_discipline_t entity, bool in_batching) = 0;
         
-        //virtual void on_student_created(uint64_t id, shared_discipline_t entity, bool in_batching) = 0;
-        //virtual void on_student_updated(uint64_t id, shared_discipline_t entity) {}
-        //virtual void on_student_deleted(uint64_t id, shared_discipline_t entity, bool in_batching) = 0;
+        virtual void on_student_created(uint64_t pk, shared_student_t entity, bool in_batching) = 0;
+        virtual void on_student_updated(uint64_t pk, shared_student_t entity) {}
+        virtual void on_student_deleted(uint64_t pk, shared_student_t entity, bool in_batching) = 0;
     };
 
     class GradeManagementSystemModel {

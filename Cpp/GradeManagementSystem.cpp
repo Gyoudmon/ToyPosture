@@ -1,10 +1,12 @@
 #include "digitama/big_bang/game.hpp"
 
 #include "digitama/IMS/menu.hpp"
+#include "digitama/IMS/avatar.hpp"
 #include "digitama/IMS/model.hpp"
 
 #include "digitama/IMS/view/class.hpp"
 #include "digitama/IMS/view/discipline.hpp"
+#include "digitama/IMS/view/student.hpp"
 
 #include <vector>
 #include <map>
@@ -17,7 +19,7 @@ namespace {
     static const size_t DESK_COUNT = 7;
     static const float platform_width = 512.0F;
     static const float platform_height = 80.0F;
-    static const double gliding_duration = 0.5;
+    static const double gliding_duration = 0.4;
 
     class GradeManagementPlane : public Plane, public IMenuEventListener, public IModelListener {
     public:
@@ -36,6 +38,7 @@ namespace {
             this->load_gui_elements(width, height);
             this->load_menus(width, height);
             this->load_classroom(width, height);
+            this->load_avatars(width, height);
 
             this->on_menu_task(MenuType::TopLevel, MenuTask::ImportData);
         }
@@ -100,6 +103,9 @@ namespace {
                         case MenuTask::CreateDiscipline: this->model->create_discipline_from_user_input(text, size); break;
                         case MenuTask::UpdateDiscipline: this->model->update_discipline_from_user_input(text, size); break;
                         case MenuTask::DeleteDiscipline: this->model->delete_discipline_as_user_required(text, size); break;
+                        case MenuTask::CreateStudent: this->model->create_student_from_user_input(text, size); break;
+                        case MenuTask::UpdateStudent: this->model->update_student_from_user_input(text, size); break;
+                        case MenuTask::DeleteStudent: this->model->delete_student_as_user_required(text, size); break;
                         default: /* do nothing */;
                     }
                 } catch (const std::exception& e) {
@@ -116,6 +122,8 @@ namespace {
                 this->menus[to]->show(true);
                 this->current_menu_type = to;
             }
+
+            this->avatar->show(this->current_menu_type == MenuType::Student);
         }
         
         void on_menu_task(MenuType self, MenuTask task) override {
@@ -125,10 +133,13 @@ namespace {
                 switch (task) {
                 case MenuTask::Exit: this->mission_complete(); break;
                 case MenuTask::CreateClass: this->start_input_text("请按格式输入待创建班级信息(%s): ", ClassEntity::prompt()); break;
-                case MenuTask::DeleteClass: this->start_input_text("请输入待删除班级代号: "); break;
+                case MenuTask::DeleteClass: this->start_input_text("请输入待删除班级的班号: "); break;
                 case MenuTask::CreateDiscipline: this->start_input_text("请按格式输入待创建课程信息(%s): ", DisciplineEntity::prompt()); break;
                 case MenuTask::UpdateDiscipline: this->start_input_text("请按格式输入待修改课程信息(%s): ", DisciplineEntity::prompt()); break;
-                case MenuTask::DeleteDiscipline: this->start_input_text("请输入待删除课程代号: "); break;
+                case MenuTask::DeleteDiscipline: this->start_input_text("请输入待删除课程的代号: "); break;
+                case MenuTask::CreateStudent: this->start_input_text("请按格式输入新生信息(%s): ", StudentEntity::prompt()); break;
+                case MenuTask::UpdateStudent: this->start_input_text("请按格式输入待修改学生信息(%s): ", StudentEntity::prompt()); break;
+                case MenuTask::DeleteStudent: this->start_input_text("请输入待删除学生的学号: "); break;
                 case MenuTask::ImportData: this->model->import_from_file(this->gmsin); this->reflow_model_sprites(gliding_duration); break;
                 case MenuTask::ExportData: this->model->export_to_file(this->gmsout); this->log_message(GREEN, "done."); break;
                 default: /* do nothing */;
@@ -175,6 +186,23 @@ namespace {
             }
         }
 
+        void on_student_created(uint64_t pk, shared_student_t entity, bool in_batching) override {
+            this->students[pk] = this->insert(new StudentSprite(pk, entity->get_nickname(), entity->get_avatar(), entity->get_age()));
+
+            if (!in_batching) {
+                this->reflow_students(gliding_duration);
+            }
+        }
+
+        void on_student_deleted(uint64_t pk, shared_student_t entity, bool in_batching) override {
+            this->remove(this->students[pk]);
+            this->students.erase(pk);
+
+            if (!in_batching) {
+                this->reflow_students(gliding_duration);
+            }
+        }
+
     private:
         void load_gui_elements(float width, float height) {
             this->agent = this->insert(new Linkmon());
@@ -202,6 +230,8 @@ namespace {
             for (auto menu : this->menus) {
                 this->move_to(menu.second, this->agent, MatterAnchor::LB, MatterAnchor::LT, 4.0F, 4.0F);
             }
+
+            this->move_to(this->avatar, 0.0F, height, MatterAnchor::LB);
             
             return sidebar_pos;
         }
@@ -232,6 +262,7 @@ namespace {
         void reflow_model_sprites(double duration = gliding_duration) {
             this->reflow_class_logos(duration);
             this->reflow_discipline_logos(duration);
+            this->reflow_students(duration);
         }
 
         void reflow_class_logos(double duration = gliding_duration) {
@@ -266,11 +297,29 @@ namespace {
             }
         }
 
+        void reflow_students(double duration = gliding_duration) {
+            if (!this->students.empty()) {
+                float stu_x, stu_y, grid_width;
+                float gap = 4.0F;
+         
+                this->feed_matter_location(this->side_border, &stu_x, &stu_y, MatterAnchor::LC);
+                this->disciplines.begin()->second->feed_extent(0.0F, 0.0F, &grid_width);
+                stu_x += gap;
+                grid_width += gap;
+
+                for (auto stu : this->students) {
+                    this->glide_to(duration, stu.second, stu_x, stu_y, MatterAnchor::LC);
+                    stu_x += grid_width;
+                }
+            }
+        }
+
     private:
         void load_menus(float width, float height) {
             this->menus[MenuType::TopLevel] = this->insert(new Continent(new TopLevelMenu()));
             this->menus[MenuType::Class] = this->insert(new Continent(new ClassMenu()));
             this->menus[MenuType::Discipline] = this->insert(new Continent(new DisciplineMenu()));
+            this->menus[MenuType::Student] = this->insert(new Continent(new StudentMenu()));
 
             for (auto menu : this->menus) {
                 if (this->current_menu_type != menu.first) {
@@ -279,6 +328,12 @@ namespace {
 
                 menu.second->camouflage(true);
             }
+        }
+
+        void load_avatars(float width, float height) {
+            this->avatar = this->insert(new Continent(new AvatarPlane("学生形象")));
+            this->avatar->show(false);
+            this->avatar->camouflage(true);
         }
 
     private:
@@ -291,7 +346,9 @@ namespace {
         Linelet* side_border;
         std::map<uint64_t, ClassSprite*> classes;
         std::map<uint64_t, DisciplineSprite*> disciplines;
+        std::map<uint64_t, StudentSprite*> students;
         std::map<MenuType, Continent*> menus;
+        Continent* avatar;
         Linkmon* agent;
 
     private:
@@ -299,6 +356,7 @@ namespace {
         MenuTask current_task = MenuTask::ImportData;
         uint64_t current_class = 0;
         uint64_t current_discipline = 0;
+        uint64_t current_student = 0;
         GradeManagementSystemModel* model;
 
     private:

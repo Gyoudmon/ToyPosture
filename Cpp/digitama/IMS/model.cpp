@@ -38,6 +38,14 @@ void WarGrey::IMS::GradeManagementSystemModel::import_from_file(const std::strin
                         this->disciplines[pk] = dis;
                         this->listener->on_discipline_created(pk, dis, true);
                     }
+                } else if (StudentEntity::match(line, &offset)) {
+                    shared_student_t stu = std::make_shared<StudentEntity>(line, offset);
+                    uint64_t pk = stu->primary_key();
+
+                    if (this->students.find(pk) == this->students.end()) {
+                        this->students[pk] = stu;
+                        this->listener->on_student_created(pk, stu, true);
+                    }
                 }
             } catch (const std::exception& e) {}
         }
@@ -60,6 +68,10 @@ void WarGrey::IMS::GradeManagementSystemModel::export_to_file(const std::string&
         for (auto dis : this->disciplines) {
             gmsout << dis.second->to_string() << std::endl;
         }
+
+        for (auto stu : this->students) {
+            gmsout << stu.second->to_string() << std::endl;
+        }
         
         gmsout.close();
     }
@@ -75,6 +87,11 @@ void WarGrey::IMS::GradeManagementSystemModel::clear() {
         this->listener->on_discipline_deleted(dis.first, dis.second, true);
     }
     this->disciplines.clear();
+
+    for (auto stu : this->students) {
+        this->listener->on_student_deleted(stu.first, stu.second, true);
+    }
+    this->students.clear();
 }
 
 /*************************************************************************************************/
@@ -127,5 +144,31 @@ void WarGrey::IMS::GradeManagementSystemModel::delete_discipline_as_user_require
         this->listener->on_discipline_deleted(dis_pk, entity, false);
     } else {
         throw exn_gms("查无此课(%llu)", dis_pk);
+    }
+}
+
+void WarGrey::IMS::GradeManagementSystemModel::create_student_from_user_input(const char* text, size_t size) {
+    shared_student_t stu = std::make_shared<StudentEntity>(text, 0);
+    uint64_t pk = stu->primary_key();
+
+    if (this->students.find(pk) == this->students.end()) {
+        this->students[pk] = stu;
+        this->listener->on_student_created(pk, stu, false);
+    } else {
+        throw exn_gms("学号(%llu)已存在", stu->primary_key());
+    }
+}
+
+void WarGrey::IMS::GradeManagementSystemModel::delete_student_as_user_required(const char* text, size_t size) {
+    size_t pos = 0;
+    uint64_t stu_pk = scan_natural(text, &pos, size);
+
+    if (this->students.find(stu_pk) != this->students.end()) {
+        shared_student_t entity = this->students[stu_pk];
+
+        this->students.erase(stu_pk);
+        this->listener->on_student_deleted(stu_pk, entity, false);
+    } else {
+        throw exn_gms("查无此人(%llu)", stu_pk);
     }
 }

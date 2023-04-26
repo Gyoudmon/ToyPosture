@@ -1,0 +1,32 @@
+{
+    "configurations": [
+        {
+            "name": "成绩管理系统@macOS",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/compiled/native/x86_64-macosx/GradeManagementSystem",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "成绩管理系统@macOS[Release]"
+        },
+        
+        {
+            "name": "macDBG宇宙大爆炸",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/compiled/native/x86_64-macosx/debug/GradeManagementSystem",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "成绩管理系统@macOS[Debug]"
+        }
+    ],
+    "version": "2.0.0"
+}

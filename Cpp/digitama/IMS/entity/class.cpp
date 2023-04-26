@@ -25,5 +25,5 @@ WarGrey::IMS::ClassEntity::ClassEntity(const std::string& s, int idx) {
 }
 
 std::string WarGrey::IMS::ClassEntity::to_string() {
-    return make_nstring("%c:%lld", line_mark, this->seq);
+    return make_nstring("%c:%llu", line_mark, this->seq);
 }

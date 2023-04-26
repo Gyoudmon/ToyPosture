@@ -77,5 +77,3 @@ obj/
 # Python
 __pycache__
 
-#VS for Code
-.vscode

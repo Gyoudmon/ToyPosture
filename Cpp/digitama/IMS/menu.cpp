@@ -122,3 +122,29 @@ void WarGrey::IMS::DisciplineMenu::on_menu_key(IMenuEventListener* master, MenuT
     default: /* do nothing */;
     }
 }
+
+/*************************************************************************************************/
+static const char STDT_CREATE_KEY = '1';
+static const char STDT_UPDATE_KEY = '2';
+static const char STDT_DELETE_KEY = '3';
+static const char STDT_CLASS_KEY = '4';
+
+std::vector<std::pair<char, std::string>> WarGrey::IMS::StudentMenu::prepare_menu_items() {
+    return {
+        { MENU_RETURN_KEY, "返回上层"},
+        { STDT_CREATE_KEY, "添加新生信息"},
+        { STDT_UPDATE_KEY, "更新学生信息"},
+        { STDT_DELETE_KEY, "删除学生信息"},
+        { STDT_CLASS_KEY,  "调整班级座位"}
+    };
+}
+
+void WarGrey::IMS::StudentMenu::on_menu_key(IMenuEventListener* master, MenuType self, char key) {
+    switch (key) {
+    case STDT_CREATE_KEY: master->on_menu_task(self, MenuTask::CreateStudent); break;
+    case STDT_UPDATE_KEY: master->on_menu_task(self, MenuTask::UpdateStudent); break;
+    case STDT_DELETE_KEY: master->on_menu_task(self, MenuTask::DeleteStudent); break;
+    case MENU_RETURN_KEY: master->on_menu_switch(self, MenuType::TopLevel); break;
+    default: /* do nothing */;
+    }
+}

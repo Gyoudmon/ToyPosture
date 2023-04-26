@@ -60,7 +60,7 @@ WarGrey::IMS::DisciplineEntity::DisciplineEntity(const std::string& s, int idx) 
 }
 
 std::string WarGrey::IMS::DisciplineEntity::to_string() {
-    return make_nstring("%c:%lld, %s, %lld", line_mark, this->code, this->cannonical_name(), this->score);
+    return make_nstring("%c:%llu, %s, %llu", line_mark, this->code, this->cannonical_name(), this->score);
 }
 
 const char* WarGrey::IMS::DisciplineEntity::cannonical_name() {

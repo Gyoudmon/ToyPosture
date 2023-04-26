@@ -1,7 +1,5 @@
 #include "discipline.hpp"
 
-#include "../entity/discipline.hpp"
-
 using namespace WarGrey::STEM;
 using namespace WarGrey::IMS;
 

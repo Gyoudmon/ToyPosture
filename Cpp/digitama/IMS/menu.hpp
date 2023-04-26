@@ -9,7 +9,8 @@ namespace WarGrey::IMS {
     enum class MenuType { TopLevel, Class, Discipline, Student, Grade };
     enum class MenuTask { Exit,
         ImportData, ExportData, CreateClass, DeleteClass,
-        CreateDiscipline, UpdateDiscipline, DeleteDiscipline
+        CreateDiscipline, UpdateDiscipline, DeleteDiscipline,
+        CreateStudent, UpdateStudent, DeleteStudent
     };
 
     class IMenuEventListener {
@@ -70,6 +71,16 @@ namespace WarGrey::IMS {
     public:
         DisciplineMenu() : IMenu("课程管理菜单") {}
         virtual ~DisciplineMenu() {}
+
+    protected:
+        void on_menu_key(IMenuEventListener* master, MenuType self, char key) override;
+        std::vector<std::pair<char, std::string>> prepare_menu_items() override;
+    };
+
+    class StudentMenu : public WarGrey::IMS::IMenu {
+    public:
+        StudentMenu() : IMenu("学生管理菜单") {}
+        virtual ~StudentMenu() {}
 
     protected:
         void on_menu_key(IMenuEventListener* master, MenuType self, char key) override;
