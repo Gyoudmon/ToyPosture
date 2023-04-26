@@ -25,12 +25,11 @@ namespace WarGrey::IMS {
         DisciplineType discipline_type() { return this->type; }
 
     public:
-        bool okay() override { return this->id > 0U; }
-        uint64_t primary_key() override { return this->id; }
+        uint64_t primary_key() override { return this->code; }
         std::string to_string() override;
 
     private:
-        uint64_t id;
+        uint64_t code;
         DisciplineType type;
         uint64_t score;
     };

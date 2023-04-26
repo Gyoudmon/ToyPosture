@@ -23,20 +23,20 @@ void WarGrey::IMS::GradeManagementSystemModel::import_from_file(const std::strin
         while (std::getline(gmsin, line)) {
             try {
                 if (ClassEntity::match(line, &offset)) {
-                    ClassEntity* cls = new ClassEntity(line, offset);
+                    shared_class_t cls = std::make_shared<ClassEntity>(line, offset);
                     uint64_t pk = cls->primary_key();
 
-                    if (cls->okay() && (this->classes.find(pk) == this->classes.end())) {
-                        this->classes[pk] = std::shared_ptr<ClassEntity>(cls);
-                        this->listener->on_class_created(pk, this->classes[pk], true);
+                    if (this->classes.find(pk) == this->classes.end()) {
+                        this->classes[pk] = cls;
+                        this->listener->on_class_created(pk, cls, true);
                     }
                 } else if (DisciplineEntity::match(line, &offset)) {
-                    DisciplineEntity* dis = new DisciplineEntity(line, offset);
+                    shared_discipline_t dis = std::make_shared<DisciplineEntity>(line, offset);
                     uint64_t pk = dis->primary_key();
 
-                    if (dis->okay() && (this->disciplines.find(pk) == this->disciplines.end())) {
-                        this->disciplines[pk] = std::shared_ptr<DisciplineEntity>(dis);
-                        this->listener->on_discipline_created(pk, this->disciplines[pk], true);
+                    if (this->disciplines.find(pk) == this->disciplines.end()) {
+                        this->disciplines[pk] = dis;
+                        this->listener->on_discipline_created(pk, dis, true);
                     }
                 }
             } catch (const std::exception& e) {}
@@ -79,19 +79,14 @@ void WarGrey::IMS::GradeManagementSystemModel::clear() {
 
 /*************************************************************************************************/
 void WarGrey::IMS::GradeManagementSystemModel::create_class_from_user_input(const char* text, size_t size) {
-    ClassEntity* cls = new ClassEntity(text, 0);
+    shared_class_t cls = std::make_shared<ClassEntity>(text, 0);
+    uint64_t pk = cls->primary_key();
 
-    if (cls->okay()) {
-        uint64_t pk = cls->primary_key();
-
-        if (this->classes.find(pk) == this->classes.end()) {
-            this->classes[pk] = std::shared_ptr<ClassEntity>(cls);
-            this->listener->on_class_created(pk, this->classes[pk], false);
-        } else {
-            throw exn_gms("班级(%llu)已存在", cls->primary_key());
-        }
+    if (this->classes.find(pk) == this->classes.end()) {
+        this->classes[pk] = cls;
+        this->listener->on_class_created(pk, cls, false);
     } else {
-        throw exn_gms("无效输入");
+        throw exn_gms("班级(%llu)已存在", cls->primary_key());
     }
 }
 
@@ -110,19 +105,14 @@ void WarGrey::IMS::GradeManagementSystemModel::delete_class_as_user_required(con
 }
 
 void WarGrey::IMS::GradeManagementSystemModel::create_discipline_from_user_input(const char* text, size_t size) {
-    DisciplineEntity* dis = new DisciplineEntity(text, 0);
+    shared_discipline_t dis = std::make_shared<DisciplineEntity>(text, 0);
+    uint64_t pk = dis->primary_key();
 
-    if (dis->okay()) {
-        uint64_t pk = dis->primary_key();
-
-        if (this->disciplines.find(pk) == this->disciplines.end()) {
-            this->disciplines[pk] = std::shared_ptr<DisciplineEntity>(dis);
-            this->listener->on_discipline_created(pk, this->disciplines[pk], false);
-        } else {
-            throw exn_gms("课程(%llu)已存在", dis->primary_key());
-        }
+    if (this->disciplines.find(pk) == this->disciplines.end()) {
+        this->disciplines[pk] = dis;
+        this->listener->on_discipline_created(pk, dis, false);
     } else {
-        throw exn_gms("无效输入");
+        throw exn_gms("课程(%llu)已存在", dis->primary_key());
     }
 }
 

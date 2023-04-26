@@ -17,7 +17,6 @@ namespace WarGrey::IMS {
         virtual ~GMSEntity() {}
 
     public:
-        virtual bool okay() = 0;
         virtual uint64_t primary_key() = 0;
         virtual std::string to_string() = 0;
     };

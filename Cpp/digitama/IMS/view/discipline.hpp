@@ -6,12 +6,12 @@
 namespace WarGrey::IMS {
     class DisciplineSprite : public WarGrey::STEM::Sprite {
     public:
-        DisciplineSprite(uint64_t id, DisciplineType type);
+        DisciplineSprite(uint64_t code, DisciplineType type);
         virtual ~DisciplineSprite() {}
 
     public:
         const char* name() override;
-        uint64_t uuid() { return this->id; }
+        uint64_t primary_key() { return this->code; }
 
     public:
         void set_type(DisciplineType type);
@@ -21,7 +21,7 @@ namespace WarGrey::IMS {
         virtual int get_initial_costume_index() override;
 
     private:
-        uint64_t id;
+        uint64_t code;
         DisciplineType type;
     };
 }

@@ -185,6 +185,7 @@ namespace {
             this->set_sentry_sprite(this->agent);
             this->set_tooltip_matter(this->tooltip);
             this->agent->scale(-1.0F, 1.0F);
+            this->tooltip->set_background_color(GHOSTWHITE);
         }
 
         float reflow_gui_elements(float width, float height) {

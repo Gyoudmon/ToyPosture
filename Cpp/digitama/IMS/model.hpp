@@ -2,6 +2,7 @@
 
 #include "entity/class.hpp"
 #include "entity/discipline.hpp"
+#include "entity/student.hpp"
 
 #include <map>
 
@@ -11,9 +12,14 @@ namespace WarGrey::IMS {
     public:
         virtual void on_class_created(uint64_t id, shared_class_t entity, bool in_batching) = 0;
         virtual void on_class_deleted(uint64_t id, shared_class_t entity, bool in_batching) = 0;
+
         virtual void on_discipline_created(uint64_t id, shared_discipline_t entity, bool in_batching) = 0;
         virtual void on_discipline_updated(uint64_t id, shared_discipline_t entity) {}
         virtual void on_discipline_deleted(uint64_t id, shared_discipline_t entity, bool in_batching) = 0;
+        
+        //virtual void on_student_created(uint64_t id, shared_discipline_t entity, bool in_batching) = 0;
+        //virtual void on_student_updated(uint64_t id, shared_discipline_t entity) {}
+        //virtual void on_student_deleted(uint64_t id, shared_discipline_t entity, bool in_batching) = 0;
     };
 
     class GradeManagementSystemModel {
@@ -28,9 +34,14 @@ namespace WarGrey::IMS {
     public:
         void create_class_from_user_input(const char* text, size_t size);
         void delete_class_as_user_required(const char* text, size_t size);
+
         void create_discipline_from_user_input(const char* text, size_t size);
         void update_discipline_from_user_input(const char* text, size_t size);
         void delete_discipline_as_user_required(const char* text, size_t size);
+
+        void create_student_from_user_input(const char* text, size_t size);
+        void update_student_from_user_input(const char* text, size_t size);
+        void delete_student_as_user_required(const char* text, size_t size);
 
     private:
         void clear();
@@ -38,6 +49,7 @@ namespace WarGrey::IMS {
     private:
         std::map<uint64_t, shared_class_t> classes;
         std::map<uint64_t, shared_discipline_t> disciplines;
+        std::map<uint64_t, shared_student_t> students;
 
     private:
         IModelListener* listener;

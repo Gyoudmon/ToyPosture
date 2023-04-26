@@ -11,7 +11,7 @@ bool WarGrey::IMS::ClassEntity::match(const std::string& line, int* offset) {
 }
 
 const char* WarGrey::IMS::ClassEntity::prompt() {
-    return "%{id:nat}";
+    return "{ seq:nat }";
 }
 
 /*************************************************************************************************/
@@ -20,9 +20,10 @@ WarGrey::IMS::ClassEntity::ClassEntity(const std::string& s, int idx) {
     size_t end = s.size();
     const char* src = s.c_str();
 
-    this->id = scan_natural(src, &pos, end);
+    this->seq = scan_natural(src, &pos, end);
+    if (this->seq == 0U) throw exn_gms("无效班级");
 }
 
 std::string WarGrey::IMS::ClassEntity::to_string() {
-    return make_nstring("%c:%lld", line_mark, this->id);
+    return make_nstring("%c:%lld", line_mark, this->seq);
 }

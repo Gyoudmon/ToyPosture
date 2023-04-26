@@ -15,12 +15,11 @@ namespace WarGrey::IMS {
         virtual ~ClassEntity() {}
 
     public:
-        bool okay() override { return this->id > 0U; }
-        uint64_t primary_key() override { return this->id; }
+        uint64_t primary_key() override { return this->seq; }
         std::string to_string() override;
 
     private:
-        uint64_t id;
+        uint64_t seq;
     };
 
     typedef std::shared_ptr<ClassEntity> shared_class_t;

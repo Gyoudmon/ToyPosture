@@ -9,13 +9,13 @@ using namespace WarGrey::IMS;
 #define DISCIPLINE_PATH digimon_path("IMS/discipline", "")
 
 /*************************************************************************************************/
-WarGrey::IMS::DisciplineSprite::DisciplineSprite(uint64_t id, DisciplineType type)
-    : Sprite(DISCIPLINE_PATH), id(id), type(type) {}
+WarGrey::IMS::DisciplineSprite::DisciplineSprite(uint64_t code, DisciplineType type)
+    : Sprite(DISCIPLINE_PATH), code(code), type(type) {}
 
 const char* WarGrey::IMS::DisciplineSprite::name() {
     static std::string s;
 
-    s = make_nstring("%s[%llu]", DisciplineEntity::type_to_name(this->get_type()), this->id);
+    s = make_nstring("%s[%llu]", DisciplineEntity::type_to_name(this->get_type()), this->code);
 
     return s.c_str();
 }
