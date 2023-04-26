@@ -10,7 +10,7 @@ namespace WarGrey::IMS {
     enum class MenuTask { Exit,
         ImportData, ExportData, CreateClass, DeleteClass,
         CreateDiscipline, UpdateDiscipline, DeleteDiscipline,
-        CreateStudent, UpdateStudent, DeleteStudent
+        CreateStudent, UpdateStudent, DeleteStudent, BindClass
     };
 
     class IMenuEventListener {

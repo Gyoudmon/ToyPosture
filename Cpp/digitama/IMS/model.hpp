@@ -3,6 +3,7 @@
 #include "entity/class.hpp"
 #include "entity/discipline.hpp"
 #include "entity/student.hpp"
+#include "entity/seat.hpp"
 
 #include <map>
 
@@ -43,6 +44,10 @@ namespace WarGrey::IMS {
         void update_student_from_user_input(const char* text, size_t size);
         void delete_student_as_user_required(const char* text, size_t size);
 
+    public:
+        void bind_student_to_class(uint64_t sNo, uint64_t clsId);
+        uint64_t get_student_class(uint64_t sNo);
+
     private:
         void clear();
 
@@ -50,6 +55,7 @@ namespace WarGrey::IMS {
         std::map<uint64_t, shared_class_t> classes;
         std::map<uint64_t, shared_discipline_t> disciplines;
         std::map<uint64_t, shared_student_t> students;
+        std::map<uint64_t, shared_seat_t> seats;
 
     private:
         IModelListener* listener;

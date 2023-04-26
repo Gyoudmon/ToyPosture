@@ -4,10 +4,8 @@ using namespace WarGrey::IMS;
 using namespace WarGrey::STEM;
 
 /*************************************************************************************************/
-static const char line_mark = 'c';
-
 bool WarGrey::IMS::ClassEntity::match(const std::string& line, int* offset) {
-    return GMSEntity::match(line, line_mark, offset);
+    return GMSEntity::match(line, class_mark, offset);
 }
 
 const char* WarGrey::IMS::ClassEntity::prompt() {
@@ -25,5 +23,5 @@ WarGrey::IMS::ClassEntity::ClassEntity(const std::string& s, int idx) {
 }
 
 std::string WarGrey::IMS::ClassEntity::to_string() {
-    return make_nstring("%c:%llu", line_mark, this->seq);
+    return make_nstring("%c:%llu", class_mark, this->seq);
 }

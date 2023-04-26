@@ -7,11 +7,17 @@
 
 /*************************************************************************************************/
 namespace WarGrey::IMS {
-#define FIELD_DELIM ','
+    static const char field_delimiter = ',';
+    
+    static const char class_mark = 'c';
+    static const char discipline_mark = 'd';
+    static const char student_mark = 's';
 
+    /*********************************************************************************************/
     class GMSEntity {
     protected:
         static bool match(const std::string& line, char mark, int* offset);
+        static bool match(const std::string& line, char mark1, char mark2, int* offset);
         
     public:
         virtual ~GMSEntity() {}

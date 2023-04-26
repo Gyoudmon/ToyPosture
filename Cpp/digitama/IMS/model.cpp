@@ -46,8 +46,17 @@ void WarGrey::IMS::GradeManagementSystemModel::import_from_file(const std::strin
                         this->students[pk] = stu;
                         this->listener->on_student_created(pk, stu, true);
                     }
+                } else if (SeatEntity::match(line, &offset)) {
+                    shared_seat_t seat = std::make_shared<SeatEntity>(line, offset);
+                    uint64_t sNo = seat->get_student();
+
+                    if (this->seats.find(sNo) == this->seats.end()) {
+                        this->seats[sNo] = seat;
+                    }
                 }
-            } catch (const std::exception& e) {}
+            } catch (const std::exception& e) {
+                printf("%s in line \"%s\"\n", e.what(), line.c_str());
+            }
         }
 
         gmsin.close();
@@ -72,6 +81,10 @@ void WarGrey::IMS::GradeManagementSystemModel::export_to_file(const std::string&
         for (auto stu : this->students) {
             gmsout << stu.second->to_string() << std::endl;
         }
+
+        for (auto seat : this->seats) {
+            gmsout << seat.second->to_string() << std::endl;
+        }
         
         gmsout.close();
     }
@@ -92,6 +105,7 @@ void WarGrey::IMS::GradeManagementSystemModel::clear() {
         this->listener->on_student_deleted(stu.first, stu.second, true);
     }
     this->students.clear();
+    this->seats.clear();
 }
 
 /*************************************************************************************************/
@@ -171,4 +185,23 @@ void WarGrey::IMS::GradeManagementSystemModel::delete_student_as_user_required(c
     } else {
         throw exn_gms("查无此人(%llu)", stu_pk);
     }
+}
+
+/*************************************************************************************************/
+void WarGrey::IMS::GradeManagementSystemModel::bind_student_to_class(uint64_t sNo, uint64_t clsId) {
+    if (this->seats.find(sNo) == this->seats.end()) {
+        this->seats[sNo] = std::make_shared<SeatEntity>(sNo, clsId);
+    } else {
+        this->seats[sNo]->set_class(clsId);
+    }
+}
+
+uint64_t WarGrey::IMS::GradeManagementSystemModel::get_student_class(uint64_t sNo) {
+    uint64_t clsId = 0U;
+
+    if (this->seats.find(sNo) != this->seats.end()) {
+        clsId = this->seats[sNo]->get_class();        
+    }
+
+    return clsId;
 }

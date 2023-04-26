@@ -58,6 +58,32 @@ namespace {
 
         void after_select(IMatter* m, bool yes) override {
             if (yes) {
+                auto cls = dynamic_cast<ClassSprite*>(m);
+                auto stu = dynamic_cast<StudentSprite*>(m);
+
+                if (cls != nullptr) {
+                    this->on_class_changed(cls->primary_key(), false);
+
+                    if ((this->current_task == MenuTask::BindClass) && (this->current_student > 0U)) {
+                        this->glide_to(gliding_duration, this->students[this->current_student], cls, MatterAnchor::RC, MatterAnchor::LC);
+                        this->model->bind_student_to_class(this->current_student, this->current_class);
+                    }
+                } else if (stu != nullptr) {
+                    this->on_student_changed(stu->primary_key());
+
+                    switch (this->current_task) {
+                    case MenuTask::BindClass: {
+                        
+                    }; break;
+                    default: /* do nothing */;
+                    }
+                }
+            } else {
+                auto stu = dynamic_cast<StudentSprite*>(m);
+
+                if (stu != nullptr) {
+                    this->glide_to_mouse(gliding_duration, stu, MatterAnchor::CC);
+                }
             }
         }
 
@@ -153,6 +179,8 @@ namespace {
         void on_class_created(uint64_t pk, shared_class_t entity, bool in_batching) override {
             this->classes[pk] = this->insert(new ClassSprite(pk));
             this->classes[pk]->resize_by_height(platform_height);
+            
+            this->on_class_changed(pk, in_batching);
 
             if (!in_batching) {
                 this->reflow_class_logos(gliding_duration);
@@ -163,8 +191,24 @@ namespace {
             this->remove(this->classes[pk]);
             this->classes.erase(pk);
 
+            if (this->current_class == pk) {
+                if (!this->classes.empty()) {
+                    this->on_class_changed(this->classes.begin()->first, in_batching);
+                }
+            }
+
             if (!in_batching) {
                 this->reflow_class_logos(gliding_duration);
+            }
+        }
+
+        void on_class_changed(uint64_t clsId, bool in_batching) {
+            this->current_class = clsId;
+            this->clsLabel->set_text(MatterAnchor::RT, "%u", clsId);
+            this->stuLabel->set_text(MatterAnchor::RB, "");
+
+            if (!in_batching) {
+                this->reflow_students(gliding_duration);
             }
         }
 
@@ -192,6 +236,11 @@ namespace {
             if (!in_batching) {
                 this->reflow_students(gliding_duration);
             }
+        }
+
+        void on_student_changed(uint64_t sNo) {
+            this->current_student = sNo;
+            this->stuLabel->set_text(MatterAnchor::RB, "%s", this->students[sNo]->name());
         }
 
         void on_student_deleted(uint64_t pk, shared_student_t entity, bool in_batching) override {
@@ -223,7 +272,7 @@ namespace {
 
             this->agent->feed_extent(0.0F, 0.0F, &agent_width, nullptr);
             this->feed_matter_location(this->title, &sidebar_pos, nullptr, MatterAnchor::RC);
-            sidebar_pos += agent_width;
+            sidebar_pos += agent_width * 0.618F;
             
             this->move_to(this->side_border, sidebar_pos, height, MatterAnchor::CB);
 
@@ -231,7 +280,7 @@ namespace {
                 this->move_to(menu.second, this->agent, MatterAnchor::LB, MatterAnchor::LT, 4.0F, 4.0F);
             }
 
-            this->move_to(this->avatar, 0.0F, height, MatterAnchor::LB);
+            this->move_to(this->avatar, 0.0F, height, MatterAnchor::LB, 1.0F, -1.0F);
             
             return sidebar_pos;
         }
@@ -239,6 +288,8 @@ namespace {
     private:
         void load_classroom(float width, float height) {
             this->platform = this->insert(new Rectanglet(platform_width, platform_height, STEELBLUE));
+            this->clsLabel = this->insert(new Labellet(GameFont::monospace(FontSize::xx_large), GHOSTWHITE, "%u", this->current_class));
+            this->stuLabel = this->insert(new Labellet(GameFont::serif(), GHOSTWHITE, "%s", "[学生]"));
             
             for (size_t idx = 0; idx < DESK_COUNT; idx ++) {
                 this->desks.push_back(this->insert(new RegularPolygonlet(6, 90.0F, DARKORANGE)));
@@ -247,6 +298,8 @@ namespace {
 
         void reflow_classroom(float width, float height, float sidebar_pos) {
             this->move_to(this->platform, (width - sidebar_pos) * 0.50F + sidebar_pos, height * 0.95F, MatterAnchor::CC);
+            this->move_to(this->clsLabel, this->platform, MatterAnchor::RT, MatterAnchor::RT, -4.0F, +4.0F);
+            this->move_to(this->stuLabel, this->platform, MatterAnchor::RB, MatterAnchor::RB, -4.0F, -4.0F);
 
             this->move_to(this->desks[0], (width - sidebar_pos) * 0.25F + sidebar_pos, height * 0.64F, MatterAnchor::CC);
             this->move_to(this->desks[1], (width - sidebar_pos) * 0.50F + sidebar_pos, height * 0.75F, MatterAnchor::CC);
@@ -299,17 +352,25 @@ namespace {
 
         void reflow_students(double duration = gliding_duration) {
             if (!this->students.empty()) {
-                float stu_x, stu_y, grid_width;
+                float nocls_stu_x, nocls_stu_y, grid_height;
                 float gap = 4.0F;
          
-                this->feed_matter_location(this->side_border, &stu_x, &stu_y, MatterAnchor::LC);
-                this->disciplines.begin()->second->feed_extent(0.0F, 0.0F, &grid_width);
-                stu_x += gap;
-                grid_width += gap;
+                this->feed_matter_location(this->side_border, &nocls_stu_x, &nocls_stu_y, MatterAnchor::LB);
+                this->students.begin()->second->feed_extent(0.0F, 0.0F, nullptr, &grid_height);
+                nocls_stu_x *= 0.80F;
+                grid_height += gap;
 
                 for (auto stu : this->students) {
-                    this->glide_to(duration, stu.second, stu_x, stu_y, MatterAnchor::LC);
-                    stu_x += grid_width;
+                    uint64_t clsId = this->model->get_student_class(stu.second->primary_key());
+
+                    stu.second->show((clsId == this->current_class) || (clsId == 0U));
+
+                    if (clsId == 0U) {
+                        this->glide_to(duration, stu.second, nocls_stu_x, nocls_stu_y, MatterAnchor::RB);
+                        nocls_stu_y -= grid_height;
+                    } else {
+                        this->glide_to(duration, stu.second, this->classes[clsId], MatterAnchor::RC, MatterAnchor::LC);
+                    }
                 }
             }
         }
@@ -332,6 +393,10 @@ namespace {
 
         void load_avatars(float width, float height) {
             this->avatar = this->insert(new Continent(new AvatarPlane("学生形象")));
+
+            this->avatar->set_border_color(ROYALBLUE);
+            this->avatar->set_background_color(DIMGRAY, 0.64);
+
             this->avatar->show(false);
             this->avatar->camouflage(true);
         }
@@ -343,6 +408,8 @@ namespace {
     private:
         Labellet* title;
         Labellet* tooltip;
+        Labellet* clsLabel;
+        Labellet* stuLabel;
         Linelet* side_border;
         std::map<uint64_t, ClassSprite*> classes;
         std::map<uint64_t, DisciplineSprite*> disciplines;
@@ -354,9 +421,9 @@ namespace {
     private:
         MenuType current_menu_type = MenuType::TopLevel;
         MenuTask current_task = MenuTask::ImportData;
-        uint64_t current_class = 0;
-        uint64_t current_discipline = 0;
-        uint64_t current_student = 0;
+        uint64_t current_class = 0U;
+        uint64_t current_discipline = 0U;
+        uint64_t current_student = 0U;
         GradeManagementSystemModel* model;
 
     private:
@@ -378,6 +445,8 @@ namespace {
             this->parse_commandline_argument(argc, argv);
             this->set_snapshot_folder("/Users/wargrey/Desktop");
             this->set_cmdwin_height(24);
+
+            GameFont::fontsize(20);
 
             this->push_plane(new GradeManagementPlane(this->gmsin, this->gmsout));
         }

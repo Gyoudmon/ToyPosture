@@ -44,9 +44,9 @@ void WarGrey::IMS::AvatarPlane::reflow(float width, float height) {
         grid_height = flmax(grid_height, h);
     }
 
-    grid_width = grid_height * 0.618F;
+    grid_width = grid_height * 0.8F;
     for (size_t idx = 0; idx < this->labels.size(); idx ++) {
-        this->move_to(this->labels[idx], grid_width * 0.5F, grid_y + grid_height, MatterAnchor::CB);
+        this->move_to(this->labels[idx], grid_width * 0.3F, grid_y + grid_height, MatterAnchor::CB);
 
         if (idx < this->kids.size()) {
             this->move_to(this->kids[idx], grid_width * 1.5F, grid_y + grid_height, MatterAnchor::CB);

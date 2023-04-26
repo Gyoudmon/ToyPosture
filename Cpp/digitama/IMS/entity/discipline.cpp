@@ -6,10 +6,8 @@ using namespace WarGrey::IMS;
 using namespace WarGrey::STEM;
 
 /*************************************************************************************************/
-static const char line_mark = 'd';
-
 bool WarGrey::IMS::DisciplineEntity::match(const std::string& line, int* offset) {
-    return GMSEntity::match(line, line_mark, offset);
+    return GMSEntity::match(line, discipline_mark, offset);
 }
 
 const char* WarGrey::IMS::DisciplineEntity::prompt() {
@@ -51,16 +49,16 @@ WarGrey::IMS::DisciplineEntity::DisciplineEntity(const std::string& s, int idx) 
 
     this->code = scan_natural(src, &pos, end);
     if (this->code == 0U) throw exn_gms("无效课程代号");
-    scan_skip_delimiter(src, &pos, end, FIELD_DELIM);
+    scan_skip_delimiter(src, &pos, end, field_delimiter);
 
-    this->type = name_to_type(scan_string(src, &pos, end, FIELD_DELIM).c_str());
-    scan_skip_delimiter(src, &pos, end, FIELD_DELIM);
+    this->type = name_to_type(scan_string(src, &pos, end, field_delimiter).c_str());
+    scan_skip_delimiter(src, &pos, end, field_delimiter);
 
     this->score = scan_natural(src, &pos, end);
 }
 
 std::string WarGrey::IMS::DisciplineEntity::to_string() {
-    return make_nstring("%c:%llu, %s, %llu", line_mark, this->code, this->cannonical_name(), this->score);
+    return make_nstring("%c:%llu, %s, %llu", discipline_mark, this->code, this->cannonical_name(), this->score);
 }
 
 const char* WarGrey::IMS::DisciplineEntity::cannonical_name() {
