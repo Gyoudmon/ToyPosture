@@ -19,6 +19,8 @@ const char* WarGrey::IMS::DisciplineEntity::prompt() {
 const char* WarGrey::IMS::DisciplineEntity::type_to_name(DisciplineType type) {
     switch (type) {
     case DisciplineType::Mathematics: return "Mathematics";
+    case DisciplineType::Programming: return "Programming";
+    case DisciplineType::Physics: return "Physics";
     case DisciplineType::Chemistry: return "Chemistry";
     case DisciplineType::Biology: return "Biology";
     default: return "Blank";
@@ -28,6 +30,10 @@ const char* WarGrey::IMS::DisciplineEntity::type_to_name(DisciplineType type) {
 DisciplineType WarGrey::IMS::DisciplineEntity::name_to_type(const char* name) {
     if ((strcasecmp(name, "mathematics") == 0) || (strcasecmp(name, "math") == 0)) {
         return DisciplineType::Mathematics;
+    } else if ((strcasecmp(name, "programming") == 0) || (strcasecmp(name, "coding") == 0)) {
+        return DisciplineType::Programming;
+    } else if (strcasecmp(name, "physics") == 0) {
+        return DisciplineType::Physics;
     } else if (strcasecmp(name, "chemistry") == 0) {
         return DisciplineType::Chemistry;
     } else if ((strcasecmp(name, "biology") == 0) || (strcasecmp(name, "bio") == 0)) {

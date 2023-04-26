@@ -16,7 +16,7 @@ using namespace WarGrey::IMS;
 namespace {
     static const size_t DESK_COUNT = 7;
     static const float platform_width = 512.0F;
-    static const float platform_height = 64.0F;
+    static const float platform_height = 80.0F;
     static const double gliding_duration = 0.5;
 
     class GradeManagementPlane : public Plane, public IMenuEventListener, public IModelListener {
@@ -127,7 +127,7 @@ namespace {
                 case MenuTask::CreateClass: this->start_input_text("请按格式输入待创建班级信息(%s): ", ClassEntity::prompt()); break;
                 case MenuTask::DeleteClass: this->start_input_text("请输入待删除班级代号: "); break;
                 case MenuTask::CreateDiscipline: this->start_input_text("请按格式输入待创建课程信息(%s): ", DisciplineEntity::prompt()); break;
-                case MenuTask::UpdateDiscipline: this->start_input_text("请按格式输入待修改课程信息(%s)【代号不可能修改，“_”提示保留字段】: ", DisciplineEntity::prompt()); break;
+                case MenuTask::UpdateDiscipline: this->start_input_text("请按格式输入待修改课程信息(%s): ", DisciplineEntity::prompt()); break;
                 case MenuTask::DeleteDiscipline: this->start_input_text("请输入待删除课程代号: "); break;
                 case MenuTask::ImportData: this->model->import_from_file(this->gmsin); this->reflow_model_sprites(gliding_duration); break;
                 case MenuTask::ExportData: this->model->export_to_file(this->gmsout); this->log_message(GREEN, "done."); break;
@@ -139,36 +139,36 @@ namespace {
         }
 
     public:
-        void on_class_created(uint64_t id, shared_class_t entity, bool in_batching) override {
-            this->classes[id] = this->insert(new ClassSprite(id));
-            this->classes[id]->resize_by_height(platform_height * 0.618F);
+        void on_class_created(uint64_t pk, shared_class_t entity, bool in_batching) override {
+            this->classes[pk] = this->insert(new ClassSprite(pk));
+            this->classes[pk]->resize_by_height(platform_height);
 
             if (!in_batching) {
                 this->reflow_class_logos(gliding_duration);
             }
         }
 
-        void on_class_deleted(uint64_t id, shared_class_t entity, bool in_batching) override {
-            this->remove(this->classes[id]);
-            this->classes.erase(id);
+        void on_class_deleted(uint64_t pk, shared_class_t entity, bool in_batching) override {
+            this->remove(this->classes[pk]);
+            this->classes.erase(pk);
 
             if (!in_batching) {
                 this->reflow_class_logos(gliding_duration);
             }
         }
 
-        void on_discipline_created(uint64_t id, shared_discipline_t entity, bool in_batching) override {
-            this->disciplines[id] = this->insert(new DisciplineSprite(id, entity->discipline_type()));
-            this->disciplines[id]->resize_by_height(platform_height * 0.85F);
+        void on_discipline_created(uint64_t pk, shared_discipline_t entity, bool in_batching) override {
+            this->disciplines[pk] = this->insert(new DisciplineSprite(pk, entity->discipline_type()));
+            this->disciplines[pk]->resize_by_height(platform_height * 0.90F);
 
             if (!in_batching) {
                 this->reflow_discipline_logos(gliding_duration);
             }
         }
 
-        void on_discipline_deleted(uint64_t id, shared_discipline_t entity, bool in_batching) override {
-            this->remove(this->disciplines[id]);
-            this->disciplines.erase(id);
+        void on_discipline_deleted(uint64_t pk, shared_discipline_t entity, bool in_batching) override {
+            this->remove(this->disciplines[pk]);
+            this->disciplines.erase(pk);
 
             if (!in_batching) {
                 this->reflow_discipline_logos(gliding_duration);
@@ -235,15 +235,15 @@ namespace {
 
         void reflow_class_logos(double duration = gliding_duration) {
             if (!this->classes.empty()) {
-                float cls_x, cls_y, grid_width;
+                float cls_x, cls_y, grid_height;
          
-                this->feed_matter_location(this->platform, &cls_x, &cls_y, MatterAnchor::LB);
-                this->classes.begin()->second->feed_extent(0.0F, 0.0F, &grid_width);
-                grid_width += 4.0F;
+                this->feed_matter_location(this->side_border, &cls_x, &cls_y, MatterAnchor::CB);
+                this->classes.begin()->second->feed_extent(0.0F, 0.0F, nullptr, &grid_height);
+                grid_height *= 1.2F;
 
-                for (auto cls : this->classes) {
-                    this->glide_to(duration, cls.second, cls_x, cls_y, MatterAnchor::LB);
-                    cls_x += grid_width;
+                for (auto cls = this->classes.rbegin(); cls != this->classes.rend(); cls ++) {
+                    this->glide_to(duration, cls->second, cls_x, cls_y, MatterAnchor::CB, 0.0F, -1.0F);
+                    cls_y -= grid_height;
                 }
             }
         }
@@ -251,15 +251,15 @@ namespace {
         void reflow_discipline_logos(double duration = gliding_duration) {
             if (!this->disciplines.empty()) {
                 float dis_x, dis_y, grid_width;
+                float gap = 4.0F;
          
-                this->feed_matter_location(this->side_border, &dis_x, &dis_y, MatterAnchor::RB);
+                this->feed_matter_location(this->platform, &dis_x, &dis_y, MatterAnchor::LC);
                 this->disciplines.begin()->second->feed_extent(0.0F, 0.0F, &grid_width);
-                grid_width += 4.0F;
-                dis_x += 2.0F;
-                dis_y -= 2.0F;
+                dis_x += gap;
+                grid_width += gap;
 
                 for (auto dis : this->disciplines) {
-                    this->glide_to(duration, dis.second, dis_x, dis_y, MatterAnchor::LB);
+                    this->glide_to(duration, dis.second, dis_x, dis_y, MatterAnchor::LC);
                     dis_x += grid_width;
                 }
             }

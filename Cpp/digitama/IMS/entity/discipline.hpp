@@ -3,7 +3,7 @@
 #include "entity.hpp"
 
 namespace WarGrey::IMS {
-    enum class DisciplineType { Mathematics, Chemistry, Biology, Blank };
+    enum class DisciplineType { Mathematics, Programming, Physics, Chemistry, Biology, Blank };
 
     class DisciplineEntity : public WarGrey::IMS::GMSEntity {
     public:
@@ -25,8 +25,8 @@ namespace WarGrey::IMS {
         DisciplineType discipline_type() { return this->type; }
 
     public:
-        bool okay() override { return (this->id > 0U) && (this->type != DisciplineType::Blank); }
-        uint64_t uuid() override { return this->id; }
+        bool okay() override { return this->id > 0U; }
+        uint64_t primary_key() override { return this->id; }
         std::string to_string() override;
 
     private:
