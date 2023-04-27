@@ -4,9 +4,9 @@
 #include "digitama/IMS/avatar.hpp"
 #include "digitama/IMS/model.hpp"
 
-#include "digitama/IMS/view/class.hpp"
-#include "digitama/IMS/view/discipline.hpp"
-#include "digitama/IMS/view/student.hpp"
+#include "digitama/IMS/view/classlet.hpp"
+#include "digitama/IMS/view/disciplinelet.hpp"
+#include "digitama/IMS/view/studentlet.hpp"
 
 #include <vector>
 #include <map>
