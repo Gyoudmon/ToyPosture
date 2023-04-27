@@ -29,18 +29,18 @@ WarGrey::IMS::SeatEntity::SeatEntity(const std::string& s, int idx) {
     if (this->class_id == 0U) throw exn_gms("无效班号");
     scan_skip_delimiter(src, &pos, end, field_delimiter);
     
-    this->desk = scan_integer(src, &pos, end);
+    this->desk = scan_natural(src, &pos, end);
     scan_skip_delimiter(src, &pos, end, field_delimiter);
     
-    this->seat = scan_integer(src, &pos, end);
+    this->seat = scan_natural(src, &pos, end);
     scan_skip_delimiter(src, &pos, end, field_delimiter);
 }
 
-WarGrey::IMS::SeatEntity::SeatEntity(uint64_t sNo, uint64_t clsId, int64_t dsk, int64_t st)
+WarGrey::IMS::SeatEntity::SeatEntity(uint64_t sNo, uint64_t clsId, uint64_t dsk, uint64_t st)
     : student_No(sNo), class_id(clsId), desk(dsk), seat(st) {}
 
 std::string WarGrey::IMS::SeatEntity::to_string() {
-    return make_nstring("%c%c:%llu, %llu, %lld, %lld",
+    return make_nstring("%c%c:%llu, %llu, %llu, %llu",
             student_mark, class_mark,
             this->student_No, this->class_id,
             this->desk, this->seat);

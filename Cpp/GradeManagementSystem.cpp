@@ -7,6 +7,7 @@
 #include "digitama/IMS/view/classlet.hpp"
 #include "digitama/IMS/view/disciplinelet.hpp"
 #include "digitama/IMS/view/studentlet.hpp"
+#include "digitama/IMS/view/desklet.hpp"
 
 #include <vector>
 #include <map>
@@ -56,49 +57,54 @@ namespace {
             return true;
         }
 
-        void after_select(IMatter* m, bool yes) override {
-            if (yes) {
-                auto cls = dynamic_cast<ClassSprite*>(m);
-                auto stu = dynamic_cast<StudentSprite*>(m);
+        void on_tap(IMatter* m, float local_x, float local_y) override {
+            Plane::on_tap(m, local_x, local_y);
+            auto cls = dynamic_cast<ClassSprite*>(m);
+            auto stu = dynamic_cast<StudentSprite*>(m);
+            auto dsk = dynamic_cast<HexagonalDesklet*>(m);
+                
+            if (stu != nullptr) {
+                this->on_student_changed(stu->primary_key());
+            } else if (cls != nullptr) {
+                this->on_class_changed(cls->primary_key(), false);
 
-                if (cls != nullptr) {
-                    this->on_class_changed(cls->primary_key(), false);
+                if ((this->current_task == MenuTask::BindClass) && (this->current_student > 0U)) {
+                    this->glide_to(gliding_duration, this->students[this->current_student], cls, MatterAnchor::RC, MatterAnchor::LC);
+                    this->model->bind_student_to_class(this->current_student, this->current_class);
+                }
+            } else if (dsk != nullptr) {
+                if (this->current_student > 0U) {
+                    if (this->current_class > 0U) {
+                        int idx = dsk->get_seat_by(local_x, local_y);
 
-                    if ((this->current_task == MenuTask::BindClass) && (this->current_student > 0U)) {
-                        this->glide_to(gliding_duration, this->students[this->current_student], cls, MatterAnchor::RC, MatterAnchor::LC);
-                        this->model->bind_student_to_class(this->current_student, this->current_class);
-                    }
-                } else if (stu != nullptr) {
-                    this->on_student_changed(stu->primary_key());
+                        if (idx > 0) {
+                            dsk->sit(this->students[this->current_student], idx, gliding_duration);
 
-                    switch (this->current_task) {
-                    case MenuTask::BindClass: {
-                        
-                    }; break;
-                    default: /* do nothing */;
+                            if (this->model->get_student_class(this->current_student) == 0U) {
+                                this->model->bind_student_to_class(this->current_student, this->current_class);
+                            }
+                        }
+                    } else {
+                        this->log_message(FIREBRICK, "请先绑定班级");
                     }
                 }
-            } else {
-                auto stu = dynamic_cast<StudentSprite*>(m);
 
-                if (stu != nullptr) {
-                    this->glide_to_mouse(gliding_duration, stu, MatterAnchor::CC);
-                }
+                this->no_selected();
             }
-        }
-
-        void on_tap_selected(IMatter* m, float x, float y) override {
-            this->after_select(m, true);
         }
 
         bool update_tooltip(IMatter* m, float lx, float ly, float gx, float gy) override {
             bool updated = false;
-
+            
             if (m != this->agent) {
                 auto entity = dynamic_cast<ISprite*>(m);
+                auto desk = dynamic_cast<IDesk*>(m);
 
                 if (entity != nullptr) {
                     this->tooltip->set_text(" %s ", entity->name());
+                    updated = true;
+                } else if (desk != nullptr) {
+                    this->tooltip->set_text(" %d ", desk->get_seat_by(lx, ly));
                     updated = true;
                 }
             }
@@ -291,8 +297,8 @@ namespace {
             this->clsLabel = this->insert(new Labellet(GameFont::monospace(FontSize::xx_large), GHOSTWHITE, "%u", this->current_class));
             this->stuLabel = this->insert(new Labellet(GameFont::serif(), GHOSTWHITE, "%s", "[学生]"));
             
-            for (size_t idx = 0; idx < DESK_COUNT; idx ++) {
-                this->desks.push_back(this->insert(new RegularPolygonlet(6, 90.0F, DARKORANGE)));
+            for (size_t idx = 1; idx <= DESK_COUNT; idx ++) {
+                this->desks.push_back(this->insert(new HexagonalDesklet(idx, 90.0F, DARKORANGE)));
             }
         }
 

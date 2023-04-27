@@ -135,7 +135,7 @@ std::vector<std::pair<char, std::string>> WarGrey::IMS::StudentMenu::prepare_men
         { STDT_CREATE_KEY, "添加新生信息"},
         { STDT_UPDATE_KEY, "更新学生信息"},
         { STDT_DELETE_KEY, "删除学生信息"},
-        { STDT_CLASS_KEY,  "调整班级"}
+        { STDT_CLASS_KEY,  "绑定班级"}
     };
 }
 
