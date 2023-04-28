@@ -1,5 +1,7 @@
 #include "entity.hpp"
 
+#include "../../big_bang/datum/box.hpp"
+
 using namespace WarGrey::IMS;
 using namespace WarGrey::STEM;
 
@@ -10,9 +12,7 @@ bool WarGrey::IMS::GMSEntity::match(const std::string& line, char line_mark, int
     if (line.size() > 2) {
         if ((line[0] == line_mark) && (line[1] == ':')) {
             matched = true;
-            if (offset != nullptr) {
-                (*offset) = 2;
-            }
+            SET_BOX(offset, 2);
         }
     }
 
@@ -25,9 +25,20 @@ bool WarGrey::IMS::GMSEntity::match(const std::string& line, char mark1, char ma
     if (line.size() > 3) {
         if ((line[0] == mark1) && (line[1] == mark2) && (line[2] == ':')) {
             matched = true;
-            if (offset != nullptr) {
-                (*offset) = 3;
-            }
+            SET_BOX(offset, 3);
+        }
+    }
+
+    return matched;
+}
+
+bool WarGrey::IMS::GMSEntity::match(const std::string& line, char mark1, char mark2, char mark3, int* offset) {
+    bool matched = false;
+
+    if (line.size() > 4) {
+        if ((line[0] == mark1) && (line[1] == mark2) && (line[2] == mark3) && (line[3] == ':')) {
+            matched = true;
+            SET_BOX(offset, 4);
         }
     }
 

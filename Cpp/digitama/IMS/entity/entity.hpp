@@ -18,6 +18,7 @@ namespace WarGrey::IMS {
     protected:
         static bool match(const std::string& line, char mark, int* offset);
         static bool match(const std::string& line, char mark1, char mark2, int* offset);
+        static bool match(const std::string& line, char mark1, char mark2, char mark3, int* offset);
         
     public:
         virtual ~GMSEntity() {}

@@ -57,7 +57,7 @@ WarGrey::IMS::StudentEntity::StudentEntity(const std::string& s, int idx) {
 }
 
 std::string WarGrey::IMS::StudentEntity::to_string() {
-    return make_nstring("%c:%u, %llu, %s, %s, %u", student_mark,
+    return make_nstring("%c:%u,%llu,%s,%s,%u", student_mark,
             this->avatar, this->No,
             this->nickname.c_str(), gender_to_name(this->gender),
             this->age);

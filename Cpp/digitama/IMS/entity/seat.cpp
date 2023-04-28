@@ -1,12 +1,9 @@
 #include "seat.hpp"
 
-#include <strings.h>
-
 using namespace WarGrey::IMS;
 using namespace WarGrey::STEM;
 
 /*************************************************************************************************/
-
 bool WarGrey::IMS::SeatEntity::match(const std::string& line, int* offset) {
     return GMSEntity::match(line, student_mark, class_mark, offset);
 }
@@ -40,7 +37,7 @@ WarGrey::IMS::SeatEntity::SeatEntity(uint64_t sNo, uint64_t clsId, uint64_t dsk,
     : student_No(sNo), class_id(clsId), desk(dsk), seat(st) {}
 
 std::string WarGrey::IMS::SeatEntity::to_string() {
-    return make_nstring("%c%c:%llu, %llu, %llu, %llu",
+    return make_nstring("%c%c:%llu,%llu,%llu,%llu",
             student_mark, class_mark,
             this->student_No, this->class_id,
             this->desk, this->seat);

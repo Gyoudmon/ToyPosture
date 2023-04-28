@@ -4,11 +4,12 @@
 #include "digitama/IMS/avatar.hpp"
 #include "digitama/IMS/model.hpp"
 
-#include "digitama/IMS/view/classlet.hpp"
+#include "digitama/IMS/view/doorlet.hpp"
 #include "digitama/IMS/view/disciplinelet.hpp"
 #include "digitama/IMS/view/studentlet.hpp"
 #include "digitama/IMS/view/desklet.hpp"
 
+#include <sstream>
 #include <vector>
 #include <map>
 
@@ -22,6 +23,9 @@ namespace {
     static const float platform_height = 80.0F;
     static const double gliding_duration = 0.4;
 
+    enum class GradeTask { Create, Update, Delete, _ };
+
+    /*********************************************************************************************/
     class GradeManagementPlane : public Plane, public IMenuEventListener, public IModelListener {
     public:
         GradeManagementPlane(std::string gmsin, std::string gmsout) : Plane("成绩管理系统") {
@@ -59,11 +63,15 @@ namespace {
 
         void on_tap(IMatter* m, float local_x, float local_y) override {
             Plane::on_tap(m, local_x, local_y);
-            auto cls = dynamic_cast<ClassSprite*>(m);
+            auto cls = dynamic_cast<DoorSprite*>(m);
+            auto dis = dynamic_cast<DisciplineSprite*>(m);
             auto stu = dynamic_cast<StudentSprite*>(m);
             auto dsk = dynamic_cast<HexagonalDesklet*>(m);
                 
-            if (stu != nullptr) {
+            if (m == this->platform) {
+                this->current_discipline = 0U;
+                this->reflow_discipline_logos();
+            } else if (stu != nullptr) {
                 this->on_student_changed(stu->primary_key());
             } else if (cls != nullptr) {
                 this->on_class_changed(cls->primary_key(), false);
@@ -72,6 +80,8 @@ namespace {
                     this->glide_to(gliding_duration, this->students[this->current_student], cls, MatterAnchor::RC, MatterAnchor::LC);
                     this->model->bind_student_to_class(this->current_student, this->current_class);
                 }
+            } else if (dis != nullptr) {
+                this->on_discipline_changed(dis->primary_key(), false);
             } else if (dsk != nullptr) {
                 if (this->current_student > 0U) {
                     if (this->current_class > 0U) {
@@ -83,6 +93,8 @@ namespace {
                             if (this->model->get_student_class(this->current_student) == 0U) {
                                 this->model->bind_student_to_class(this->current_student, this->current_class);
                             }
+
+                            this->model->bind_student_to_seat(this->current_student, dsk->get_index(), idx);
                         }
                     } else {
                         this->log_message(FIREBRICK, "请先绑定班级");
@@ -172,8 +184,13 @@ namespace {
                 case MenuTask::CreateStudent: this->start_input_text("请按格式输入新生信息(%s): ", StudentEntity::prompt()); break;
                 case MenuTask::UpdateStudent: this->start_input_text("请按格式输入待修改学生信息(%s): ", StudentEntity::prompt()); break;
                 case MenuTask::DeleteStudent: this->start_input_text("请输入待删除学生的学号: "); break;
+                case MenuTask::CreateGrade: this->on_grade_task(GradeTask::Create); break;
+                case MenuTask::UpdateGrade: this->on_grade_task(GradeTask::Update); break;
+                case MenuTask::DeleteGrade: this->on_grade_task(GradeTask::Delete); break;
                 case MenuTask::ImportData: this->model->import_from_file(this->gmsin); this->reflow_model_sprites(gliding_duration); break;
                 case MenuTask::ExportData: this->model->export_to_file(this->gmsout); this->log_message(GREEN, "done."); break;
+                case MenuTask::ClearStudent: this->model->clear_detached_students(); this->log_message(GREEN, "done."); break;
+                case MenuTask::ClearGrade: this->model->clear_detached_grades(); this->log_message(GREEN, "done."); break;
                 default: /* do nothing */;
                 }
             } catch (const std::exception& e) {
@@ -181,12 +198,20 @@ namespace {
             }
         }
 
+        void on_grade_task(GradeTask task) {
+            this->current_grade_task = task;
+        }
+
+        void ensure_student_and_discipline_for_grade_task() {
+            if ((this->current_student == 0U) || (this->current_discipline == 0U)) {
+                this->log_message(YELLOW, "请先选定学生和课程");
+            }
+        }
+
     public:
         void on_class_created(uint64_t pk, shared_class_t entity, bool in_batching) override {
-            this->classes[pk] = this->insert(new ClassSprite(pk));
-            this->classes[pk]->resize_by_height(platform_height);
-            
-            this->on_class_changed(pk, in_batching);
+            this->doors[pk] = this->insert(new DoorSprite(pk));
+            this->doors[pk]->resize_by_height(platform_height * 0.72F);
 
             if (!in_batching) {
                 this->reflow_class_logos(gliding_duration);
@@ -194,12 +219,12 @@ namespace {
         }
 
         void on_class_deleted(uint64_t pk, shared_class_t entity, bool in_batching) override {
-            this->remove(this->classes[pk]);
-            this->classes.erase(pk);
+            this->remove(this->doors[pk]);
+            this->doors.erase(pk);
 
             if (this->current_class == pk) {
-                if (!this->classes.empty()) {
-                    this->on_class_changed(this->classes.begin()->first, in_batching);
+                if (!this->doors.empty()) {
+                    this->on_class_changed(this->doors.begin()->first, in_batching);
                 }
             }
 
@@ -209,7 +234,12 @@ namespace {
         }
 
         void on_class_changed(uint64_t clsId, bool in_batching) {
+            if (this->current_class > 0U) {
+                this->doors[this->current_class]->close();
+            }
+
             this->current_class = clsId;
+            this->doors[current_class]->open();
             this->clsLabel->set_text(MatterAnchor::RT, "%u", clsId);
             this->stuLabel->set_text(MatterAnchor::RB, "");
 
@@ -230,6 +260,14 @@ namespace {
         void on_discipline_deleted(uint64_t pk, shared_discipline_t entity, bool in_batching) override {
             this->remove(this->disciplines[pk]);
             this->disciplines.erase(pk);
+
+            if (!in_batching) {
+                this->reflow_discipline_logos(gliding_duration);
+            }
+        }
+
+        void on_discipline_changed(uint64_t pk, bool in_batching) {
+            this->current_discipline = pk;
 
             if (!in_batching) {
                 this->reflow_discipline_logos(gliding_duration);
@@ -325,14 +363,14 @@ namespace {
         }
 
         void reflow_class_logos(double duration = gliding_duration) {
-            if (!this->classes.empty()) {
+            if (!this->doors.empty()) {
                 float cls_x, cls_y, grid_height;
          
                 this->feed_matter_location(this->side_border, &cls_x, &cls_y, MatterAnchor::CB);
-                this->classes.begin()->second->feed_extent(0.0F, 0.0F, nullptr, &grid_height);
+                this->doors.begin()->second->feed_extent(0.0F, 0.0F, nullptr, &grid_height);
                 grid_height *= 1.2F;
 
-                for (auto cls = this->classes.rbegin(); cls != this->classes.rend(); cls ++) {
+                for (auto cls = this->doors.rbegin(); cls != this->doors.rend(); cls ++) {
                     this->glide_to(duration, cls->second, cls_x, cls_y, MatterAnchor::CB, 0.0F, -1.0F);
                     cls_y -= grid_height;
                 }
@@ -341,17 +379,24 @@ namespace {
 
         void reflow_discipline_logos(double duration = gliding_duration) {
             if (!this->disciplines.empty()) {
-                float dis_x, dis_y, grid_width;
+                float dis_x0, dis_x, dis_y, grid_width;
                 float gap = 4.0F;
          
                 this->feed_matter_location(this->platform, &dis_x, &dis_y, MatterAnchor::LC);
                 this->disciplines.begin()->second->feed_extent(0.0F, 0.0F, &grid_width);
-                dis_x += gap;
+                dis_x0 = dis_x = dis_x + gap;
                 grid_width += gap;
 
                 for (auto dis : this->disciplines) {
-                    this->glide_to(duration, dis.second, dis_x, dis_y, MatterAnchor::LC);
-                    dis_x += grid_width;
+                    uint64_t disCode = dis.second->primary_key();
+
+                    if ((disCode == this->current_discipline) || (this->current_discipline == 0U)) {
+                        dis.second->show(true);
+                        this->glide_to(duration, dis.second, dis_x, dis_y, MatterAnchor::LC);
+                        dis_x += grid_width;
+                    } else {
+                        this->glide_to(duration, dis.second, dis_x0, dis_y, MatterAnchor::LC);
+                    }
                 }
             }
         }
@@ -359,6 +404,7 @@ namespace {
         void reflow_students(double duration = gliding_duration) {
             if (!this->students.empty()) {
                 float nocls_stu_x, nocls_stu_y, grid_height;
+                uint64_t desk_idx, seat_idx;
                 float gap = 4.0F;
          
                 this->feed_matter_location(this->side_border, &nocls_stu_x, &nocls_stu_y, MatterAnchor::LB);
@@ -367,15 +413,39 @@ namespace {
                 grid_height += gap;
 
                 for (auto stu : this->students) {
-                    uint64_t clsId = this->model->get_student_class(stu.second->primary_key());
+                    uint64_t stuClsId = this->model->get_student_class(stu.second->primary_key());
 
-                    stu.second->show((clsId == this->current_class) || (clsId == 0U));
+                    stu.second->show((stuClsId == this->current_class) || (stuClsId == 0U));
 
-                    if (clsId == 0U) {
+                    if (stuClsId == 0U) {
                         this->glide_to(duration, stu.second, nocls_stu_x, nocls_stu_y, MatterAnchor::RB);
                         nocls_stu_y -= grid_height;
                     } else {
-                        this->glide_to(duration, stu.second, this->classes[clsId], MatterAnchor::RC, MatterAnchor::LC);
+                        if (stu.second->visible()) {
+                            this->model->feed_student_seat(stu.first, &desk_idx, &seat_idx);
+
+                            if ((desk_idx > 0U) && (seat_idx > 0U)) {
+                                this->glide_to(duration, stu.second, this->doors[stuClsId], MatterAnchor::RC, MatterAnchor::LC);
+                                this->desks[desk_idx - 1]->sit(stu.second, seat_idx, duration);
+                            } else {
+                                this->glide_to(duration, stu.second, this->doors[stuClsId], MatterAnchor::RC, MatterAnchor::LC);
+                            }
+                        } else {
+                            this->move_to(stu.second, this->doors[stuClsId], MatterAnchor::RC, MatterAnchor::LC);
+                        }
+                    }
+                }
+            }
+        }
+
+    protected:
+        void on_motion_complete(IMatter* m, float x, float y, double xspd, double yspd) override {
+            auto dis = dynamic_cast<DisciplineSprite*>(m);
+
+            if (dis != nullptr) {
+                if (this->current_discipline > 0U) {
+                    if (dis->primary_key() != this->current_discipline) {
+                        dis->show(false);
                     }
                 }
             }
@@ -387,6 +457,7 @@ namespace {
             this->menus[MenuType::Class] = this->insert(new Continent(new ClassMenu()));
             this->menus[MenuType::Discipline] = this->insert(new Continent(new DisciplineMenu()));
             this->menus[MenuType::Student] = this->insert(new Continent(new StudentMenu()));
+            this->menus[MenuType::Grade] = this->insert(new Continent(new GradeMenu()));
 
             for (auto menu : this->menus) {
                 if (this->current_menu_type != menu.first) {
@@ -409,7 +480,7 @@ namespace {
 
     private:
         Rectanglet* platform;
-        std::vector<IGraphlet*> desks;
+        std::vector<HexagonalDesklet*> desks;
     
     private:
         Labellet* title;
@@ -417,7 +488,7 @@ namespace {
         Labellet* clsLabel;
         Labellet* stuLabel;
         Linelet* side_border;
-        std::map<uint64_t, ClassSprite*> classes;
+        std::map<uint64_t, DoorSprite*> doors;
         std::map<uint64_t, DisciplineSprite*> disciplines;
         std::map<uint64_t, StudentSprite*> students;
         std::map<MenuType, Continent*> menus;
@@ -430,7 +501,11 @@ namespace {
         uint64_t current_class = 0U;
         uint64_t current_discipline = 0U;
         uint64_t current_student = 0U;
+        uint64_t current_timestamp = 0U;
         GradeManagementSystemModel* model;
+
+    private:
+        GradeTask current_grade_task = GradeTask::_;
 
     private:
         std::string gmsin;

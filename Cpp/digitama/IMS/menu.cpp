@@ -128,6 +128,7 @@ static const char STDT_CREATE_KEY = '1';
 static const char STDT_UPDATE_KEY = '2';
 static const char STDT_DELETE_KEY = '3';
 static const char STDT_CLASS_KEY = '4';
+static const char STDT_CLEAR_KEY = '5';
 
 std::vector<std::pair<char, std::string>> WarGrey::IMS::StudentMenu::prepare_menu_items() {
     return {
@@ -135,7 +136,8 @@ std::vector<std::pair<char, std::string>> WarGrey::IMS::StudentMenu::prepare_men
         { STDT_CREATE_KEY, "添加新生信息"},
         { STDT_UPDATE_KEY, "更新学生信息"},
         { STDT_DELETE_KEY, "删除学生信息"},
-        { STDT_CLASS_KEY,  "绑定班级"}
+        { STDT_CLASS_KEY,  "绑定班级"},
+        { STDT_CLEAR_KEY,  "清理游离学生"}
     };
 }
 
@@ -145,6 +147,34 @@ void WarGrey::IMS::StudentMenu::on_menu_key(IMenuEventListener* master, MenuType
     case STDT_UPDATE_KEY: master->on_menu_task(self, MenuTask::UpdateStudent); break;
     case STDT_DELETE_KEY: master->on_menu_task(self, MenuTask::DeleteStudent); break;
     case STDT_CLASS_KEY: master->on_menu_task(self, MenuTask::BindClass); break;
+    case STDT_CLEAR_KEY: master->on_menu_task(self, MenuTask::ClearStudent); break;
+    case MENU_RETURN_KEY: master->on_menu_switch(self, MenuType::TopLevel); break;
+    default: /* do nothing */;
+    }
+}
+
+/*************************************************************************************************/
+static const char GRADE_CREATE_KEY = '1';
+static const char GRADE_UPDATE_KEY = '2';
+static const char GRADE_DELETE_KEY = '3';
+static const char GRADE_CLEAR_KEY = '4';
+
+std::vector<std::pair<char, std::string>> WarGrey::IMS::GradeMenu::prepare_menu_items() {
+    return {
+        { MENU_RETURN_KEY, "返回上层"},
+        { GRADE_CREATE_KEY, "添加成绩信息"},
+        { GRADE_UPDATE_KEY, "更新成绩信息"},
+        { GRADE_DELETE_KEY, "删除成绩信息"},
+        { GRADE_CLEAR_KEY,  "清理游离成绩"}
+    };
+}
+
+void WarGrey::IMS::GradeMenu::on_menu_key(IMenuEventListener* master, MenuType self, char key) {
+    switch (key) {
+    case GRADE_CREATE_KEY: master->on_menu_task(self, MenuTask::CreateGrade); break;
+    case GRADE_UPDATE_KEY: master->on_menu_task(self, MenuTask::UpdateGrade); break;
+    case GRADE_DELETE_KEY: master->on_menu_task(self, MenuTask::DeleteGrade); break;
+    case GRADE_CLEAR_KEY: master->on_menu_task(self, MenuTask::ClearGrade); break;
     case MENU_RETURN_KEY: master->on_menu_switch(self, MenuType::TopLevel); break;
     default: /* do nothing */;
     }
