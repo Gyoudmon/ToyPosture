@@ -1,5 +1,6 @@
 #include "grade.hpp"
 
+#include <ios>
 #include <sstream>
 
 using namespace WarGrey::IMS;
@@ -42,21 +43,36 @@ WarGrey::IMS::GradeEntity::GradeEntity(uint64_t sNo, uint64_t disCode, uint64_t 
     : student_No(sNo), discipline_code(disCode), timestamp(timestamp) {}
 
 void WarGrey::IMS::GradeEntity::extract_scores(const char* ss, size_t end, size_t idx) {
-    this->scores.clear();
+    this->points.clear();
 
     while (idx < end) {
-        uint64_t s = scan_natural(ss, &idx, end);
+        double s = scan_flonum(ss, &idx, end);
 
-        if (s > 150) throw exn_gms("分值(%llu)过高", s);
-        this->scores.push_back(uint8_t(s));
+        if ((s >= 0.0) && (s <= 150.0)) {    
+            this->points.push_back(s);
+        } else {
+            throw exn_gms("分值(%llu)不合理", s);
+        }
     }
 }
 
-uint32_t WarGrey::IMS::GradeEntity::get_score() {
-    uint32_t score = 0U;
+void WarGrey::IMS::GradeEntity::feed_score_points(std::vector<double>& pts) {
+    size_t total = this->points.size();
 
-    for (size_t idx = 0; idx < this->scores.size(); idx ++) {
-        score += this->scores[idx];
+    if (pts.size() != total) {
+        pts.resize(total);
+    }
+
+    for (size_t idx = 0; idx < total; idx ++) {
+        pts[idx] = this->points[idx];
+    }
+}
+
+double WarGrey::IMS::GradeEntity::get_score() {
+    double score = 0.0;
+
+    for (size_t idx = 0; idx < this->points.size(); idx ++) {
+        score += this->points[idx];
     }
 
     return score;
@@ -68,11 +84,13 @@ std::string WarGrey::IMS::GradeEntity::to_string() {
     ss << student_mark << discipline_mark << timestamp_mark << ':';
     ss << this->student_No << ',' << this->discipline_code << ',' << this->timestamp << ',';
 
-    if (!this->scores.empty()) {
-        ss << this->scores[0];
+    if (!this->points.empty()) {
+        ss.precision(1);
+        ss << std::fixed;
+        ss << this->points[0];
    
-        for (size_t idx = 1; idx < this->scores.size(); idx ++) {
-            ss << ' ' << this->scores[1];
+        for (size_t idx = 1; idx < this->points.size(); idx ++) {
+            ss << ' ' << this->points[idx];
         }
     }
 

@@ -35,15 +35,19 @@ namespace WarGrey::IMS {
 
     public:
         void create_class_from_user_input(const char* text, size_t size);
-        void delete_class_as_user_required(const char* text, size_t size);
+        void delete_class_as_user_request(const char* text, size_t size);
 
         void create_discipline_from_user_input(const char* text, size_t size);
         void update_discipline_from_user_input(const char* text, size_t size);
-        void delete_discipline_as_user_required(const char* text, size_t size);
+        void delete_discipline_as_user_request(const char* text, size_t size);
 
         void create_student_from_user_input(const char* text, size_t size);
         void update_student_from_user_input(const char* text, size_t size);
-        void delete_student_as_user_required(const char* text, size_t size);
+        void delete_student_as_user_request(const char* text, size_t size);
+
+        void register_student_scores_from_user_input(uint64_t sNo, uint64_t disCode, uint64_t ts, const char* text, size_t size);
+        void update_student_scores_from_user_input(uint64_t sNo, uint64_t disCode, uint64_t ts, const char* text, size_t size);
+        void delete_student_scores_as_user_request(uint64_t sNo, uint64_t disCode, uint64_t ts);
 
         void clear_detached_students();
         void clear_detached_grades();
@@ -56,15 +60,19 @@ namespace WarGrey::IMS {
         void feed_student_seat(uint64_t sNo, uint64_t* dsk_idx, uint64_t* st_idx);
 
     public:
-        void register_student_scores(uint64_t sNo, uint64_t disCode, uint64_t ts, const char* text, size_t size);
-        void feed_student_latest_scores(uint64_t sNo, uint64_t disCode, std::vector<uint8_t>& scores);
+        uint64_t get_discipline_code(DisciplineType type);
+        size_t get_class_population(uint64_t clsId);
+        uint64_t get_class_latest_timestamp(uint64_t clsId, size_t offset = 0);
+        uint64_t get_student_latest_timestamp(uint64_t sNo, size_t offset = 0);
+        double get_class_average_score(uint64_t clsId, uint64_t disCode, uint64_t timestamp);
+        void feed_student_score_points(uint64_t sNo, uint64_t disCode, uint64_t timestamp, std::vector<double>& pts);
 
     private:
         void register_class(shared_class_t cls, bool in_batching);
         void register_discipline(shared_discipline_t dis, bool in_batching);
         void register_student(shared_student_t stu, bool in_batching);
         void register_student_scores(shared_grade_t score);
-        void clear();
+        void clear(bool broadcast = true);
 
     private:
         std::map<uint64_t, shared_class_t> classes;
@@ -72,6 +80,9 @@ namespace WarGrey::IMS {
         std::map<uint64_t, shared_student_t> students;
         std::map<uint64_t, shared_seat_t> seats;
         std::map<uint64_t, std::map<uint64_t, std::map<uint64_t, shared_grade_t>>> scores;
+
+    private:
+        std::map<DisciplineType, uint64_t> dis_codes;
 
     private:
         IModelListener* listener;

@@ -22,7 +22,7 @@ namespace WarGrey::IMS {
 
     public:
         const char* cannonical_name();
-        DisciplineType discipline_type() { return this->type; }
+        DisciplineType cannonical_type() { return this->type; }
 
     public:
         uint64_t primary_key() override { return this->code; }

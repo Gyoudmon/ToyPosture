@@ -41,7 +41,7 @@ namespace WarGrey::OS {
             int total = 0;
 
         protected:
-            WarGrey::STEM::shared_font_t label_font = WarGrey::STEM::invalid_font;
+            WarGrey::STEM::shared_font_t label_font = nullptr;
             float chwidth = 0.0F;
             float chheight = 0.0F;
 

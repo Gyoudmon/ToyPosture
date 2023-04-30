@@ -24,7 +24,8 @@ namespace WarGrey::IMS {
         uint64_t get_timestamp() { return this->timestamp; }
         void set_timestamp(uint64_t ts) { this->timestamp = ts; }
         void extract_scores(const char* ss, size_t end, size_t idx = 0);
-        uint32_t get_score();
+        void feed_score_points(std::vector<double>& pts);
+        double get_score();
         
     public:
         uint64_t primary_key() override { return (this->student_No << 32U) | this->discipline_code; }
@@ -34,7 +35,7 @@ namespace WarGrey::IMS {
         uint64_t student_No;
         uint64_t discipline_code;
         uint64_t timestamp;
-        std::vector<uint8_t> scores;
+        std::vector<double> points;
     };
 
     typedef std::shared_ptr<GradeEntity> shared_grade_t;

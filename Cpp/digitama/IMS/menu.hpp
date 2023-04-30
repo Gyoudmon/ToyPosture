@@ -11,7 +11,8 @@ namespace WarGrey::IMS {
         ImportData, ExportData, CreateClass, DeleteClass,
         CreateDiscipline, UpdateDiscipline, DeleteDiscipline,
         CreateStudent, UpdateStudent, DeleteStudent, BindClass, ClearStudent,
-        CreateGrade, UpdateGrade, DeleteGrade, ClearGrade
+        CreateGrade, UpdateGrade, DeleteGrade, ClearGrade,
+        _
     };
 
     class IMenuEventListener {
