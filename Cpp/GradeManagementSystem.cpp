@@ -1,5 +1,6 @@
 #include "digitama/big_bang/game.hpp"
 #include "digitama/big_bang/datum/string.hpp"
+#include "digitama/big_bang/datum/vector.hpp"
 
 #include "digitama/IMS/menu.hpp"
 #include "digitama/IMS/avatar.hpp"
@@ -77,32 +78,33 @@ namespace {
             auto dsk = dynamic_cast<HexagonalDesklet*>(m);
                 
             if (m == this->platform) {
-                this->current_discipline = 0U;
+                this->the_disCode = 0U;
                 this->reflow_discipline_logos();
+                this->update_students_score_bars(this->the_disCode);
             } else if (stu != nullptr) {
                 this->on_student_changed(stu->primary_key());
             } else if (cls != nullptr) {
-                if ((this->current_task == MenuTask::BindClass) && (this->current_student > 0U)) {
-                    this->glide_to(gliding_duration, this->students[this->current_student], cls, MatterAnchor::RC, MatterAnchor::LC);
-                    this->model->bind_student_to_class(this->current_student, cls->primary_key());
+                if ((this->the_task == MenuTask::BindClass) && (this->the_sNo > 0U)) {
+                    this->glide_to(gliding_duration, this->students[this->the_sNo], cls, MatterAnchor::RC, MatterAnchor::LC);
+                    this->model->bind_student_to_class(this->the_sNo, cls->primary_key());
                 } else {
                     this->on_class_changed(cls->primary_key(), false);
                 }
             } else if (dis != nullptr) {
                 this->on_discipline_changed(dis->primary_key(), false);
             } else if (dsk != nullptr) {
-                if (this->current_student > 0U) {
-                    if (this->current_class > 0U) {
+                if (this->the_sNo > 0U) {
+                    if (this->the_clsId > 0U) {
                         int idx = dsk->get_seat_by(local_x, local_y);
 
                         if (idx > 0) {
-                            dsk->sit(this->students[this->current_student], idx, gliding_duration);
+                            dsk->sit(this->students[this->the_sNo], idx, gliding_duration);
 
-                            if (this->model->get_student_class(this->current_student) == 0U) {
-                                this->model->bind_student_to_class(this->current_student, this->current_class);
+                            if (this->model->get_student_class(this->the_sNo) == 0U) {
+                                this->model->bind_student_to_class(this->the_sNo, this->the_clsId);
                             }
 
-                            this->model->bind_student_to_seat(this->current_student, dsk->get_index(), idx);
+                            this->model->bind_student_to_seat(this->the_sNo, dsk->get_index(), idx);
                         }
                     } else {
                         this->log_message(FIREBRICK, "请先绑定班级");
@@ -137,14 +139,14 @@ namespace {
             if (!pressed) {
                 if (isdigit(key)) {
                     int idx = key - '0';
-                    IMenu* self = this->menus[this->current_menu_type]->unsafe_plane<IMenu>();
+                    IMenu* self = this->menus[this->the_menu_type]->unsafe_plane<IMenu>();
 
                     if ((idx >= 0) && (idx < self->count())) {
-                        self->on_menu_char(this, this->current_menu_type, key);
+                        self->on_menu_char(this, this->the_menu_type, key);
                     }
                 } else if (int(key) == 27) { // ESC
-                    this->current_task = MenuTask::_;
-                    this->menus[this->current_menu_type]->unsafe_plane<IMenu>()->select_menu('\0');
+                    this->the_task = MenuTask::_;
+                    this->menus[this->the_menu_type]->unsafe_plane<IMenu>()->select_menu('\0');
                 }
             }
         }
@@ -153,7 +155,7 @@ namespace {
             if (entire) {
                 if (size > 0) {
                     try {
-                        switch (this->current_task) {
+                        switch (this->the_task) {
                             case MenuTask::CreateClass: this->model->create_class_from_user_input(text, size); break;
                             case MenuTask::DeleteClass: this->model->delete_class_as_user_request(text, size); break;
                             case MenuTask::CreateDiscipline: this->model->create_discipline_from_user_input(text, size); break;
@@ -170,39 +172,42 @@ namespace {
                     } catch (const std::exception& e) {
                         this->log_message(CRIMSON, "%s", e.what());
                     }
-                } else if (this->current_grade_subtask != GradeTask::_) {
+                } else if (this->the_grade_subtask != GradeTask::_) {
                     this->on_grade_text(text, size);
                 }
             }
         }
 
         void on_grade_text(const char* text, size_t size) {
-            switch (this->current_grade_subtask) {
+            switch (this->the_grade_subtask) {
             case GradeTask::CheckCondition: {
                 size_t pos = 0U;
                 uint64_t ts = scan_natural(text, &pos, size);
                     
                 if (ts > 0U) {
-                    this->current_timestamp = ts;
+                    this->the_timestamp = ts;
                 }
 
-                this->on_grade_task(this->current_timestamp > 0U);
+                this->on_grade_task(this->the_timestamp > 0U);
             }; break;
             case GradeTask::DoTask: {
                 if (size > 0U) {
-                    switch (this->current_task) {
+                    switch (this->the_task) {
                     case MenuTask::CreateGrade: {
-                        this->model->register_student_scores_from_user_input(this->current_student,
-                            this->current_discipline, this->current_timestamp,
+                        this->model->register_student_scores_from_user_input(this->the_sNo,
+                            this->the_disCode, this->the_timestamp,
                             text, size);
                     }; break;
                     default: /* do nothing */;
                     }
 
-                    this->log_message(ROYALBLUE, "Done.");
+                    this->update_class_report(this->the_clsId);
+                    this->update_student_report(this->the_sNo);
+                    this->update_students_score_bars(this->the_disCode, this->the_sNo);
+                    this->log_message(FORESTGREEN, "Done.");
                 }
 
-                this->current_grade_subtask = GradeTask::_;
+                this->the_grade_subtask = GradeTask::_;
             }; break;
             default: /* do nothing */;
             }
@@ -214,18 +219,19 @@ namespace {
                 this->menus[self]->unsafe_plane<IMenu>()->select_menu('\0');
                 this->menus[self]->show(false);
                 this->menus[to]->show(true);
-                this->current_menu_type = to;
+                this->the_menu_type = to;
             }
 
-            this->current_task = MenuTask::_;
+            this->the_task = MenuTask::_;
+            this->the_grade_subtask = GradeTask::_;
 
-            this->avatar->show(this->current_menu_type == MenuType::Student);
-            this->student_stat->show(!this->avatar->visible());
-            this->class_stat->show(!this->avatar->visible());
+            this->avatar->show(this->the_menu_type == MenuType::Student);
+            this->stuReport->show(!this->avatar->visible());
+            this->clsReport->show(!this->avatar->visible());
         }
         
         void on_menu_task(MenuType self, MenuTask task) override {
-            this->current_task = task;
+            this->the_task = task;
 
             try {
                 switch (task) {
@@ -253,23 +259,25 @@ namespace {
         }
 
         void on_grade_task(bool timestamp_okay) {
-            this->current_grade_subtask = GradeTask::CheckCondition;
+            this->the_grade_subtask = GradeTask::CheckCondition;
 
             if (this->check_student_and_discipline_for_grade_task()) {
                 if (timestamp_okay || this->check_timestamp_for_grade_task()) {
-                    this->current_grade_subtask = GradeTask::DoTask;
+                    this->the_grade_subtask = GradeTask::DoTask;
 
-                    switch (this->current_task) {
+                    switch (this->the_task) {
                     case MenuTask::CreateGrade: {
                         this->start_input_text("请按顺序输入课程(%s@%llu)成绩的各项组成部分，以空格分隔",
-                            this->disciplines[this->current_discipline]->name(),
-                            this->current_timestamp);
+                            this->disciplines[this->the_disCode]->name(),
+                            this->the_timestamp);
                     }; break;
                     case MenuTask::DeleteGrade: {
-                        this->model->delete_student_scores_as_user_request(this->current_student,
-                            this->current_discipline, this->current_timestamp);
-                        this->log_message(ROYALBLUE, "Done.");
-                        this->current_grade_subtask = GradeTask::_;
+                        this->model->delete_student_scores_as_user_request(this->the_sNo,
+                            this->the_disCode, this->the_timestamp);
+                        this->update_class_report(this->the_clsId);
+                        this->update_student_report(this->the_sNo);
+                        this->update_students_score_bars(this->the_sNo, this->the_disCode);
+                        this->the_grade_subtask = GradeTask::_;
                      }; break;
                     default: /* do nothing */; break;
                     }
@@ -278,31 +286,38 @@ namespace {
         }
 
         bool check_student_and_discipline_for_grade_task() {
-            bool okay = true;
+            bool stu_selected = (this->the_sNo > 0U);
+            bool dis_selected = (this->the_disCode > 0U);
+            bool okay = (stu_selected && dis_selected);
 
-            if ((this->current_student == 0U) || (this->current_discipline == 0U)) {
-                this->log_message(ORANGE, "请先选定学生和课程.");
-                okay = false;
+            if (!okay) {
+                if ((!stu_selected) && (!dis_selected)) {
+                    this->log_message(ORANGE, "请先选定学生和课程.");
+                } else if (stu_selected) {
+                    this->log_message(ORANGE, "学生已选，还需选定课程.");
+                } else {
+                    this->log_message(ORANGE, "课程已选，还需选定学生.");
+                }
             }
 
             return okay;
         }
 
         bool check_timestamp_for_grade_task() {
-            this->current_grade_subtask = GradeTask::CheckCondition;
+            this->the_grade_subtask = GradeTask::CheckCondition;
 
-            if (this->current_timestamp == 0U) {
+            if (this->the_timestamp == 0U) {
                 this->start_input_text("请按格式输入成绩时间戳(YYYYMMDD): ");
             } else {
-                this->start_input_text("当前成绩时间戳 %llu，可直接修改，亦可按 ENTER 确认.", this->current_timestamp);
+                this->start_input_text("当前成绩时间戳 %llu，可直接修改，亦可按 ENTER 确认. ", this->the_timestamp);
             }
 
             return false;
         }
 
         void continue_grade_task_if_possible() {
-            if (this->current_grade_subtask == GradeTask::CheckCondition) {
-                this->on_grade_task(this->current_timestamp > 0U);
+            if (this->the_grade_subtask == GradeTask::CheckCondition) {
+                this->on_grade_task(this->the_timestamp > 0U);
             }
         }
 
@@ -320,7 +335,7 @@ namespace {
             this->remove(this->doors[pk]);
             this->doors.erase(pk);
 
-            if (this->current_class == pk) {
+            if (this->the_clsId == pk) {
                 if (!this->doors.empty()) {
                     this->on_class_changed(this->doors.begin()->first, in_batching);
                 }
@@ -332,35 +347,18 @@ namespace {
         }
 
         void on_class_changed(uint64_t clsId, bool in_batching) {
-            if (this->current_class > 0U) {
-                this->doors[this->current_class]->close();
+            if (this->the_clsId > 0U) {
+                this->doors[this->the_clsId]->close();
             }
 
-            this->current_class = clsId;
-            this->doors[current_class]->open();
+            this->the_clsId = clsId;
+            this->doors[the_clsId]->open();
             this->clsLabel->set_text(MatterAnchor::RT, "%u班(%zu人)", clsId, this->model->get_class_population(clsId));
             this->stuLabel->set_text(MatterAnchor::RB, " ");
             
             if (!in_batching) {
-                std::vector<double> avg_scores;
-                uint64_t ts = this->model->get_class_latest_timestamp(this->current_class);
-
-                if (ts > 0U) {
-                    for (auto disType : report_disciplines) {
-                        uint64_t disCode = this->model->get_discipline_code(disType);
-
-                        if (disCode > 0U) {
-                            avg_scores.push_back(this->model->get_class_average_score(this->current_class, disCode, ts));
-                        } else {
-                            avg_scores.push_back(flnan);
-                        }
-                    }
-                }
-
-                this->class_stat->set_title("%llu 平均成绩", clsId);
-                this->class_stat->set_scores(ts, avg_scores);
-
-                this->student_stat->clear();
+                this->update_class_report(this->the_clsId);
+                this->stuReport->clear();
                 this->reflow_students(gliding_duration);
             }
         }
@@ -384,9 +382,10 @@ namespace {
         }
 
         void on_discipline_changed(uint64_t pk, bool in_batching) {
-            this->current_discipline = pk;
+            this->the_disCode = pk;
 
             if (!in_batching) {
+                this->update_students_score_bars(this->the_disCode);
                 this->reflow_discipline_logos(gliding_duration);
             }
 
@@ -402,35 +401,15 @@ namespace {
         }
 
         void on_student_changed(uint64_t sNo) {
-            this->current_student = sNo;
+            this->the_sNo = sNo;
 
             if (sNo > 0U) {
                 this->stuLabel->set_text(MatterAnchor::RB, "%s", this->students[sNo]->name());
-                this->student_stat->set_title("%s", this->students[sNo]->name());
-
-                uint64_t ts = this->model->get_student_latest_timestamp(this->current_student);
-
-                if (ts > 0U) {
-                    std::vector<std::vector<double>> s_pts;
-    
-                    for (auto disType : report_disciplines) {
-                        uint64_t disCode = this->model->get_discipline_code(disType);
-                        std::vector<double> pts;
-
-                        if (disCode > 0U) {
-                            this->model->feed_student_score_points(sNo, disCode, ts, pts);
-                        }
-
-                        s_pts.push_back(pts);
-                    }
-
-                    this->class_stat->set_score_via_points(ts, s_pts);
-                }
             } else {
                 this->stuLabel->set_text(MatterAnchor::RB, "-");
-                this->student_stat->clear();
             }
 
+            this->update_student_report(sNo);
             this->continue_grade_task_if_possible();
         }
 
@@ -468,15 +447,14 @@ namespace {
             }
 
             this->move_to(this->avatar, 0.0F, height, MatterAnchor::LB, gap, -gap);
-            this->move_to(this->student_stat, 0.0F, height, MatterAnchor::LB, gap, -gap);
-            this->move_to(this->class_stat, this->student_stat, MatterAnchor::CT, MatterAnchor::CB, 0.0F, -gap);
-            
+            this->move_to(this->stuReport, 0.0F, height, MatterAnchor::LB, gap, -gap);
+            this->move_to(this->clsReport, this->stuReport, MatterAnchor::CT, MatterAnchor::CB, 0.0F, -gap);
         }
 
     private:
         void load_classroom(float width, float height) {
             this->platform = this->insert(new Rectanglet(platform_width, platform_height, STEELBLUE));
-            this->clsLabel = this->insert(new Labellet(GameFont::monospace(FontSize::x_large), GHOSTWHITE, "%u", this->current_class));
+            this->clsLabel = this->insert(new Labellet(GameFont::monospace(FontSize::x_large), GHOSTWHITE, "%u", this->the_clsId));
             this->stuLabel = this->insert(new Labellet(GameFont::serif(), GHOSTWHITE, "%s", "[学生]"));
             
             for (size_t idx = 1; idx <= DESK_COUNT; idx ++) {
@@ -537,7 +515,7 @@ namespace {
                 for (auto dis : this->disciplines) {
                     uint64_t disCode = dis.second->primary_key();
 
-                    if ((disCode == this->current_discipline) || (this->current_discipline == 0U)) {
+                    if ((disCode == this->the_disCode) || (this->the_disCode == 0U)) {
                         dis.second->show(true);
                         this->glide_to(duration, dis.second, dis_x, dis_y, MatterAnchor::LC);
                         dis_x += grid_width;
@@ -562,7 +540,7 @@ namespace {
                 for (auto stu : this->students) {
                     uint64_t stuClsId = this->model->get_student_class(stu.second->primary_key());
 
-                    stu.second->show((stuClsId == this->current_class) || (stuClsId == 0U));
+                    stu.second->show((stuClsId == this->the_clsId) || (stuClsId == 0U));
 
                     if (stuClsId == 0U) {
                         this->glide_to(duration, stu.second, nocls_stu_x, nocls_stu_y, MatterAnchor::RB);
@@ -590,14 +568,14 @@ namespace {
             auto stu = dynamic_cast<StudentSprite*>(m);
 
             if (dis != nullptr) {
-                if (this->current_discipline > 0U) {
-                    if (dis->primary_key() != this->current_discipline) {
+                if (this->the_disCode > 0U) {
+                    if (dis->primary_key() != this->the_disCode) {
                         dis->show(false);
                     }
                 }
             } else if (stu != nullptr) {
-                if (this->current_task == MenuTask::BindClass) {
-                    stu->show(this->current_class == this->model->get_student_class(stu->primary_key()));
+                if (this->the_task == MenuTask::BindClass) {
+                    stu->show(this->the_clsId == this->model->get_student_class(stu->primary_key()));
 
                     if (!stu->visible()) {
                         this->on_student_changed(0U);
@@ -615,7 +593,7 @@ namespace {
             this->menus[MenuType::Grade] = this->insert(new Continent(new GradeMenu()));
 
             for (auto menu : this->menus) {
-                if (this->current_menu_type != menu.first) {
+                if (this->the_menu_type != menu.first) {
                     menu.second->show(false);
                 }
 
@@ -634,8 +612,8 @@ namespace {
         }
 
         void load_grade_reports(float width, float height) {
-            this->class_stat = this->load_grade_report(width, height, "[班级成绩单]");
-            this->student_stat = this->load_grade_report(width, height, "[学生成绩单]");
+            this->clsReport = this->load_grade_report(width, height, "[班级成绩单]");
+            this->stuReport = this->load_grade_report(width, height, "[学生成绩单]");
         }
 
         Gradelet* load_grade_report(float width, float height, const char* title) {
@@ -644,6 +622,91 @@ namespace {
             report->set_disciplines(report_disciplines);
             
             return report;
+        }
+
+        void update_class_report(uint64_t clsId) {
+            std::vector<double> avg_scores;
+            uint64_t ts = this->model->get_class_latest_timestamp(this->the_clsId);
+
+            if (ts > 0U) {
+                for (auto disType : report_disciplines) {
+                    uint64_t disCode = this->model->get_discipline_code(disType);
+
+                    if (disCode > 0U) {
+                        avg_scores.push_back(this->model->get_class_average_score(this->the_clsId, disCode, ts));
+                    } else {
+                        avg_scores.push_back(flnan);
+                    }
+                }
+            }
+
+            this->clsReport->set_title("%llu班 平均成绩", clsId);
+            this->clsReport->set_scores(ts, avg_scores);
+        }
+
+        void update_student_report(uint64_t sNo) {
+            if (sNo == 0U) {
+                this->stuReport->clear();
+            } else {
+                uint64_t lts = this->model->get_student_latest_timestamp(this->the_sNo);
+                uint64_t pts = this->model->get_student_latest_timestamp(this->the_sNo, 1);
+
+                if (lts > 0U) {
+                    std::vector<std::vector<double>> s_pts;
+                    std::vector<double> diffs;
+    
+                    for (auto disType : report_disciplines) {
+                        uint64_t disCode = this->model->get_discipline_code(disType);
+                        std::vector<double> lpts, ppts;
+
+                        if (disCode > 0U) {
+                            this->model->feed_student_score_points(sNo, disCode, lts, lpts);
+                            this->model->feed_student_score_points(sNo, disCode, pts, ppts);
+                        }
+
+                        if (ppts.size() > 0) {
+                            diffs.push_back(vector_sum(lpts) - vector_sum(ppts));
+                        } else {
+                            diffs.push_back(flnan);
+                        }
+
+                        s_pts.push_back(lpts);
+                    }
+
+                    this->stuReport->set_score_diffs(diffs);
+                    this->stuReport->set_score_via_points(lts, s_pts);
+                }
+
+                this->stuReport->set_title("%s", this->students[sNo]->name());
+            }
+        }
+
+        void update_students_score_bars(uint64_t disCode, uint64_t sNo = 0U) {
+            if (sNo == 0U) {
+                for (auto& stu : this->students) {
+                    this->update_students_score_bars(disCode, stu.first);
+                }
+            } else if (this->model->get_student_class(sNo) == this->the_clsId) {
+                if (disCode == 0U) {
+                    this->students[sNo]->set_score_percentage(0.0);
+                } else {
+                    uint64_t ts = this->model->get_student_latest_timestamp(sNo);
+                    uint32_t color = CRIMSON;
+                    double score = 0.0;
+                    
+                    if (ts > 0U) {
+                        score = this->model->get_student_score(sNo, disCode, ts);
+                    }
+
+                    if (ts >= 80.0) {
+                        color = GREEN;
+                    } else if (ts >= 60.0) {
+                        color = YELLOWGREEN;
+                    }
+
+                    this->students[sNo]->set_score_percentage(score / 100.0, color);
+                }
+            }
         }
 
     private:
@@ -671,21 +734,21 @@ namespace {
         std::map<uint64_t, StudentSprite*> students;
         std::map<MenuType, Continent*> menus;
         Continent* avatar;
-        Gradelet* student_stat;
-        Gradelet* class_stat;
+        Gradelet* stuReport;
+        Gradelet* clsReport;
         Linkmon* agent;
 
     private:
-        MenuType current_menu_type = MenuType::TopLevel;
-        MenuTask current_task = MenuTask::ImportData;
-        uint64_t current_class = 0U;
-        uint64_t current_discipline = 0U;
-        uint64_t current_student = 0U;
+        MenuType the_menu_type = MenuType::TopLevel;
+        MenuTask the_task = MenuTask::ImportData;
+        uint64_t the_clsId = 0U;
+        uint64_t the_disCode = 0U;
+        uint64_t the_sNo = 0U;
         GradeManagementSystemModel* model;
 
     private:
-        GradeTask current_grade_subtask = GradeTask::_;
-        uint64_t current_timestamp = 0U;
+        GradeTask the_grade_subtask = GradeTask::_;
+        uint64_t the_timestamp = 0U;
 
     private:
         std::string gmsin;

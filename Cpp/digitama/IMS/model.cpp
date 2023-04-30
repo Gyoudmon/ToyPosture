@@ -3,6 +3,7 @@
 #include "../big_bang/datum/box.hpp"
 #include "../big_bang/datum/fixnum.hpp"
 #include "../big_bang/datum/flonum.hpp"
+#include "../big_bang/datum/vector.hpp"
 
 #include <fstream>
 #include <filesystem>
@@ -144,15 +145,23 @@ void WarGrey::IMS::GradeManagementSystemModel::clear_detached_grades() {
         if (this->students.find(it->first) == this->students.end()) {
             it = this->scores.erase(it);
         } else {
-            for (auto& ts_scores : it->second) {
-                auto dis_it = ts_scores.second.begin();
+            auto ts_it = it->second.begin();
 
-                while (dis_it != ts_scores.second.end()) {
+            while (ts_it != it->second.end()) {
+                auto dis_it = ts_it->second.begin();
+
+                while (dis_it != ts_it->second.end()) {
                     if (this->disciplines.find(dis_it->first) != this->disciplines.end()) {
-                        dis_it = ts_scores.second.erase(dis_it);
+                        dis_it = ts_it->second.erase(dis_it);
                     } else {
                         ++ dis_it;
                     }
+                }
+
+                if (ts_it->second.empty()) {
+                    ts_it = it->second.erase(ts_it);
+                } else {
+                    ++ ts_it;
                 }
             }
 
@@ -272,15 +281,15 @@ void WarGrey::IMS::GradeManagementSystemModel::create_student_from_user_input(co
 
 void WarGrey::IMS::GradeManagementSystemModel::delete_student_as_user_request(const char* text, size_t size) {
     size_t pos = 0;
-    uint64_t stu_pk = scan_natural(text, &pos, size);
+    uint64_t sNo = scan_natural(text, &pos, size);
 
-    if (this->students.find(stu_pk) != this->students.end()) {
-        shared_student_t entity = this->students[stu_pk];
+    if (this->students.find(sNo) != this->students.end()) {
+        shared_student_t entity = this->students[sNo];
 
-        this->students.erase(stu_pk);
-        this->listener->on_student_deleted(stu_pk, entity, false);
+        this->students.erase(sNo);
+        this->listener->on_student_deleted(sNo, entity, false);
     } else {
-        throw exn_gms("查无此人(%llu)", stu_pk);
+        throw exn_gms("查无此人(%llu)", sNo);
     }
 }
 
@@ -295,6 +304,29 @@ void WarGrey::IMS::GradeManagementSystemModel::update_student_scores_from_user_i
 }
 
 void WarGrey::IMS::GradeManagementSystemModel::delete_student_scores_as_user_request(uint64_t sNo, uint64_t disCode, uint64_t ts) {
+    if (this->scores.find(sNo) != this->scores.end()) {
+        auto& ts_scores = this->scores[sNo];
+
+        if (ts_scores.find(ts) != ts_scores.end()) {
+            auto& dis_scores = ts_scores[ts];
+
+            if (dis_scores.find(disCode) != dis_scores.end()) {
+                dis_scores.erase(disCode);
+
+                if (dis_scores.empty()) {
+                    ts_scores.erase(ts);
+                }
+            } else {
+                throw exn_gms("成绩(%s)未登记(%s@%llu)",
+                    this->disciplines[disCode]->cannonical_name(),
+                    this->students[sNo]->get_nickname().c_str(), ts);
+            }
+        } else {
+            throw exn_gms("成绩未登记(%s@%llu)", this->students[sNo]->get_nickname().c_str(), ts);
+        }
+    } else {
+        throw exn_gms("成绩未登记(%llu)", sNo);
+    }
 }
 
 /*************************************************************************************************/
@@ -381,12 +413,14 @@ uint64_t WarGrey::IMS::GradeManagementSystemModel::get_class_latest_timestamp(ui
             if (ts_score.size() > offset) {
                 auto r_it = ts_score.rbegin();
 
-                while (offset > 0) {
+                while ((offset > 0) && (r_it != ts_score.rend())) {
                     r_it ++;
                     offset --;
                 }
 
-                timestamp = fxmax(timestamp, r_it->first);
+                if (offset == 0) { 
+                    timestamp = fxmax(timestamp, r_it->first);
+                }
             }
         }
     }
@@ -403,12 +437,14 @@ uint64_t WarGrey::IMS::GradeManagementSystemModel::get_student_latest_timestamp(
         if (ts_score.size() > offset) {
             auto r_it = ts_score.rbegin();
 
-            while (offset > 0) {
+            while ((offset > 0) && (r_it != ts_score.rend())) {
                 r_it ++;
                 offset --;
             }
 
-            timestamp = r_it->first;
+            if (offset == 0U) {
+                timestamp = r_it->first;
+            }
         }
     }
 
@@ -441,6 +477,14 @@ double WarGrey::IMS::GradeManagementSystemModel::get_class_average_score(uint64_
     }
 
     return (n == 0U) ? flnan : total / double(n);
+}
+
+double WarGrey::IMS::GradeManagementSystemModel::get_student_score(uint64_t sNo, uint64_t disCode, uint64_t timestamp) {
+    std::vector<double> pts;
+
+    this->feed_student_score_points(sNo, disCode, timestamp, pts);
+
+    return vector_sum(pts);
 }
 
 void WarGrey::IMS::GradeManagementSystemModel::feed_student_score_points(uint64_t sNo, uint64_t disCode, uint64_t timestamp, std::vector<double>& pts) {

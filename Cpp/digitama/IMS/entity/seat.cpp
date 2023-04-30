@@ -18,6 +18,8 @@ WarGrey::IMS::SeatEntity::SeatEntity(const std::string& s, int idx) {
     size_t end = s.size();
     const char* src = s.c_str();
 
+    scan_skip_space(src, &pos, end);
+
     this->student_No = scan_natural(src, &pos, end);
     if (this->student_No == 0U) throw exn_gms("无效学号");
     scan_skip_delimiter(src, &pos, end, field_delimiter);

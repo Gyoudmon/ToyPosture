@@ -24,6 +24,8 @@ WarGrey::IMS::GradeEntity::GradeEntity(const std::string& s, int idx) {
     size_t end = s.size();
     const char* src = s.c_str();
 
+    scan_skip_space(src, &pos, end);
+
     this->student_No = scan_natural(src, &pos, end);
     if (this->student_No == 0U) throw exn_gms("无效学号");
     scan_skip_delimiter(src, &pos, end, field_delimiter);
@@ -45,13 +47,15 @@ WarGrey::IMS::GradeEntity::GradeEntity(uint64_t sNo, uint64_t disCode, uint64_t 
 void WarGrey::IMS::GradeEntity::extract_scores(const char* ss, size_t end, size_t idx) {
     this->points.clear();
 
+    scan_skip_space(ss, &idx, end);
+    
     while (idx < end) {
         double s = scan_flonum(ss, &idx, end);
 
         if ((s >= 0.0) && (s <= 150.0)) {    
             this->points.push_back(s);
         } else {
-            throw exn_gms("分值(%llu)不合理", s);
+            throw exn_gms("分值(%lf)不合理", s);
         }
     }
 }

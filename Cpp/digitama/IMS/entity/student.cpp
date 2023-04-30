@@ -39,6 +39,8 @@ WarGrey::IMS::StudentEntity::StudentEntity(const std::string& s, int idx) {
     size_t end = s.size();
     const char* src = s.c_str();
 
+    scan_skip_space(src, &pos, end);
+
     this->avatar = scan_natural(src, &pos, end) % 0x100;
     scan_skip_delimiter(src, &pos, end, field_delimiter);
 

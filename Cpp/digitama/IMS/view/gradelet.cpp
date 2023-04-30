@@ -19,6 +19,7 @@ static const uint32_t line_color = LIGHTGRAY;
 #define HEAD_FONT GameFont::serif(FontSize::medium)
 #define BODY_FONT GameFont::monospace()
 #define MATH_FONT GameFont::math()
+#define DIFF_FONT GameFont::math(FontSize::xx_small)
 
 /*************************************************************************************************/
 WarGrey::IMS::Gradelet::Gradelet(const char* name, float width) : _name(name), width(width) {
@@ -213,13 +214,13 @@ void WarGrey::IMS::Gradelet::set_score_diffs(const std::vector<double>& diffs) {
 
                 if (diff > 0.0) {
                     this->diffs[idx].reset(new Texture(game_blended_text_texture(renderer,
-                        make_nstring("[+%.1f]", diff), MATH_FONT, GREEN)));
+                        make_nstring("+%.1f", diff), DIFF_FONT, LIME)));
                 } else if (diff < 0.0) {
                     this->diffs[idx].reset(new Texture(game_blended_text_texture(renderer,
-                        make_nstring("[%.1f]", diff), MATH_FONT, ORANGERED)));
+                        make_nstring("%.1f", diff), DIFF_FONT, DARKRED)));
                 } else if (diff == 0.0) {
                     this->diffs[idx].reset(new Texture(game_blended_text_texture(renderer,
-                        "[=0.0]", MATH_FONT, DIMGRAY)));
+                        "=", DIFF_FONT, LIGHTGRAY)));
                 } else { // NaN
                     this->diffs[idx].reset();
                 }

@@ -65,6 +65,7 @@ namespace WarGrey::IMS {
         uint64_t get_class_latest_timestamp(uint64_t clsId, size_t offset = 0);
         uint64_t get_student_latest_timestamp(uint64_t sNo, size_t offset = 0);
         double get_class_average_score(uint64_t clsId, uint64_t disCode, uint64_t timestamp);
+        double get_student_score(uint64_t sNo, uint64_t disCode, uint64_t timestamp);
         void feed_student_score_points(uint64_t sNo, uint64_t disCode, uint64_t timestamp, std::vector<double>& pts);
 
     private:
