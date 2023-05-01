@@ -54,7 +54,9 @@
     (for ([sNo (in-list students)])
       (for ([disCode (in-list disciplines)])
         (printf "sdt:~a,~a,~a,~a~n" sNo disCode timestamp
-                (string-join (list-ref scores (random 0 s-count)) " "))))))
+                (string-join (append (list-ref scores (random 0 s-count))
+                                     (list "3"))
+                             " "))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (module+ main

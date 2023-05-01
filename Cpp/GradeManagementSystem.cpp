@@ -198,6 +198,11 @@ namespace {
                             this->the_disCode, this->the_timestamp,
                             text, size);
                     }; break;
+                    case MenuTask::UpdateGrade: {
+                        this->model->update_student_scores_from_user_input(this->the_sNo,
+                            this->the_disCode, this->the_timestamp,
+                            text, size);
+                    }; break;
                     default: /* do nothing */;
                     }
 
@@ -267,6 +272,11 @@ namespace {
 
                     switch (this->the_task) {
                     case MenuTask::CreateGrade: {
+                        this->start_input_text("请按顺序输入课程(%s@%llu)成绩的各项组成部分，以空格分隔",
+                            this->disciplines[this->the_disCode]->name(),
+                            this->the_timestamp);
+                    }; break;
+                    case MenuTask::UpdateGrade: {
                         this->start_input_text("请按顺序输入课程(%s@%llu)成绩的各项组成部分，以空格分隔",
                             this->disciplines[this->the_disCode]->name(),
                             this->the_timestamp);
@@ -407,7 +417,7 @@ namespace {
         void on_student_updated(uint64_t pk, shared_student_t entity) override {
             this->students[pk]->set_nickname(entity->get_nickname());
             this->on_student_changed(pk);
-            this->log_message(FORESTGREEN, "学生(%llu)信息已修改.", entity->primary_key());
+            this->log_message(FORESTGREEN, "学生(%s)信息已修改.", this->students[pk]->name());
         }
 
         void on_student_changed(uint64_t sNo) {

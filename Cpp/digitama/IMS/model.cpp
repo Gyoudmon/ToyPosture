@@ -331,6 +331,25 @@ void WarGrey::IMS::GradeManagementSystemModel::register_student_scores_from_user
 }
 
 void WarGrey::IMS::GradeManagementSystemModel::update_student_scores_from_user_input(uint64_t sNo, uint64_t disCode, uint64_t ts, const char* text, size_t size) {
+    if (this->scores.find(sNo) != this->scores.end()) {
+        auto& ts_scores = this->scores[sNo];
+
+        if (ts_scores.find(ts) != ts_scores.end()) {
+            auto& dis_scores = ts_scores[ts];
+
+            if (dis_scores.find(disCode) != dis_scores.end()) {
+                dis_scores[disCode]->extract_scores(text, size, 0U);
+            } else {
+                throw exn_gms("成绩(%s)未登记(%s@%llu)",
+                    this->disciplines[disCode]->cannonical_name(),
+                    this->students[sNo]->get_nickname().c_str(), ts);
+            }
+        } else {
+            throw exn_gms("成绩未登记(%s@%llu)", this->students[sNo]->get_nickname().c_str(), ts);
+        }
+    } else {
+        throw exn_gms("成绩未登记(%llu)", sNo);
+    }
 }
 
 void WarGrey::IMS::GradeManagementSystemModel::delete_student_scores_as_user_request(uint64_t sNo, uint64_t disCode, uint64_t ts) {
