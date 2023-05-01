@@ -261,17 +261,32 @@ void WarGrey::IMS::GradeManagementSystemModel::create_discipline_from_user_input
     this->register_discipline(std::make_shared<DisciplineEntity>(text, 0), false);
 }
 
-void WarGrey::IMS::GradeManagementSystemModel::delete_discipline_as_user_request(const char* text, size_t size) {
-    size_t pos = 0;
-    uint64_t dis_pk = scan_natural(text, &pos, size);
+void WarGrey::IMS::GradeManagementSystemModel::update_discipline_from_user_input(const char* text, size_t size) {
+    size_t pos = 0U;
+    uint64_t disCode = scan_natural(text, &pos, size);
 
-    if (this->disciplines.find(dis_pk) != this->disciplines.end()) {
-        shared_discipline_t entity = this->disciplines[dis_pk];
+    if (this->disciplines.find(disCode) != this->disciplines.end()) {
+        scan_skip_delimiter(text, &pos, size, field_delimiter);
 
-        this->disciplines.erase(dis_pk);
-        this->listener->on_discipline_deleted(dis_pk, entity, false);
+        if (this->disciplines[disCode]->update(text, size, pos)) {
+            this->listener->on_discipline_updated(disCode, this->disciplines[disCode]);
+        }
     } else {
-        throw exn_gms("查无此课(%llu)", dis_pk);
+        throw exn_gms("查无此课(%llu)", disCode);
+    }
+}
+
+void WarGrey::IMS::GradeManagementSystemModel::delete_discipline_as_user_request(const char* text, size_t size) {
+    size_t pos = 0U;
+    uint64_t disCode = scan_natural(text, &pos, size);
+
+    if (this->disciplines.find(disCode) != this->disciplines.end()) {
+        shared_discipline_t entity = this->disciplines[disCode];
+
+        this->disciplines.erase(disCode);
+        this->listener->on_discipline_deleted(disCode, entity, false);
+    } else {
+        throw exn_gms("查无此课(%llu)", disCode);
     }
 }
 
@@ -389,6 +404,17 @@ uint64_t WarGrey::IMS::GradeManagementSystemModel::get_discipline_code(Disciplin
     }
 
     return discode;
+}
+
+uint64_t WarGrey::IMS::GradeManagementSystemModel::get_discipline_credit(DisciplineType type) {
+    uint64_t disCode = this->get_discipline_code(type);
+    uint64_t credit = 0U;
+
+    if (this->disciplines.find(disCode) != this->disciplines.end()) {
+        credit = this->disciplines[disCode]->get_credit();
+    }
+
+    return credit;
 }
 
 size_t WarGrey::IMS::GradeManagementSystemModel::get_class_population(uint64_t clsId) {

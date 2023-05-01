@@ -91,7 +91,7 @@ namespace {
                     this->on_class_changed(cls->primary_key(), false);
                 }
             } else if (dis != nullptr) {
-                this->on_discipline_changed(dis->primary_key(), false);
+                this->on_discipline_changed(this->model->get_discipline_code(dis->get_type()), false);
             } else if (dsk != nullptr) {
                 if (this->the_sNo > 0U) {
                     if (this->the_clsId > 0U) {
@@ -236,13 +236,13 @@ namespace {
             try {
                 switch (task) {
                 case MenuTask::Exit: this->mission_complete(); break;
-                case MenuTask::CreateClass: this->start_input_text("请按格式输入待创建班级信息(%s): ", ClassEntity::prompt()); break;
+                case MenuTask::CreateClass: this->start_input_text("请按格式输入待创建班级的信息(%s): ", ClassEntity::prompt()); break;
                 case MenuTask::DeleteClass: this->start_input_text("请输入待删除班级的班号: "); break;
-                case MenuTask::CreateDiscipline: this->start_input_text("请按格式输入待创建课程信息(%s): ", DisciplineEntity::prompt()); break;
-                case MenuTask::UpdateDiscipline: this->start_input_text("请按格式输入待修改课程信息(%s): ", DisciplineEntity::prompt()); break;
+                case MenuTask::CreateDiscipline: this->start_input_text("请按格式输入待创建课程的信息(%s): ", DisciplineEntity::prompt()); break;
+                case MenuTask::UpdateDiscipline: this->start_input_text("请按格式输入待修改课程的信息(%s): ", DisciplineEntity::update_prompt()); break;
                 case MenuTask::DeleteDiscipline: this->start_input_text("请输入待删除课程的代号: "); break;
                 case MenuTask::CreateStudent: this->start_input_text("请按格式输入新生信息(%s): ", StudentEntity::prompt()); break;
-                case MenuTask::UpdateStudent: this->start_input_text("请按格式输入待修改学生信息(%s): ", StudentEntity::prompt()); break;
+                case MenuTask::UpdateStudent: this->start_input_text("请按格式输入待修改学生的信息(%s): ", StudentEntity::update_prompt()); break;
                 case MenuTask::DeleteStudent: this->start_input_text("请输入待删除学生的学号: "); break;
                 case MenuTask::CreateGrade: this->on_grade_task(false); break;
                 case MenuTask::UpdateGrade: this->on_grade_task(false); break;
@@ -364,13 +364,17 @@ namespace {
         }
 
         void on_discipline_created(uint64_t pk, shared_discipline_t entity, bool in_batching) override {
-            this->disciplines[pk] = this->insert(new DisciplineSprite(pk, entity->cannonical_type()));
+            this->disciplines[pk] = this->insert(new DisciplineSprite(entity->cannonical_type()));
             this->disciplines[pk]->resize_by_height(platform_height * 0.90F);
 
             if (!in_batching) {
                 this->reflow_discipline_logos(gliding_duration);
             }
         }
+
+        void on_discipline_updated(uint64_t pk, shared_discipline_t entity) override {
+            this->log_message(FORESTGREEN, "课程(%s)学分修改为了 %llu.", entity->cannonical_name(), entity->get_credit());
+        }  
 
         void on_discipline_deleted(uint64_t pk, shared_discipline_t entity, bool in_batching) override {
             this->remove(this->disciplines[pk]);
@@ -513,7 +517,7 @@ namespace {
                 grid_width += gap;
 
                 for (auto dis : this->disciplines) {
-                    uint64_t disCode = dis.second->primary_key();
+                    uint64_t disCode = this->model->get_discipline_code(dis.second->get_type());
 
                     if ((disCode == this->the_disCode) || (this->the_disCode == 0U)) {
                         dis.second->show(true);
@@ -569,7 +573,7 @@ namespace {
 
             if (dis != nullptr) {
                 if (this->the_disCode > 0U) {
-                    if (dis->primary_key() != this->the_disCode) {
+                    if (this->model->get_discipline_code(dis->get_type()) != this->the_disCode) {
                         dis->show(false);
                     }
                 }
@@ -698,9 +702,9 @@ namespace {
                         score = this->model->get_student_score(sNo, disCode, ts);
                     }
 
-                    if (ts >= 80.0) {
+                    if (score >= 80.0) {
                         color = GREEN;
-                    } else if (ts >= 60.0) {
+                    } else if (score >= 60.0) {
                         color = YELLOWGREEN;
                     }
 

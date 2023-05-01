@@ -281,5 +281,5 @@ float WarGrey::IMS::Gradelet::score_line_height() {
 }
 
 uint32_t WarGrey::IMS::Gradelet::score_color(const std::vector<double>& scores, double score) {
-    return body_color;
+    return (score >= 60.0) ? GOLD : ANTIQUEWHITE;
 }

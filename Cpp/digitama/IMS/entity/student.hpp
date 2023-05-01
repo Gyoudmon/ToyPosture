@@ -9,6 +9,7 @@ namespace WarGrey::IMS {
     public:
         static bool match(const std::string& line, int* offset);
         static const char* prompt();
+        static const char* update_prompt();
 
     public:
         StudentEntity(const char* s, int idx = 0) : StudentEntity(std::string(s), idx) {}

@@ -16,7 +16,7 @@ namespace WarGrey::IMS {
         virtual void on_class_deleted(uint64_t pk, shared_class_t entity, bool in_batching) = 0;
 
         virtual void on_discipline_created(uint64_t pk, shared_discipline_t entity, bool in_batching) = 0;
-        virtual void on_discipline_updated(uint64_t pk, shared_discipline_t entity) {}
+        virtual void on_discipline_updated(uint64_t pk, shared_discipline_t entity) = 0;
         virtual void on_discipline_deleted(uint64_t pk, shared_discipline_t entity, bool in_batching) = 0;
         
         virtual void on_student_created(uint64_t pk, shared_student_t entity, bool in_batching) = 0;
@@ -61,6 +61,7 @@ namespace WarGrey::IMS {
 
     public:
         uint64_t get_discipline_code(DisciplineType type);
+        uint64_t get_discipline_credit(DisciplineType type);
         size_t get_class_population(uint64_t clsId);
         uint64_t get_class_latest_timestamp(uint64_t clsId, size_t offset = 0);
         uint64_t get_student_latest_timestamp(uint64_t sNo, size_t offset = 0);

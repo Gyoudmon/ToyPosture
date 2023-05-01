@@ -33,6 +33,10 @@ const char* WarGrey::IMS::StudentEntity::prompt() {
     return "{ avatar:byte , No:nat, nickname:str, gender:str, age:byte }";
 }
 
+const char* WarGrey::IMS::StudentEntity::update_prompt() {
+    return "{ No:nat, nickname:str, age:byte }";
+}
+
 /*************************************************************************************************/
 WarGrey::IMS::StudentEntity::StudentEntity(const std::string& s, int idx) {
     size_t pos = size_t(idx);

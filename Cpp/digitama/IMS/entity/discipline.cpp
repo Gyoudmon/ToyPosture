@@ -11,7 +11,11 @@ bool WarGrey::IMS::DisciplineEntity::match(const std::string& line, int* offset)
 }
 
 const char* WarGrey::IMS::DisciplineEntity::prompt() {
-    return "{ code:nat, name:str, score:nat }";
+    return "{ code:nat, name:str, credit:nat }";
+}
+
+const char* WarGrey::IMS::DisciplineEntity::update_prompt() {
+    return "{ code:nat, credit:nat }";
 }
 
 const char* WarGrey::IMS::DisciplineEntity::type_to_name(DisciplineType type) {
@@ -56,11 +60,24 @@ WarGrey::IMS::DisciplineEntity::DisciplineEntity(const std::string& s, int idx) 
     this->type = name_to_type(scan_string(src, &pos, end, field_delimiter).c_str());
     scan_skip_delimiter(src, &pos, end, field_delimiter);
 
-    this->score = scan_natural(src, &pos, end);
+    this->credit = scan_natural(src, &pos, end);
+}
+
+bool WarGrey::IMS::DisciplineEntity::update(const char* s, size_t end, size_t idx) {
+    uint64_t new_credit = 0U;
+
+    scan_skip_space(s, &idx, end);
+    new_credit = scan_natural(s, &idx, end);
+
+    if (new_credit > 0U) {
+        this->credit = new_credit;
+    }
+
+    return this->credit == new_credit;
 }
 
 std::string WarGrey::IMS::DisciplineEntity::to_string() {
-    return make_nstring("%c:%llu,%s,%llu", discipline_mark, this->code, this->cannonical_name(), this->score);
+    return make_nstring("%c:%llu,%s,%llu", discipline_mark, this->code, this->cannonical_name(), this->credit);
 }
 
 const char* WarGrey::IMS::DisciplineEntity::cannonical_name() {
