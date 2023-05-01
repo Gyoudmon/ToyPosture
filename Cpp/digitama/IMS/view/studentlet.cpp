@@ -19,6 +19,13 @@ void WarGrey::IMS::StudentSprite::draw(SDL_Renderer* renderer, float x, float y,
     }
 }
 
+void WarGrey::IMS::StudentSprite::set_nickname(const std::string& name) {
+    if (this->nickname.compare(name) != 0) {
+        this->nickname = name;
+        this->notify_updated();
+    }
+}
+
 void WarGrey::IMS::StudentSprite::set_score_percentage(double percentage, uint32_t color, double alpha) {
     if ((this->sbar_percentage != percentage) || (color != this->sbar_color) || (alpha != this->sbar_alpha)) {
         this->sbar_percentage = percentage;

@@ -374,7 +374,7 @@ namespace {
 
         void on_discipline_updated(uint64_t pk, shared_discipline_t entity) override {
             this->log_message(FORESTGREEN, "课程(%s)学分修改为了 %llu.", entity->cannonical_name(), entity->get_credit());
-        }  
+        }
 
         void on_discipline_deleted(uint64_t pk, shared_discipline_t entity, bool in_batching) override {
             this->remove(this->disciplines[pk]);
@@ -404,11 +404,17 @@ namespace {
             }
         }
 
+        void on_student_updated(uint64_t pk, shared_student_t entity) override {
+            this->students[pk]->set_nickname(entity->get_nickname());
+            this->on_student_changed(pk);
+            this->log_message(FORESTGREEN, "学生(%llu)信息已修改.", entity->primary_key());
+        }
+
         void on_student_changed(uint64_t sNo) {
             this->the_sNo = sNo;
 
             if (sNo > 0U) {
-                this->stuLabel->set_text(MatterAnchor::RB, "%s", this->students[sNo]->name());
+                this->stuLabel->set_text(MatterAnchor::RB, "%s[%llu]", this->students[sNo]->name(), sNo);
             } else {
                 this->stuLabel->set_text(MatterAnchor::RB, "-");
             }
@@ -681,7 +687,7 @@ namespace {
                     this->stuReport->set_score_via_points(lts, s_pts);
                 }
 
-                this->stuReport->set_title("%s", this->students[sNo]->name());
+                this->stuReport->set_title("%s[%llu]", this->students[sNo]->name(), sNo);
             }
         }
 

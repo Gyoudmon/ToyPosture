@@ -294,6 +294,21 @@ void WarGrey::IMS::GradeManagementSystemModel::create_student_from_user_input(co
     this->register_student(std::make_shared<StudentEntity>(text, 0), false);
 }
 
+void WarGrey::IMS::GradeManagementSystemModel::update_student_from_user_input(const char* text, size_t size) {
+    size_t pos = 0U;
+    uint64_t sNo = scan_natural(text, &pos, size);
+
+    if (this->students.find(sNo) != this->students.end()) {
+        scan_skip_delimiter(text, &pos, size, field_delimiter);
+
+        if (this->students[sNo]->update(text, size, pos)) {
+            this->listener->on_student_updated(sNo, this->students[sNo]);
+        }
+    } else {
+        throw exn_gms("查无此人(%llu)", sNo);
+    }
+}
+
 void WarGrey::IMS::GradeManagementSystemModel::delete_student_as_user_request(const char* text, size_t size) {
     size_t pos = 0;
     uint64_t sNo = scan_natural(text, &pos, size);

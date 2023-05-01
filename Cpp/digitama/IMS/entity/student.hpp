@@ -18,6 +18,9 @@ namespace WarGrey::IMS {
         virtual ~StudentEntity() {}
 
     public:
+        bool update(const char* s, size_t end, size_t idx = 0);
+
+    public:
         uint8_t get_avatar() { return this->avatar; }
         std::string get_nickname() { return this->nickname; }
         uint8_t get_age() { return this->age; }

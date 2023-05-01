@@ -17,6 +17,7 @@ namespace WarGrey::IMS {
         uint64_t primary_key() { return this->No; }
 
     public:
+        void set_nickname(const std::string& name);
         void set_score_percentage(double percentage, uint32_t color = 0x00FF00U, double alpha = 1.0);
 
     private:

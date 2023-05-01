@@ -62,6 +62,29 @@ WarGrey::IMS::StudentEntity::StudentEntity(const std::string& s, int idx) {
     this->age = scan_natural(src, &pos, end) % 0x100;
 }
 
+bool WarGrey::IMS::StudentEntity::update(const char* s, size_t end, size_t idx) {
+    std::string new_nname = "";
+    uint64_t new_age = 0U;
+    bool updated = true;
+    
+    scan_skip_space(s, &idx, end);
+    new_nname = scan_string(s, &idx, end, field_delimiter);
+    scan_skip_delimiter(s, &idx, end, field_delimiter);
+    new_age = scan_natural(s, &idx, end) % 0x100;
+
+    if (!new_nname.empty()) {
+        this->nickname = new_nname;
+        updated = true;
+    }
+
+    if (new_age > 0U) {
+        this->age = new_age;
+        updated = true;
+    }
+
+    return updated;
+}
+
 std::string WarGrey::IMS::StudentEntity::to_string() {
     return make_nstring("%c:%u,%llu,%s,%s,%u", student_mark,
             this->avatar, this->No,
