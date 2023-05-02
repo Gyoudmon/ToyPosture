@@ -112,9 +112,9 @@ void WarGrey::IMS::GradeManagementSystemModel::clear(bool broadcast) {
 
 /**
  * Delete student records that binding classes have been deleted
- * but leave those binding no classes as-is.
+ * but leave those binding no class as-is.
  */
-void WarGrey::IMS::GradeManagementSystemModel::clear_detached_students() { 
+void WarGrey::IMS::GradeManagementSystemModel::clear_detached_students() {
     auto it = this->students.begin();
 
     while (it != this->students.end()) {
@@ -126,9 +126,10 @@ void WarGrey::IMS::GradeManagementSystemModel::clear_detached_students() {
             if (this->classes.find(clsId) == this->classes.end()) {
                 this->listener->on_student_deleted(it->first, it->second, true);
                 this->seats.erase(it->first);
+                it = this->students.erase(it);
+            } else {
+                ++ it;
             }
-
-            it = this->students.erase(it);
         } else { // no seat ==> no binding class
             ++ it;
         }

@@ -346,9 +346,7 @@ namespace {
             this->doors.erase(pk);
 
             if (this->the_clsId == pk) {
-                if (!this->doors.empty()) {
-                    this->on_class_changed(this->doors.begin()->first, in_batching);
-                }
+                this->on_class_changed(0U, in_batching);
             }
 
             if (!in_batching) {
@@ -357,19 +355,24 @@ namespace {
         }
 
         void on_class_changed(uint64_t clsId, bool in_batching) {
-            if (this->the_clsId > 0U) {
+            if (this->doors.find(this->the_clsId) != this->doors.end()) {
                 this->doors[this->the_clsId]->close();
             }
 
             this->the_clsId = clsId;
-            this->doors[the_clsId]->open();
-            this->clsLabel->set_text(MatterAnchor::RT, "%u班(%zu人)", clsId, this->model->get_class_population(clsId));
             this->stuLabel->set_text(MatterAnchor::RB, " ");
+            
+            if (clsId > 0U) {
+                this->doors[the_clsId]->open();
+                this->clsLabel->set_text(MatterAnchor::RT, "%u班(%zu人)", clsId, this->model->get_class_population(clsId));
+            } else {
+                this->clsLabel->set_text(MatterAnchor::RB, " ");    
+            }
             
             if (!in_batching) {
                 this->update_class_report(this->the_clsId);
-                this->stuReport->clear();
                 this->reflow_students(gliding_duration);
+                this->stuReport->clear();
             }
         }
 
@@ -806,7 +809,7 @@ namespace {
                     opt = GMSCmdOpt::_;
                  }; break;
                 case GMSCmdOpt::GMSOut: {
-                    this->gmsin = argv[idx];
+                    this->gmsout = argv[idx];
                     opt = GMSCmdOpt::_;
                 }; break;
                 default: {
