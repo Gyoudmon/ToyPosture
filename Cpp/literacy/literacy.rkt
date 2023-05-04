@@ -71,6 +71,13 @@
             [else (leaf->pict tree cfile)]))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define tamer-c++
+  (lambda [id caption subpath start [end #px"END"] [exlastline? #true]]
+    (tamer-code-here #:language "C++" #:exclude-lastline? exlastline?
+                     id caption
+                     (build-path "digitama" "IMS" subpath)
+                     start end)))
+
 (define tamer-c++-class
   (lambda [id caption subpath]
     (tamer-code-here #:language "C++" #:exclude-lastline? #false
@@ -96,6 +103,10 @@
 (define cpp:function
   (lambda body
     (apply racketidfont body)))
+
+(define cpp:variable
+  (lambda body
+    (apply racketvarfont body)))
 
 (define cpp:type
   (lambda body

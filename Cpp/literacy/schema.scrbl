@@ -96,7 +96,7 @@ C++ 是静态强类型语言。即，每一个数据都必须显式声明其类�
 前者仅对单字段主键实体类有意义(多字段主键实体对非模型层代码透明)；
 后者用于将该实体对象转化为正确的记录格式以导出到文件。
 导入记录时的类型检查由各子类的构造函数负责，
-并在碰到无效输入时直接抛出异常(这也是本系统唯一使用异常处理的地方)。
+并在碰到无效输入时直接抛出异常。
 
 @tamer-c++-class['ClassEntity "实体类 ClassEntity" "entity/class.hpp"]
 
@@ -123,6 +123,8 @@ C++ 是静态强类型语言。即，每一个数据都必须显式声明其类�
 如@cpp:function{StudentEntity::prompt()}(@tamer-code-ref{cpp:StudentEntity::prompt})。
 
 @tamer-c++-function['StudentEntity::prompt "StudentEntity 输入提示信息" "entity/student.cpp"]
+
+实际运行效果见@tamer-figure-ref{s:create}，窗口底部有一行高的用户输入区域。
 
 @;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 @handbook-reference[]

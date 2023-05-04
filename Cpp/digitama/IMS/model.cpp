@@ -14,7 +14,7 @@ using namespace WarGrey::IMS;
 using namespace std::filesystem;
 
 /*************************************************************************************************/
-void WarGrey::IMS::GradeManagementSystemModel::import_from_file(const std::string& path_gms) {
+void WarGrey::IMS::GMSModel::import_from_file(const std::string& path_gms) {
     if (exists(path_gms) && (!is_directory(path_gms))) {
         std::ifstream gmsin;
         std::string line;
@@ -52,7 +52,7 @@ void WarGrey::IMS::GradeManagementSystemModel::import_from_file(const std::strin
     }
 }
 
-void WarGrey::IMS::GradeManagementSystemModel::export_to_file(const std::string& path_gms, bool override_if_exists) {
+void WarGrey::IMS::GMSModel::export_to_file(const std::string& path_gms, bool override_if_exists) {
     if (!exists(path_gms) || override_if_exists) {
         std::ofstream gmsout;
         
@@ -88,7 +88,7 @@ void WarGrey::IMS::GradeManagementSystemModel::export_to_file(const std::string&
 }
 
 /*************************************************************************************************/
-void WarGrey::IMS::GradeManagementSystemModel::clear(bool broadcast) {
+void WarGrey::IMS::GMSModel::clear(bool broadcast) {
     if (broadcast) {
         for (auto& cls : this->classes) {
             this->listener->on_class_deleted(cls.first, cls.second, true);
@@ -114,7 +114,7 @@ void WarGrey::IMS::GradeManagementSystemModel::clear(bool broadcast) {
  * Delete student records that binding classes had been deleted
  * but leave those binding no class as-is.
  */
-void WarGrey::IMS::GradeManagementSystemModel::clear_detached_students() {
+void WarGrey::IMS::GMSModel::clear_detached_students() {
     auto it = this->students.begin();
 
     while (it != this->students.end()) {
@@ -139,7 +139,7 @@ void WarGrey::IMS::GradeManagementSystemModel::clear_detached_students() {
 /**
  * Delete grade records that related students or diciplines had been deleted
  */
-void WarGrey::IMS::GradeManagementSystemModel::clear_detached_grades() {
+void WarGrey::IMS::GMSModel::clear_detached_grades() {
     auto it = this->scores.begin();
 
     while (it != this->scores.end()) {
@@ -177,7 +177,7 @@ void WarGrey::IMS::GradeManagementSystemModel::clear_detached_grades() {
     }
 }
 
-void WarGrey::IMS::GradeManagementSystemModel::register_student_scores(shared_grade_t grade) {
+void WarGrey::IMS::GMSModel::register_student_scores(shared_grade_t grade) {
     uint64_t sNo = grade->get_student();
     uint64_t ts = grade->get_timestamp();
     uint64_t dis = grade->get_discipline();
@@ -205,7 +205,7 @@ void WarGrey::IMS::GradeManagementSystemModel::register_student_scores(shared_gr
     }
 }
 
-void WarGrey::IMS::GradeManagementSystemModel::register_class(shared_class_t cls, bool in_batching) {
+void WarGrey::IMS::GMSModel::register_class(shared_class_t cls, bool in_batching) {
     uint64_t pk = cls->primary_key();
 
     if (this->classes.find(pk) == this->classes.end()) {
@@ -216,7 +216,7 @@ void WarGrey::IMS::GradeManagementSystemModel::register_class(shared_class_t cls
     }
 }
 
-void WarGrey::IMS::GradeManagementSystemModel::register_discipline(shared_discipline_t dis, bool in_batching) {
+void WarGrey::IMS::GMSModel::register_discipline(shared_discipline_t dis, bool in_batching) {
     uint64_t pk = dis->primary_key();
 
     if (this->disciplines.find(pk) == this->disciplines.end()) {
@@ -234,7 +234,7 @@ void WarGrey::IMS::GradeManagementSystemModel::register_discipline(shared_discip
     }
 }
 
-void WarGrey::IMS::GradeManagementSystemModel::register_student(shared_student_t stu, bool in_batching) {
+void WarGrey::IMS::GMSModel::register_student(shared_student_t stu, bool in_batching) {
     uint64_t pk = stu->primary_key();
 
     if (this->students.find(pk) == this->students.end()) {
@@ -246,11 +246,11 @@ void WarGrey::IMS::GradeManagementSystemModel::register_student(shared_student_t
 }
 
 /*************************************************************************************************/
-void WarGrey::IMS::GradeManagementSystemModel::create_class_from_user_input(const char* text, size_t size) {
+void WarGrey::IMS::GMSModel::create_class_from_user_input(const char* text, size_t size) {
     this->register_class(std::make_shared<ClassEntity>(text, 0), false);
 }
 
-void WarGrey::IMS::GradeManagementSystemModel::delete_class_as_user_request(const char* text, size_t size) {
+void WarGrey::IMS::GMSModel::delete_class_as_user_request(const char* text, size_t size) {
     size_t pos = 0;
     uint64_t cls_pk = scan_natural(text, &pos, size);
 
@@ -264,11 +264,11 @@ void WarGrey::IMS::GradeManagementSystemModel::delete_class_as_user_request(cons
     }
 }
 
-void WarGrey::IMS::GradeManagementSystemModel::create_discipline_from_user_input(const char* text, size_t size) {
+void WarGrey::IMS::GMSModel::create_discipline_from_user_input(const char* text, size_t size) {
     this->register_discipline(std::make_shared<DisciplineEntity>(text, 0), false);
 }
 
-void WarGrey::IMS::GradeManagementSystemModel::update_discipline_from_user_input(const char* text, size_t size) {
+void WarGrey::IMS::GMSModel::update_discipline_from_user_input(const char* text, size_t size) {
     size_t pos = 0U;
     uint64_t disCode = scan_natural(text, &pos, size);
 
@@ -283,7 +283,7 @@ void WarGrey::IMS::GradeManagementSystemModel::update_discipline_from_user_input
     }
 }
 
-void WarGrey::IMS::GradeManagementSystemModel::delete_discipline_as_user_request(const char* text, size_t size) {
+void WarGrey::IMS::GMSModel::delete_discipline_as_user_request(const char* text, size_t size) {
     size_t pos = 0U;
     uint64_t disCode = scan_natural(text, &pos, size);
 
@@ -298,11 +298,11 @@ void WarGrey::IMS::GradeManagementSystemModel::delete_discipline_as_user_request
     }
 }
 
-void WarGrey::IMS::GradeManagementSystemModel::create_student_from_user_input(const char* text, size_t size) {
+void WarGrey::IMS::GMSModel::create_student_from_user_input(const char* text, size_t size) {
     this->register_student(std::make_shared<StudentEntity>(text, 0), false);
 }
 
-void WarGrey::IMS::GradeManagementSystemModel::update_student_from_user_input(const char* text, size_t size) {
+void WarGrey::IMS::GMSModel::update_student_from_user_input(const char* text, size_t size) {
     size_t pos = 0U;
     uint64_t sNo = scan_natural(text, &pos, size);
 
@@ -317,7 +317,7 @@ void WarGrey::IMS::GradeManagementSystemModel::update_student_from_user_input(co
     }
 }
 
-void WarGrey::IMS::GradeManagementSystemModel::delete_student_as_user_request(const char* text, size_t size) {
+void WarGrey::IMS::GMSModel::delete_student_as_user_request(const char* text, size_t size) {
     size_t pos = 0;
     uint64_t sNo = scan_natural(text, &pos, size);
 
@@ -331,14 +331,14 @@ void WarGrey::IMS::GradeManagementSystemModel::delete_student_as_user_request(co
     }
 }
 
-void WarGrey::IMS::GradeManagementSystemModel::register_student_scores_from_user_input(uint64_t sNo, uint64_t disCode, uint64_t ts, const char* text, size_t size) {
+void WarGrey::IMS::GMSModel::register_student_scores_from_user_input(uint64_t sNo, uint64_t disCode, uint64_t ts, const char* text, size_t size) {
     shared_grade_t grade = std::make_shared<GradeEntity>(sNo, disCode, ts);
 
     grade->extract_scores(text, size, 0U);
     this->register_student_scores(grade);
 }
 
-void WarGrey::IMS::GradeManagementSystemModel::update_student_scores_from_user_input(uint64_t sNo, uint64_t disCode, uint64_t ts, const char* text, size_t size) {
+void WarGrey::IMS::GMSModel::update_student_scores_from_user_input(uint64_t sNo, uint64_t disCode, uint64_t ts, const char* text, size_t size) {
     if (this->scores.find(sNo) != this->scores.end()) {
         auto& ts_scores = this->scores[sNo];
 
@@ -360,7 +360,7 @@ void WarGrey::IMS::GradeManagementSystemModel::update_student_scores_from_user_i
     }
 }
 
-void WarGrey::IMS::GradeManagementSystemModel::delete_student_scores_as_user_request(uint64_t sNo, uint64_t disCode, uint64_t ts) {
+void WarGrey::IMS::GMSModel::delete_student_scores_as_user_request(uint64_t sNo, uint64_t disCode, uint64_t ts) {
     if (this->scores.find(sNo) != this->scores.end()) {
         auto& ts_scores = this->scores[sNo];
 
@@ -387,7 +387,7 @@ void WarGrey::IMS::GradeManagementSystemModel::delete_student_scores_as_user_req
 }
 
 /*************************************************************************************************/
-void WarGrey::IMS::GradeManagementSystemModel::bind_student_to_class(uint64_t sNo, uint64_t clsId) {
+void WarGrey::IMS::GMSModel::bind_student_to_class(uint64_t sNo, uint64_t clsId) {
     if (this->seats.find(sNo) == this->seats.end()) {
         this->seats[sNo] = std::make_shared<SeatEntity>(sNo, clsId);
     } else {
@@ -395,13 +395,13 @@ void WarGrey::IMS::GradeManagementSystemModel::bind_student_to_class(uint64_t sN
     }
 }
 
-void WarGrey::IMS::GradeManagementSystemModel::bind_student_to_seat(uint64_t sNo, uint64_t dsk_idx, uint64_t seat_idx) {
+void WarGrey::IMS::GMSModel::bind_student_to_seat(uint64_t sNo, uint64_t dsk_idx, uint64_t seat_idx) {
     if (this->seats.find(sNo) != this->seats.end()) {
         this->seats[sNo]->set_seat(dsk_idx, seat_idx);
     }
 }
 
-uint64_t WarGrey::IMS::GradeManagementSystemModel::get_student_class(uint64_t sNo) {
+uint64_t WarGrey::IMS::GMSModel::get_student_class(uint64_t sNo) {
     uint64_t clsId = 0U;
 
     if (this->seats.find(sNo) != this->seats.end()) {
@@ -411,7 +411,7 @@ uint64_t WarGrey::IMS::GradeManagementSystemModel::get_student_class(uint64_t sN
     return clsId;
 }
 
-uint64_t WarGrey::IMS::GradeManagementSystemModel::get_student_at_seat(uint64_t clsId, uint64_t desk_idx, uint64_t seat_idx) {
+uint64_t WarGrey::IMS::GMSModel::get_student_at_seat(uint64_t clsId, uint64_t desk_idx, uint64_t seat_idx) {
     uint64_t sNo = 0U;
 
     for (auto& seat : this->seats) {
@@ -428,7 +428,7 @@ uint64_t WarGrey::IMS::GradeManagementSystemModel::get_student_at_seat(uint64_t 
     return sNo;
 }
 
-void WarGrey::IMS::GradeManagementSystemModel::feed_student_seat(uint64_t sNo, uint64_t* dsk_idx, uint64_t* st_idx) {
+void WarGrey::IMS::GMSModel::feed_student_seat(uint64_t sNo, uint64_t* dsk_idx, uint64_t* st_idx) {
     if (this->seats.find(sNo) != this->seats.end()) {
         SET_BOX(dsk_idx, this->seats[sNo]->get_desk());
         SET_BOX(st_idx, this->seats[sNo]->get_seat());
@@ -438,7 +438,7 @@ void WarGrey::IMS::GradeManagementSystemModel::feed_student_seat(uint64_t sNo, u
 }
 
 /*************************************************************************************************/
-uint64_t WarGrey::IMS::GradeManagementSystemModel::get_discipline_code(DisciplineType type) {
+uint64_t WarGrey::IMS::GMSModel::get_discipline_code(DisciplineType type) {
     uint64_t discode = 0U;
 
     if (this->dis_codes.find(type) != this->dis_codes.end()) {
@@ -448,7 +448,7 @@ uint64_t WarGrey::IMS::GradeManagementSystemModel::get_discipline_code(Disciplin
     return discode;
 }
 
-uint64_t WarGrey::IMS::GradeManagementSystemModel::get_discipline_credit(DisciplineType type) {
+uint64_t WarGrey::IMS::GMSModel::get_discipline_credit(DisciplineType type) {
     uint64_t disCode = this->get_discipline_code(type);
     uint64_t credit = 0U;
 
@@ -459,7 +459,7 @@ uint64_t WarGrey::IMS::GradeManagementSystemModel::get_discipline_credit(Discipl
     return credit;
 }
 
-size_t WarGrey::IMS::GradeManagementSystemModel::get_class_population(uint64_t clsId) {
+size_t WarGrey::IMS::GMSModel::get_class_population(uint64_t clsId) {
     size_t n = 0U;
 
     for (auto& st : this->seats) {
@@ -471,7 +471,7 @@ size_t WarGrey::IMS::GradeManagementSystemModel::get_class_population(uint64_t c
     return n;
 }
 
-uint64_t WarGrey::IMS::GradeManagementSystemModel::get_class_latest_timestamp(uint64_t clsId, size_t offset) {
+uint64_t WarGrey::IMS::GMSModel::get_class_latest_timestamp(uint64_t clsId, size_t offset) {
     uint64_t timestamp = 0U;
 
     for (auto& st : this->seats) {
@@ -496,7 +496,7 @@ uint64_t WarGrey::IMS::GradeManagementSystemModel::get_class_latest_timestamp(ui
     return timestamp;
 }
 
-uint64_t WarGrey::IMS::GradeManagementSystemModel::get_student_latest_timestamp(uint64_t sNo, size_t offset) {
+uint64_t WarGrey::IMS::GMSModel::get_student_latest_timestamp(uint64_t sNo, size_t offset) {
     uint64_t timestamp = 0U;
 
     if (this->scores.find(sNo) != this->scores.end()) {
@@ -519,7 +519,7 @@ uint64_t WarGrey::IMS::GradeManagementSystemModel::get_student_latest_timestamp(
     return timestamp;
 }
 
-double WarGrey::IMS::GradeManagementSystemModel::get_class_average_score(uint64_t clsId, uint64_t disCode, uint64_t timestamp) {
+double WarGrey::IMS::GMSModel::get_class_average_score(uint64_t clsId, uint64_t disCode, uint64_t timestamp) {
     double total = 0.0;
     size_t n = 0U;
 
@@ -547,7 +547,7 @@ double WarGrey::IMS::GradeManagementSystemModel::get_class_average_score(uint64_
     return (n == 0U) ? flnan : total / double(n);
 }
 
-double WarGrey::IMS::GradeManagementSystemModel::get_student_score(uint64_t sNo, uint64_t disCode, uint64_t timestamp) {
+double WarGrey::IMS::GMSModel::get_student_score(uint64_t sNo, uint64_t disCode, uint64_t timestamp) {
     std::vector<double> pts;
 
     this->feed_student_score_points(sNo, disCode, timestamp, pts);
@@ -555,7 +555,7 @@ double WarGrey::IMS::GradeManagementSystemModel::get_student_score(uint64_t sNo,
     return vector_sum(pts);
 }
 
-void WarGrey::IMS::GradeManagementSystemModel::feed_student_score_points(uint64_t sNo, uint64_t disCode, uint64_t timestamp, std::vector<double>& pts) {
+void WarGrey::IMS::GMSModel::feed_student_score_points(uint64_t sNo, uint64_t disCode, uint64_t timestamp, std::vector<double>& pts) {
     pts.clear();
 
     if (this->scores.find(sNo) != this->scores.end()) {

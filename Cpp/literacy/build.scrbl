@@ -48,7 +48,7 @@
 
 Windows 下构建要多等几秒，让 MSVC 构建工具设置好临时的编译环境变量。
 
-@handbook-scenario{运行系统}
+@handbook-scenario[#:tag "run"]{运行系统}
 
 构建完，可执行程序路径是源码根目录下的 @filepath{compiled/native/[体系结构]/GradeManagementSystem.exe}。
 可直接运行：

@@ -24,16 +24,17 @@ namespace WarGrey::IMS {
         virtual void on_student_deleted(uint64_t pk, shared_student_t entity, bool in_batching) = 0;
     };
 
-    class GradeManagementSystemModel {
+    class GMSModel {
     public:
-        GradeManagementSystemModel(IModelListener* listener) : listener(listener) {}
-        virtual ~GradeManagementSystemModel() {}
+        GMSModel(IModelListener* listener) : listener(listener) {}
+        virtual ~GMSModel() {}
 
     public:
         void import_from_file(const std::string& path_gms);
         void export_to_file(const std::string& path_gms, bool override_if_exists = true);
 
     public:
+        /* Entity Manipulation */
         void create_class_from_user_input(const char* text, size_t size);
         void delete_class_as_user_request(const char* text, size_t size);
 
@@ -51,6 +52,7 @@ namespace WarGrey::IMS {
 
         void clear_detached_students();
         void clear_detached_grades();
+        /* END Entity Manipulation */
 
     public:
         void bind_student_to_class(uint64_t sNo, uint64_t clsId);
@@ -60,6 +62,7 @@ namespace WarGrey::IMS {
         void feed_student_seat(uint64_t sNo, uint64_t* dsk_idx, uint64_t* st_idx);
 
     public:
+        /* Query and Aggregation */
         uint64_t get_discipline_code(DisciplineType type);
         uint64_t get_discipline_credit(DisciplineType type);
         size_t get_class_population(uint64_t clsId);
@@ -68,6 +71,7 @@ namespace WarGrey::IMS {
         double get_class_average_score(uint64_t clsId, uint64_t disCode, uint64_t timestamp);
         double get_student_score(uint64_t sNo, uint64_t disCode, uint64_t timestamp);
         void feed_student_score_points(uint64_t sNo, uint64_t disCode, uint64_t timestamp, std::vector<double>& pts);
+        /* END Query and Aggregation */
 
     private:
         void register_class(shared_class_t cls, bool in_batching);
@@ -77,11 +81,13 @@ namespace WarGrey::IMS {
         void clear(bool broadcast = true);
 
     private:
+        /* Entity Runtime Organization */
         std::map<uint64_t, shared_class_t> classes;
         std::map<uint64_t, shared_discipline_t> disciplines;
         std::map<uint64_t, shared_student_t> students;
         std::map<uint64_t, shared_seat_t> seats;
         std::map<uint64_t, std::map<uint64_t, std::map<uint64_t, shared_grade_t>>> scores;
+        /* END Entity Runtime Organization */
 
     private:
         std::map<DisciplineType, uint64_t> dis_codes;

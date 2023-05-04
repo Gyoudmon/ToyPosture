@@ -38,7 +38,7 @@ namespace {
     class GradeManagementPlane : public Plane, public IMenuEventListener, public IModelListener {
     public:
         GradeManagementPlane(std::string gmsin, std::string gmsout) : Plane("成绩管理系统") {
-            this->model = new GradeManagementSystemModel(this);
+            this->model = new GMSModel(this);
             this->gmsin = gmsin;
             this->gmsout = (gmsout.empty()) ? this->gmsin : gmsout;
         }
@@ -698,6 +698,7 @@ namespace {
                     std::vector<double> diffs;
     
                     for (auto disType : report_disciplines) {
+                        /* BEGIN for Gradelet::set_score_diffs */
                         uint64_t disCode = this->model->get_discipline_code(disType);
                         std::vector<double> lpts, ppts;
 
@@ -711,7 +712,8 @@ namespace {
                         } else {
                             diffs.push_back(flnan);
                         }
-
+                        /* END for Gradelet::set_score_diffs */
+                        
                         s_pts.push_back(lpts);
                     }
 
@@ -786,7 +788,7 @@ namespace {
         uint64_t the_clsId = 0U;
         uint64_t the_disCode = 0U;
         uint64_t the_sNo = 0U;
-        GradeManagementSystemModel* model;
+        GMSModel* model;
 
     private:
         GradeTask the_grade_subtask = GradeTask::_;
