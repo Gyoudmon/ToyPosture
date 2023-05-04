@@ -23,7 +23,7 @@ namespace WarGrey::IMS {
         void set_title(const std::string& title) { this->set_title(title, WarGrey::STEM::MatterAnchor::CB); }
         void set_title(WarGrey::STEM::MatterAnchor anchor, const char* title, ...);
         void set_title(const std::string& title, WarGrey::STEM::MatterAnchor anchor);
-        void set_disciplines(const std::vector<WarGrey::IMS::DisciplineType>& dis);
+        void set_disciplines(const std::vector<WarGrey::IMS::DisciplineType>& dis, WarGrey::STEM::MatterAnchor anchor);
         void set_scores(uint64_t timestamp, const std::vector<double>& scores);
         void set_score_via_points(uint64_t timestamp, const std::vector<std::vector<double>>& score_pts);
         void set_score_diffs(const std::vector<double>& diffs);

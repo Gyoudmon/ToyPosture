@@ -14,7 +14,6 @@ namespace WarGrey::IMS {
         GradeEntity(const char* s, int idx = 0) : GradeEntity(std::string(s), idx) {}
         GradeEntity(const std::string& s, int idx);
         GradeEntity(uint64_t sNo, uint64_t disCode, uint64_t timestamp);
-        
         virtual ~GradeEntity() {}
 
     public:

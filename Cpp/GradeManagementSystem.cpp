@@ -53,9 +53,10 @@ namespace {
             this->load_menus(width, height);
             this->load_classroom(width, height);
             this->load_avatars(width, height);
-            this->load_grade_reports(width, height);
 
             this->on_menu_task(MenuType::TopLevel, MenuTask::ImportData);
+
+            this->load_grade_reports(width, height);
         }
 
         void reflow(float width, float height) override {
@@ -361,7 +362,7 @@ namespace {
 
             this->the_clsId = clsId;
             this->stuLabel->set_text(MatterAnchor::RB, " ");
-            
+
             if (clsId > 0U) {
                 this->doors[the_clsId]->open();
                 this->clsLabel->set_text(MatterAnchor::RT, "%u班(%zu人)", clsId, this->model->get_class_population(clsId));
@@ -381,6 +382,8 @@ namespace {
             this->disciplines[pk]->resize_by_height(platform_height * 0.90F);
 
             if (!in_batching) {
+                this->update_report_discipline(this->clsReport);
+                this->update_report_discipline(this->stuReport);
                 this->reflow_discipline_logos(gliding_duration);
             }
         }
@@ -394,6 +397,8 @@ namespace {
             this->disciplines.erase(pk);
 
             if (!in_batching) {
+                this->update_report_discipline(this->clsReport);
+                this->update_report_discipline(this->stuReport);
                 this->reflow_discipline_logos(gliding_duration);
             }
         }
@@ -515,7 +520,7 @@ namespace {
                 float cls_x, cls_y, grid_height;
          
                 this->feed_matter_location(this->side_border, &cls_x, &cls_y, MatterAnchor::CB);
-                this->doors.begin()->second->feed_extent(0.0F, 0.0F, nullptr, &grid_height);
+                this->doors.rbegin()->second->feed_extent(0.0F, 0.0F, nullptr, &grid_height);
                 grid_height *= 1.2F;
 
                 for (auto cls = this->doors.rbegin(); cls != this->doors.rend(); cls ++) {
@@ -642,9 +647,23 @@ namespace {
         Gradelet* load_grade_report(float width, float height, const char* title) {
             auto report = this->insert(new Gradelet(title, this->calculate_sidebar_width() - 64.0F));
 
-            report->set_disciplines(report_disciplines);
+            this->update_report_discipline(report);
             
             return report;
+        }
+
+        void update_report_discipline(Gradelet* report) {
+            std::vector<DisciplineType> actual_types;
+
+            for (auto disType : report_disciplines) {
+                uint64_t disCode = this->model->get_discipline_code(disType);
+
+                if (disCode > 0U) {
+                    actual_types.push_back(disType);
+                }
+            }
+
+            report->set_disciplines(actual_types, MatterAnchor::LB);
         }
 
         void update_class_report(uint64_t clsId) {

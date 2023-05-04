@@ -111,7 +111,7 @@ void WarGrey::IMS::GradeManagementSystemModel::clear(bool broadcast) {
 }
 
 /**
- * Delete student records that binding classes have been deleted
+ * Delete student records that binding classes had been deleted
  * but leave those binding no class as-is.
  */
 void WarGrey::IMS::GradeManagementSystemModel::clear_detached_students() {
@@ -137,7 +137,7 @@ void WarGrey::IMS::GradeManagementSystemModel::clear_detached_students() {
 }
 
 /**
- * Delete grade records that related students or diciplines have been deleted
+ * Delete grade records that related students or diciplines had been deleted
  */
 void WarGrey::IMS::GradeManagementSystemModel::clear_detached_grades() {
     auto it = this->scores.begin();
@@ -146,27 +146,33 @@ void WarGrey::IMS::GradeManagementSystemModel::clear_detached_grades() {
         if (this->students.find(it->first) == this->students.end()) {
             it = this->scores.erase(it);
         } else {
-            auto ts_it = it->second.begin();
+            auto& ts_scores = it->second;
+            auto ts_it = ts_scores.begin();
 
-            while (ts_it != it->second.end()) {
-                auto dis_it = ts_it->second.begin();
+            while (ts_it != ts_scores.end()) {
+                auto& dis_scores = ts_it->second;
+                auto dis_it = dis_scores.begin();
 
-                while (dis_it != ts_it->second.end()) {
-                    if (this->disciplines.find(dis_it->first) != this->disciplines.end()) {
-                        dis_it = ts_it->second.erase(dis_it);
+                while (dis_it != dis_scores.end()) {
+                    if (this->disciplines.find(dis_it->first) == this->disciplines.end()) {
+                        dis_it = dis_scores.erase(dis_it);
                     } else {
                         ++ dis_it;
                     }
                 }
 
-                if (ts_it->second.empty()) {
-                    ts_it = it->second.erase(ts_it);
+                if (dis_scores.empty()) {
+                    ts_it = ts_scores.erase(ts_it);
                 } else {
                     ++ ts_it;
                 }
             }
 
-            ++ it;
+            if (ts_scores.empty()) {
+                it = this->scores.erase(it);
+            } else {
+                ++ it;
+            }
         }
     }
 }
@@ -285,6 +291,7 @@ void WarGrey::IMS::GradeManagementSystemModel::delete_discipline_as_user_request
         shared_discipline_t entity = this->disciplines[disCode];
 
         this->disciplines.erase(disCode);
+        this->dis_codes.erase(entity->cannonical_type());
         this->listener->on_discipline_deleted(disCode, entity, false);
     } else {
         throw exn_gms("查无此课(%llu)", disCode);

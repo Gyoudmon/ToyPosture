@@ -1,7 +1,7 @@
 #lang info
 
 (define collection 'use-pkg-name)
-(define pkg-desc "Grade Management System")
+(define pkg-desc "Cpp Disciplines")
 
 (define version "1.0")
 (define pkg-authors '(wargrey))
@@ -17,3 +17,4 @@
                                   (include [windows "C:\\opt\\vcpkg\\installed\\x64-windows\\include"])
                                   (libpath [windows "C:\\opt\\vcpkg\\installed\\x64-windows\\lib"]))]))
 
+(define typesettings '(["literacy/GradeManagementSystem.scrbl" xelatex #px#"IMS(/\\w+)?/\\w+[.](png|[hc]pp)$"]))

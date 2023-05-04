@@ -14,7 +14,6 @@ namespace WarGrey::IMS {
     public:
         StudentEntity(const char* s, int idx = 0) : StudentEntity(std::string(s), idx) {}
         StudentEntity(const std::string& s, int idx);
-        
         virtual ~StudentEntity() {}
 
     public:

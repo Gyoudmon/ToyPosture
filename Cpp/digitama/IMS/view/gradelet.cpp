@@ -113,11 +113,13 @@ void WarGrey::IMS::Gradelet::set_title(WarGrey::STEM::MatterAnchor anchor, const
     this->set_title(t, anchor);
 }
 
-void WarGrey::IMS::Gradelet::set_disciplines(const std::vector<DisciplineType>& dis) {
+void WarGrey::IMS::Gradelet::set_disciplines(const std::vector<DisciplineType>& dis, WarGrey::STEM::MatterAnchor anchor) {
     SDL_Renderer* renderer = this->master_renderer();
 
     if (renderer != nullptr) {
         size_t total = dis.size();
+
+        this->moor(anchor);
 
         this->disciplines.resize(total);
         this->scores.resize(total);
@@ -134,6 +136,7 @@ void WarGrey::IMS::Gradelet::set_disciplines(const std::vector<DisciplineType>& 
         }
 
         this->notify_updated();
+        this->clear_moor();
     }
 }
 

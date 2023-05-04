@@ -12,7 +12,6 @@ namespace WarGrey::IMS {
         SeatEntity(const char* s, int idx = 0) : SeatEntity(std::string(s), idx) {}
         SeatEntity(const std::string& s, int idx);
         SeatEntity(uint64_t sNo, uint64_t clsId, uint64_t desk = 0, uint64_t seat = 0);
-        
         virtual ~SeatEntity() {}
 
     public:

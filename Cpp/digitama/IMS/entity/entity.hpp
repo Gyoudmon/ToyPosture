@@ -15,7 +15,7 @@ namespace WarGrey::IMS {
 
     /*********************************************************************************************/
     class GMSEntity {
-    protected:
+    protected: // for subclasses to check the type markers of records
         static bool match(const std::string& line, char mark, int* offset);
         static bool match(const std::string& line, char mark1, char mark2, int* offset);
         static bool match(const std::string& line, char mark1, char mark2, char mark3, int* offset);

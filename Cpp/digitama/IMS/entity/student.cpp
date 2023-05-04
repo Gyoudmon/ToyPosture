@@ -53,6 +53,7 @@ WarGrey::IMS::StudentEntity::StudentEntity(const std::string& s, int idx) {
     scan_skip_delimiter(src, &pos, end, field_delimiter);
     
     this->nickname = scan_string(src, &pos, end, field_delimiter);
+    if (this->nickname.empty()) throw exn_gms("无效昵称");
     scan_skip_delimiter(src, &pos, end, field_delimiter);
     
     this->gender = name_to_gender(scan_string(src, &pos, end, field_delimiter).c_str());

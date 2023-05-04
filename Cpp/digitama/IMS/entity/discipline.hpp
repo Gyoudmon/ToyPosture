@@ -18,7 +18,6 @@ namespace WarGrey::IMS {
     public:
         DisciplineEntity(const char* s, int idx = 0) : DisciplineEntity(std::string(s), idx) {}
         DisciplineEntity(const std::string& s, int idx);
-        
         virtual ~DisciplineEntity() {}
 
     public:
