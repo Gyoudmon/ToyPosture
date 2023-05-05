@@ -25,7 +25,7 @@ public class StudentMenu extends AbstractMenu {
 
 	/*********************************************************************************************/
 	private String items [] = {
-			"Return to Toplevel",
+			"Return",
 	        "Create Student", "Update Student", "Delete Student",
 	        "Bind Class",
 	        "Clear Detached Students"

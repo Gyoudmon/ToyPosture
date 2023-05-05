@@ -22,7 +22,7 @@ public class ClassMenu extends AbstractMenu {
 
 	/*********************************************************************************************/
 	private String items [] = {
-			"Return to Toplevel",
+			"Return",
 	        "Create Class", "Delete Class"
 	};
 }

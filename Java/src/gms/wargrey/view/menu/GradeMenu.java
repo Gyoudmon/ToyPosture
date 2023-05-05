@@ -25,7 +25,7 @@ public class GradeMenu extends AbstractMenu {
 
 	/*********************************************************************************************/
 	private String items [] = {
-			"Return to Toplevel",
+			"Return",
 	        "Create Grade", "Update Grade", "Delete Grade",
 	        "Clear Detached Grades"
 	};

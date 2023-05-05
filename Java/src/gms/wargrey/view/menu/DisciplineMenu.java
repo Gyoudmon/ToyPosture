@@ -23,7 +23,7 @@ public class DisciplineMenu extends AbstractMenu {
 
 	/*********************************************************************************************/
 	private String items [] = {
-			"Return to Toplevel",
+			"Return",
 	        "Create Discipline", "Update Discipline", "Delete Discipline"
 	};
 }
