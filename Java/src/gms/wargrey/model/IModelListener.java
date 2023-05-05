@@ -3,6 +3,10 @@ package gms.wargrey.model;
 import gms.wargrey.model.entity.*;
 
 public interface IModelListener {
-	public void on_class_create(long clsId, ClassEntity cls);
-	public void on_class_delete(long clsId, ClassEntity cls);
+	public void onClassCreated(int clsId, ClassEntity cls);
+	public void onClassDeleted(int clsId, ClassEntity cls);
+	
+	public void onDisciplineCreated(int disCode, DisciplineEntity dis);
+	public void onDisciplineUpdated(int disCode, DisciplineEntity dis);
+	public void onDisciplineDeleted(int disCode, DisciplineEntity dis);
 }

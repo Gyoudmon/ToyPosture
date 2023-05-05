@@ -2,8 +2,9 @@ package gms.wargrey;
 
 import gms.wargrey.view.*;
 import gms.wargrey.view.menu.*;
+
 import gms.wargrey.model.*;
-import gms.wargrey.model.entity.ClassEntity;
+import gms.wargrey.model.entity.*;
 
 import java.util.*;
 
@@ -25,13 +26,12 @@ public class GradeManagementSystem implements IMenuListener, IModelListener {
 			self.loadMenus();
 			self.bigBang();
 		} catch (Exception e) {
-			System.err.println(e.getMessage());
+			System.err.println(e.getMessage() + ": " + e.getMessage());
 		}
 	}
 	
 	/*********************************************************************************************/
-	@Override
-	public void on_menu_switch(MenuType self, MenuType to) {
+	@Override public void on_menu_switch(MenuType self, MenuType to) {
 		if (this.menus.containsKey(to)) {
 			this.theMenu = to;
 			this.theTask = MenuTask.Idle;
@@ -40,19 +40,18 @@ public class GradeManagementSystem implements IMenuListener, IModelListener {
 		}
 	}
 
-	@Override
-	public void on_menu_task(MenuType self, MenuTask task) {
+	@Override public void on_menu_task(MenuType self, MenuTask task) {
 		this.theTask = task;
 		
 		try {
 			switch (task) {
-			case ImportData: this.model.import_from_file(gmsin); break;
-			case ExportData: this.model.export_to_file(gmsout); break;
+			case ImportData: this.model.importFromFile(gmsin); break;
+			case ExportData: this.model.exportToFile(gmsout); break;
 			case CreateClass: this.model.createClassFromUser(this.readUsrLine("please input the class record: ", ClassEntity.prompt())); break;
-			case DeleteClass: this.model.deleteClassByUser(this.readUsrLine("please input the class ID: ")); break;
-			case CreateDiscipline: break;
-			case UpdateDiscipline: break;
-			case DeleteDiscipline: break;
+			case DeleteClass: this.model.deleteClassByUser(this.readUsrLine("please input the class identity: ")); break;
+			case CreateDiscipline: this.model.createDisciplineFromUser(this.readUsrLine("please input the discipline record: ", DisciplineEntity.prompt())); break;
+			case UpdateDiscipline: this.model.updateDisciplineFromUser(this.readUsrLine("please input the discipline info: ", DisciplineEntity.update_prompt())); break;
+			case DeleteDiscipline: this.model.deleteDisciplineByUser(this.readUsrLine("please input the discipline code: ")); break;
 			case CreateStudent: break;
 			case UpdateStudent: break;
 			case BindClass: break;
@@ -65,19 +64,29 @@ public class GradeManagementSystem implements IMenuListener, IModelListener {
 			default: /* do nothing */ break;
 			}
 		} catch (Exception e) {
-			System.err.println(e.getMessage());
+			System.err.println(e.getClass().getName() + ": " + e.getMessage());
 		}
 	}
 	
 	/*********************************************************************************************/
-	@Override
-	public void on_class_create(long clsId, ClassEntity cls) {
+	@Override public void onClassCreated(int clsId, ClassEntity cls) {
 		System.out.printf("! found a new class %d\n", clsId);
 	}
 
-	@Override
-	public void on_class_delete(long clsId, ClassEntity cls) {
+	@Override public void onClassDeleted(int clsId, ClassEntity cls) {
 		System.out.printf("! Class(%d) disappeared\n", clsId);
+	}
+	
+	@Override public void onDisciplineCreated(int disCode, DisciplineEntity dis) {
+		System.out.printf("! found a new discipline %s(%d)\n", dis.getType(), disCode);
+	}
+
+	@Override public void onDisciplineUpdated(int disCode, DisciplineEntity dis) {
+		System.out.printf("! Discipline(%s) changed its credit to %d\n", dis.getType(), dis.getCredit());
+	}
+	
+	@Override public void onDisciplineDeleted(int disCode, DisciplineEntity dis) {
+		System.out.printf("! Discipline(%s) disappeared\n", dis.getType());
 	}
 
 	/*********************************************************************************************/
@@ -96,7 +105,7 @@ public class GradeManagementSystem implements IMenuListener, IModelListener {
 			this.on_menu_task(this.theMenu, MenuTask.ImportData);
 		}
 		
-		while(this.theTask != MenuTask.Exit) {
+		while (this.theTask != MenuTask.Exit) {
 			AbstractMenu m = this.menus.get(this.theMenu);
 			
 			System.out.println("***********************************");
@@ -135,12 +144,12 @@ public class GradeManagementSystem implements IMenuListener, IModelListener {
 		
 		try {
 			if (!format.isBlank()) {
-				System.out.print("format: ");
+				System.out.print("$ record format: ");
 				System.out.println(format);
 			}
 			
 			System.out.print(prompt);
-			line = this.stdin.nextLine();
+			line = this.stdin.nextLine().trim();
 		} catch (Exception e) {}
 		
 		return line;
