@@ -108,6 +108,7 @@ void WarGrey::IMS::GMSModel::clear(bool broadcast) {
     this->students.clear();
     this->seats.clear();
     this->scores.clear();
+    this->dis_codes.clear();
 }
 
 /**

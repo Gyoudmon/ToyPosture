@@ -13,4 +13,8 @@ public interface IModelListener {
 	public void onStudentCreated(int sNo, StudentEntity stu);
 	public void onStudentUpdated(int sNo, StudentEntity stu);
 	public void onStudentDeleted(int sNo, StudentEntity stu);
+	
+	public void onGradeCreated(int sNo, GradeEntity stu);
+	public void onGradeUpdated(int sNo, GradeEntity stu);
+	public void onGradeDeleted(int sNo, GradeEntity stu);
 }

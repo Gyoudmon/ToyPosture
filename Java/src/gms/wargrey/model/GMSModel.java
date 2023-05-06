@@ -8,6 +8,7 @@ import java.io.PrintStream;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.EnumMap;
 
 public class GMSModel {
@@ -17,6 +18,7 @@ public class GMSModel {
 		this.classes = new TreeMap<>();
 		this.disciplines = new TreeMap<>();
 		this.students = new TreeMap<>();
+		this.scores = new TreeMap<>();
 		
 		this.disCodes = new EnumMap<>(DisciplineType.class);
 	}
@@ -29,6 +31,8 @@ public class GMSModel {
 			try {
 				Scanner parser = new Scanner(gmsPath);
 				int [] offset = { 0 };
+				
+				this.clearAll();
 			
 				while (parser.hasNext()) {
 					try {
@@ -40,6 +44,8 @@ public class GMSModel {
 							this.registerDiscipline(new DisciplineEntity(line, offset[0]));
 						} else if (StudentEntity.match(line, offset)) {
 							this.registerStudent(new StudentEntity(line, offset[0]));
+						} else if (GradeEntity.match(line, offset)) {
+							this.registerStudentScores(new GradeEntity(line, offset[0]));
 						}
 					} catch (Exception e) {
 						System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -105,6 +111,7 @@ public class GMSModel {
     	
     	if (this.disciplines.containsKey(disCode)) {
     		DisciplineEntity dis = this.disciplines.remove(disCode);
+    		this.disCodes.remove(dis.getType());
     		this.master.onDisciplineDeleted(disCode, dis);
     	} else {
     		throw new NoSuchElementException(String.format("Invalid discipline code(%d) or not found", disCode));
@@ -141,9 +148,110 @@ public class GMSModel {
     	}	
     }
     
-    public void clearDetachedStudents() {
-    	
+    public void registerStudentScoresFromUser(int sNo, int disCode, int ts, String line) {
+    	GradeEntity grade = new GradeEntity(sNo, disCode, ts);
+
+        grade.extractScores(line, 0);
+        this.registerStudentScores(grade);
     }
+    
+    public void updateStudentScoresFromUser(int sNo, int disCode, int ts, String line) {
+    	if (this.scores.containsKey(sNo)) {
+    		TreeMap<Integer, TreeMap<Integer, GradeEntity>>  tsMap = this.scores.get(sNo);
+    		
+    		if (tsMap.containsKey(ts)) {
+    			TreeMap<Integer, GradeEntity> disMap = tsMap.get(ts);
+    			
+    			if (disMap.containsKey(disCode)) {
+    				GradeEntity grade = disMap.get(disCode);
+    				
+    				grade.extractScores(line, 0);
+    				this.master.onGradeUpdated(sNo, grade);
+    			} else {
+    				throw new NoSuchElementException(String.format("Grade for student(%d@%d) not found", sNo, ts));
+    			}
+    		} else {
+    			throw new NoSuchElementException(String.format("Grade for student(%d@%d) not found", sNo, ts));
+    		}
+    	} else {
+    		throw new NoSuchElementException(String.format("Grade for student(%d) not found", sNo));
+    	}
+    }
+    
+    public void deleteStudentScoresByUser(int sNo, int disCode, int ts) {
+    	if (this.scores.containsKey(sNo)) {
+    		TreeMap<Integer, TreeMap<Integer, GradeEntity>>  tsMap = this.scores.get(sNo);
+    		
+    		if (tsMap.containsKey(ts)) {
+    			TreeMap<Integer, GradeEntity> disMap = tsMap.get(ts);
+    			
+    			if (disMap.containsKey(disCode)) {
+    				GradeEntity grade = disMap.remove(disCode);
+    				this.master.onGradeDeleted(sNo, grade);
+    			} else {
+    				throw new NoSuchElementException(String.format("Grade for student(%d@%d) not found", sNo, ts));
+    			}
+    		} else {
+    			throw new NoSuchElementException(String.format("Grade for student(%d@%d) not found", sNo, ts));
+    		}
+    	} else {
+    		throw new NoSuchElementException(String.format("Grade for student(%d) not found", sNo));
+    	}
+    }
+    
+    /*********************************************************************************************/
+    public ClassEntity [] getAllClasses() {
+    	return this.classes.values().toArray(new ClassEntity[0]);
+    }
+    
+    public DisciplineEntity [] getAllDisciplines() {
+    	return this.disciplines.values().toArray(new DisciplineEntity[0]);
+    }
+    
+    public StudentEntity [] getAllStudents() {
+    	return this.students.values().toArray(new StudentEntity[0]);
+    }
+    
+    public TreeSet<Integer> getAllGradeTimeStamps() {
+    	TreeSet<Integer> tss = new TreeSet<>();
+
+    	for (TreeMap<Integer, TreeMap<Integer, GradeEntity>> tsMap : this.scores.values()) {
+    		for (Integer ts : tsMap.keySet()) {
+    			tss.add(ts);
+    		}
+    	}
+    	
+    	return tss;
+    }
+    
+    public String getStudentName(int sNo) {
+    	String name = "";
+    	
+    	if (this.students.containsKey(sNo)) {
+    		name = this.students.get(sNo).getNickName();
+    	}
+    	
+    	return name;
+    }
+    
+    public double getStudentScore(int sNo, int disCode, int ts) {
+    	double score = -1.0;
+    	
+    	if (this.scores.containsKey(sNo)) {
+    		TreeMap<Integer, TreeMap<Integer, GradeEntity>> tsMap = this.scores.get(sNo);
+    		
+    		if (tsMap.containsKey(ts)) {
+    			TreeMap<Integer, GradeEntity> disMap = tsMap.get(ts);
+    			
+    			if (disMap.containsKey(disCode)) {
+    				score = disMap.get(disCode).getTotalScore();
+    			}
+    		}
+    	}
+    	
+    	return score;
+    }
+    
 
 	/*********************************************************************************************/
     private void exportToPrintStream(PrintStream gmsout) {
@@ -157,6 +265,14 @@ public class GMSModel {
 		
 		for (StudentEntity stu : this.students.values()) {
 			gmsout.println(stu.toString());
+		}
+		
+		for (TreeMap<Integer, TreeMap<Integer, GradeEntity>> tsMaps : this.scores.values()) {
+			for (TreeMap<Integer, GradeEntity> disMaps : tsMaps.values()) {
+				for (GradeEntity grade : disMaps.values()) {
+					gmsout.println(grade.toString());
+				}
+			}
 		}
 	}
     
@@ -198,11 +314,56 @@ public class GMSModel {
 			throw new IllegalArgumentException(String.format("Student(%d) has already been existed", sNo));
 		}
 	}
+    
+    private void registerStudentScores(GradeEntity grade) {
+		int sNo = grade.getStudentNo();
+		int disCode = grade.getDisciplineCode();
+		int ts = grade.getTimestamp();
+		
+		if (!this.scores.containsKey(sNo)) {
+			TreeMap<Integer, GradeEntity> disMap = new TreeMap<>();
+			TreeMap<Integer, TreeMap<Integer, GradeEntity>> tsMap = new TreeMap<>();
+			
+			disMap.put(disCode, grade);
+			tsMap.put(ts, disMap);
+			
+			this.scores.put(sNo, tsMap);
+		} else {
+			TreeMap<Integer, TreeMap<Integer, GradeEntity>> tsMap = this.scores.get(sNo);
+			
+			if (!tsMap.containsKey(ts)) {
+				TreeMap<Integer, GradeEntity> disMap = new TreeMap<>();
+				
+				disMap.put(disCode, grade);
+				tsMap.put(ts, disMap);
+			} else {
+				TreeMap<Integer, GradeEntity> disMap = tsMap.get(ts);
+				
+				if (!disMap.containsKey(disCode)) {
+					disMap.put(disCode, grade);
+				} else {
+					throw new IllegalArgumentException(String.format("grade(%d, %d, %d) has already been registered",
+							sNo, disCode, ts));
+				}
+			}
+		}
+		
+		this.master.onGradeCreated(sNo, grade);
+	}
+    
+    private void clearAll() {
+    	this.classes.clear();
+    	this.disciplines.clear();
+    	this.students.clear();
+    	this.scores.clear();
+    	this.disCodes.clear();
+    }
 	
 	/*********************************************************************************************/
 	private TreeMap<Integer, ClassEntity> classes;
 	private TreeMap<Integer, DisciplineEntity> disciplines;
 	private TreeMap<Integer, StudentEntity> students;
+	private TreeMap<Integer, TreeMap<Integer, TreeMap<Integer, GradeEntity>>> scores;
 
 	/*********************************************************************************************/
 	private IModelListener master;
