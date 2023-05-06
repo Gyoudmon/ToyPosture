@@ -17,4 +17,4 @@
                                   (include [windows "C:\\opt\\vcpkg\\installed\\x64-windows\\include"])
                                   (libpath [windows "C:\\opt\\vcpkg\\installed\\x64-windows\\lib"]))]))
 
-(define typesettings '(["literacy/GradeManagementSystem.scrbl" xelatex #px#"IMS(/\\w+)?/\\w+[.](png|[hc]pp)$"]))
+(define typesettings '(["literacy/GradeManagementSystem.scrbl" xelatex #px#"\\w+[.](png|[hc]pp)$"]))

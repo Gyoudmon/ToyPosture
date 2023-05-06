@@ -45,14 +45,45 @@ public class GradeManagementSystem implements IMenuListener, IModelListener {
 		
 		try {
 			switch (task) {
-			case CreateClass: this.model.createClassFromUser(this.readUsrLine("please input the class record: ", ClassEntity.prompt())); break;
-			case DeleteClass: this.model.deleteClassByUser(this.readUsrLine("please input the class identity: ")); break;
-			case CreateDiscipline: this.model.createDisciplineFromUser(this.readUsrLine("please input the discipline record: ", DisciplineEntity.prompt())); break;
-			case UpdateDiscipline: this.model.updateDisciplineFromUser(this.readUsrLine("please input the discipline info: ", DisciplineEntity.update_prompt())); break;
-			case DeleteDiscipline: this.model.deleteDisciplineByUser(this.readUsrLine("please input the discipline code: ")); break;
-			case CreateStudent: this.model.createStudentFromUser(this.readUsrLine("please input the student record: ", StudentEntity.prompt())); break;
-			case UpdateStudent: this.model.updateStudentFromUser(this.readUsrLine("please input the student info: ", StudentEntity.update_prompt())); break;
-			case DeleteStudent: this.model.deleteStudentByUser(this.readUsrLine("please input the student No.: ")); break;
+			/* BEGIN Entity Manipulation */
+			case CreateClass:
+				this.model.createClassFromUser(
+					this.readUsrLine("please input the class record: ",
+										ClassEntity.prompt()));
+				break;
+			case DeleteClass:
+				this.model.deleteClassByUser(
+					this.readUsrLine("please input the class identity: "));
+				break;
+			case CreateDiscipline:
+				this.model.createDisciplineFromUser(
+					this.readUsrLine("please input the discipline record: ",
+										DisciplineEntity.prompt()));
+				break;
+			case UpdateDiscipline:
+				this.model.updateDisciplineFromUser(
+					this.readUsrLine("please input the discipline info: ",
+										DisciplineEntity.update_prompt()));
+				break;
+			case DeleteDiscipline:
+				this.model.deleteDisciplineByUser(
+					this.readUsrLine("please input the discipline code: "));
+				break;
+			case CreateStudent:
+				this.model.createStudentFromUser(
+					this.readUsrLine("please input the student record: ",
+										StudentEntity.prompt()));
+				break;
+			case UpdateStudent:
+				this.model.updateStudentFromUser(
+					this.readUsrLine("please input the student info: ",
+										StudentEntity.update_prompt()));
+				break;
+			case DeleteStudent:
+				this.model.deleteStudentByUser(
+					this.readUsrLine("please input the student No.: "));
+				break;
+			/* END Entity Manipulation */
 			case CreateGrade: case DeleteGrade: case UpdateGrade: case ShowReport: this.on_grade_task(); break;
 			case ImportData: this.model.importFromFile(gmsin); break;
 			case ExportData: this.model.exportToFile(gmsout); break;
@@ -274,7 +305,9 @@ public class GradeManagementSystem implements IMenuListener, IModelListener {
 			System.out.println(prompt);
 			
 			for (int idx = 0; idx <= lastIdx; idx ++) {
-				System.out.printf("%s[%d]", disciplines[idx].getType().name(), disciplines[idx].hashCode());
+				System.out.printf("%s[%d]",
+					disciplines[idx].getType().name(),
+					disciplines[idx].hashCode());
 				this.displaySeparator(idx, column, lastIdx);
 			}
 		}

@@ -114,7 +114,7 @@ C++ 是静态强类型语言。即，每一个数据都必须显式声明其类�
 对于整数类型的字段，@racketerror{0}表示无效输入；
 对于@cpp:type{std::string}类型的字段，当其值域是有限集时，
 程序会在导入时将其值转化为枚举类型、导出时还原成字符串。
-例如@cpp:type{DisciplineEntity}对课程名称的处理(@tamer-code-ref{cpp:ClassEntity::ClassEntity})：
+例如@cpp:type{DisciplineEntity}对课程名称的处理(@tamer-code-ref{cpp:DisciplineEntity::name_to_type})：
 
 @tamer-c++-function['DisciplineEntity::name_to_type "课程名称到枚举类型的转化" "entity/discipline.cpp"]
 

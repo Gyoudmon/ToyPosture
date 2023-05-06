@@ -157,7 +157,7 @@ public class GMSModel {
     
     public void updateStudentScoresFromUser(int sNo, int disCode, int ts, String line) {
     	if (this.scores.containsKey(sNo)) {
-    		TreeMap<Integer, TreeMap<Integer, GradeEntity>>  tsMap = this.scores.get(sNo);
+    		TreeMap<Integer, TreeMap<Integer, GradeEntity>> tsMap = this.scores.get(sNo);
     		
     		if (tsMap.containsKey(ts)) {
     			TreeMap<Integer, GradeEntity> disMap = tsMap.get(ts);
@@ -200,6 +200,7 @@ public class GMSModel {
     }
     
     /*********************************************************************************************/
+	/* BEGIN Query and Aggregation */
     public ClassEntity [] getAllClasses() {
     	return this.classes.values().toArray(new ClassEntity[0]);
     }
@@ -223,6 +224,7 @@ public class GMSModel {
     	
     	return tss;
     }
+	/* END Query and Aggregation */
     
     public String getStudentName(int sNo) {
     	String name = "";
@@ -360,10 +362,12 @@ public class GMSModel {
     }
 	
 	/*********************************************************************************************/
+	/* BEGIN Entity Runtime Organization */
 	private TreeMap<Integer, ClassEntity> classes;
 	private TreeMap<Integer, DisciplineEntity> disciplines;
 	private TreeMap<Integer, StudentEntity> students;
 	private TreeMap<Integer, TreeMap<Integer, TreeMap<Integer, GradeEntity>>> scores;
+	/* END Entity Runtime Organization */
 
 	/*********************************************************************************************/
 	private IModelListener master;
