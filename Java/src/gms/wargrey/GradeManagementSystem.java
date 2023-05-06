@@ -45,22 +45,21 @@ public class GradeManagementSystem implements IMenuListener, IModelListener {
 		
 		try {
 			switch (task) {
-			case ImportData: this.model.importFromFile(gmsin); break;
-			case ExportData: this.model.exportToFile(gmsout); break;
 			case CreateClass: this.model.createClassFromUser(this.readUsrLine("please input the class record: ", ClassEntity.prompt())); break;
 			case DeleteClass: this.model.deleteClassByUser(this.readUsrLine("please input the class identity: ")); break;
 			case CreateDiscipline: this.model.createDisciplineFromUser(this.readUsrLine("please input the discipline record: ", DisciplineEntity.prompt())); break;
 			case UpdateDiscipline: this.model.updateDisciplineFromUser(this.readUsrLine("please input the discipline info: ", DisciplineEntity.update_prompt())); break;
 			case DeleteDiscipline: this.model.deleteDisciplineByUser(this.readUsrLine("please input the discipline code: ")); break;
-			case CreateStudent: break;
-			case UpdateStudent: break;
-			case BindClass: break;
-			case DeleteStudent: break;
+			case CreateStudent: this.model.createStudentFromUser(this.readUsrLine("please input the student record: ", StudentEntity.prompt())); break;
+			case UpdateStudent: this.model.updateStudentFromUser(this.readUsrLine("please input the student info: ", StudentEntity.update_prompt())); break;
+			case DeleteStudent: this.model.deleteStudentByUser(this.readUsrLine("please input the student No.: ")); break;
 			case ClearStudent: break;
 			case CreateGrade: break;
 			case DeleteGrade: break;
 			case UpdateGrade: break;
 			case ClearGrade: break;
+			case ImportData: this.model.importFromFile(gmsin); break;
+			case ExportData: this.model.exportToFile(gmsout); break;
 			default: /* do nothing */ break;
 			}
 		} catch (Exception e) {
@@ -87,6 +86,21 @@ public class GradeManagementSystem implements IMenuListener, IModelListener {
 	
 	@Override public void onDisciplineDeleted(int disCode, DisciplineEntity dis) {
 		System.out.printf("! Discipline(%s) disappeared\n", dis.getType());
+	}
+	
+	@Override public void onStudentCreated(int sNo, StudentEntity stu) {
+		System.out.printf("! found a new student %s(%d)\n", stu.getNickName(), sNo);
+	}
+
+	@Override public void onStudentUpdated(int sNo, StudentEntity stu) {
+		System.out.printf("! Student(%s) changed %s (class, age) to (%d, %d)\n",
+				stu.getNickName(),
+				stu.getGender() == StudentGender.Girl ? "her" : "his",
+				stu.getClassIdentity(), stu.getAge());
+	}
+	
+	@Override public void onStudentDeleted(int sNo, StudentEntity stu) {
+		System.out.printf("! Student(%s) disappeared\n", stu.getNickName());
 	}
 
 	/*********************************************************************************************/

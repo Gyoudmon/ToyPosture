@@ -16,6 +16,7 @@ public class GMSModel {
 
 		this.classes = new TreeMap<>();
 		this.disciplines = new TreeMap<>();
+		this.students = new TreeMap<>();
 		
 		this.disCodes = new EnumMap<>(DisciplineType.class);
 	}
@@ -37,6 +38,8 @@ public class GMSModel {
 							this.registerClass(new ClassEntity(line, offset[0]));
 						} else if (DisciplineEntity.match(line, offset)) {
 							this.registerDiscipline(new DisciplineEntity(line, offset[0]));
+						} else if (StudentEntity.match(line, offset)) {
+							this.registerStudent(new StudentEntity(line, offset[0]));
 						}
 					} catch (Exception e) {
 						System.err.println(e.getClass().getName() + ": " + e.getMessage());
@@ -107,6 +110,40 @@ public class GMSModel {
     		throw new NoSuchElementException(String.format("Invalid discipline code(%d) or not found", disCode));
     	}	
     }
+    
+    public void createStudentFromUser(String line) {
+		this.registerStudent(new StudentEntity(line, 0));
+	}
+    
+    public void updateStudentFromUser(String line) {
+    	String [] tokens = line.split(GMSText.DELIMITER, 2);
+    	int sNo = Integer.parseInt(tokens[0].trim());
+    	
+    	if (this.students.containsKey(sNo)) {
+    		StudentEntity stu = this.students.get(sNo);
+    		
+    		if (stu.update(tokens[1], 0)) {
+    			this.master.onStudentUpdated(sNo, stu);
+    		}
+    	} else {
+    		throw new NoSuchElementException(String.format("Student(%d) not found", sNo));
+    	}
+	}
+	
+    public void deleteStudentByUser(String line) {
+    	int sNo = Integer.parseInt(line.trim());
+    	
+    	if (this.students.containsKey(sNo)) {
+    		StudentEntity stu = this.students.remove(sNo);
+    		this.master.onStudentDeleted(sNo, stu);
+    	} else {
+    		throw new NoSuchElementException(String.format("Invalid student No(%d) or not found", sNo));
+    	}	
+    }
+    
+    public void clearDetachedStudents() {
+    	
+    }
 
 	/*********************************************************************************************/
     private void exportToPrintStream(PrintStream gmsout) {
@@ -116,6 +153,10 @@ public class GMSModel {
 		
 		for (DisciplineEntity dis : this.disciplines.values()) {
 			gmsout.println(dis.toString());
+		}
+		
+		for (StudentEntity stu : this.students.values()) {
+			gmsout.println(stu.toString());
 		}
 	}
     
@@ -146,10 +187,22 @@ public class GMSModel {
 			throw new IllegalArgumentException(String.format("Discipline(%d) has already been existed", disCode));
 		}
 	}
+    
+    private void registerStudent(StudentEntity stu) {
+		int sNo = stu.hashCode();
+		
+		if (!this.students.containsKey(sNo)) {
+			this.students.put(sNo, stu);
+			this.master.onStudentCreated(sNo, stu);
+		} else {
+			throw new IllegalArgumentException(String.format("Student(%d) has already been existed", sNo));
+		}
+	}
 	
 	/*********************************************************************************************/
 	private TreeMap<Integer, ClassEntity> classes;
 	private TreeMap<Integer, DisciplineEntity> disciplines;
+	private TreeMap<Integer, StudentEntity> students;
 
 	/*********************************************************************************************/
 	private IModelListener master;

@@ -1,8 +1,5 @@
 package gms.wargrey.view;
 
-import gms.wargrey.view.IMenuListener;
-import gms.wargrey.view.MenuType;
-
 public abstract class AbstractMenu {
 	public abstract void on_menu_char(IMenuListener master, MenuType self, int ch);
 	

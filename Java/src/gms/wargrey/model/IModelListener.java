@@ -9,4 +9,8 @@ public interface IModelListener {
 	public void onDisciplineCreated(int disCode, DisciplineEntity dis);
 	public void onDisciplineUpdated(int disCode, DisciplineEntity dis);
 	public void onDisciplineDeleted(int disCode, DisciplineEntity dis);
+
+	public void onStudentCreated(int sNo, StudentEntity stu);
+	public void onStudentUpdated(int sNo, StudentEntity stu);
+	public void onStudentDeleted(int sNo, StudentEntity stu);
 }
