@@ -11,7 +11,7 @@
 
 以下是本系统源码的目录组织及简要说明。
 
-@tamer-figure-here["srctree" "源码目录结构"]{
+@tamer-figure!["srctree" "源码目录结构"]{
  @filesystem-tree[
  '(|.|
    (info.rkt . "Racket 软件包元信息文件")

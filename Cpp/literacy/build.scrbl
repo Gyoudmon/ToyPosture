@@ -23,7 +23,7 @@
 并与其他用C++写的课程项目共享，但该引擎的实现细节不在本文档中详述）。
 以下是本系统源码的目录组织及简要说明。
 
-@tamer-figure-here["srctree" "源码目录结构"]{
+@tamer-figure!["srctree" "源码目录结构"]{
  @filesystem-tree[
  '(|.|
    (info.rkt . "Racket 软件包元信息文件")

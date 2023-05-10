@@ -12,7 +12,7 @@
 本系统的架构模式是经典 @emph{Model-View-Controller}，
 在该架构下的系统类图如@tamer-figure-ref{s:mvc}。
 
-@tamer-figure-here["s:mvc" "系统类图"]{@image["stone/SE/MVC.png" #:scale 0.618]}
+@tamer-figure!["s:mvc" "系统类图"]{@image["stone/SE/MVC.png" #:scale 0.618]}
 
 此系统类图省略了部分辅助类和枚举类。
 在讨论详细设计之前，先对该类图作些简要说明。
@@ -42,7 +42,7 @@
 
 @handbook-scenario[#:tag "dml"]{实体操作语义}
 
-由于Java没有头文件，在代码中插入Java方法声明会连带着实现细节，
+由于Java没有头文件，在本文中插入Java方法声明会连带着实现细节，
 因此从调用方入手来考察基础语义(@tamer-code-ref{java:ems})。
 
 @tamer-java['java:ems "实体操作语义" "GradeManagementSystem.java" #px"Entity Manipulation"]
@@ -54,7 +54,7 @@
 
 请先回顾@secref{run}了解程序启动选项。
 
-@tamer-figure-here['s:manipulation "数据操作示例"]{@image["stone/screenshots/manipulation.png" #:scale 0.72]}
+@tamer-figure!['s:manipulation "数据操作示例"]{@image["stone/screenshots/manipulation.png" #:scale 0.72]}
 
 启动程序时如果指定了输入文件，系统会自动加载文件里的记录。
 在程序运行期间，用户仍可通过手动执行主菜单的“载入数据”重新加载输入文件里的内容。
@@ -150,7 +150,7 @@
 
 最后以成绩单功能来综合展示以上算法的运行效果，给2号学生的数学成绩加8分。
 
-@tamer-figure-here['s:grade_report "成绩单功能"]{@image["stone/screenshots/grade_report.png" #:scale 1.0]}
+@tamer-figure!['s:grade_report "成绩单功能"]{@image["stone/screenshots/grade_report.png" #:scale 1.0]}
 
 @tamer-figure-ref{s:grade_report}展示了一些上面可能未提及的细节：
 @itemlist[

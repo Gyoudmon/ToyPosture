@@ -8,7 +8,7 @@
 鉴于本系统需要解决实际问题，纯命令行接口和传统的图形用户接口都不符合用户期望，
 因此本系统沿用了游戏化概念而设计成了半游戏半应用结构(@tamer-figure-ref{s:mvc})。
 
-@tamer-figure-here['s:main "主界面"]{@image["stone/screenshots/main.png" #:scale 0.24]}
+@tamer-figure!['s:main "主界面"]{@image["stone/screenshots/main.png" #:scale 0.24]}
 
 @tamer-figure-ref{s:main}主界面展示了系统的主要素：
 
@@ -35,7 +35,7 @@
 因此，本系统的架构模式是经典 @emph{Model-View-Controller}，
 在该架构下的系统类图如@tamer-figure-ref{s:main}。
 
-@tamer-figure-here["s:mvc" "系统类图"]{@image["stone/SE/MVC.png" #:scale 0.618]}
+@tamer-figure!["s:mvc" "系统类图"]{@image["stone/SE/MVC.png" #:scale 0.618]}
 
 此系统类图省略了游戏引擎方面的细节，因而比系统的实际实现要简单很多。
 在讨论详细设计之前，先对该类图作些简要说明。
@@ -102,7 +102,7 @@
 注意窗口底部有一行用户输入区域(vim 风格的输入行)，
 输入提示信息包含了@tamer-code-ref{cpp:StudentEntity::prompt}的返回值。
 
-@tamer-figure-here['s:create "登记新生信息"]{@image["stone/screenshots/create.png" #:scale 0.20]}
+@tamer-figure!['s:create "登记新生信息"]{@image["stone/screenshots/create.png" #:scale 0.20]}
 
 在学生管理界面，侧边栏多了一个“学生形象集”，左侧的编号对应着学生信息中的@tt{avatar:byte}。
 每一个编号都对应着两个形象，按目前的设定，这两个形象由系统自动选择。
@@ -118,7 +118,7 @@
 对成绩实体的操作比较复杂，需要先用鼠标选取目标学生和课程，再输入成绩对应的考试时间，
 最后输入成绩。“更新”操作与之相同(@tamer-figure-ref{s:update})。
 
-@tamer-figure-here['s:update "修改成绩信息(设置时间戳)"]{@image["stone/screenshots/update.png" #:scale 0.20]}
+@tamer-figure!['s:update "修改成绩信息(设置时间戳)"]{@image["stone/screenshots/update.png" #:scale 0.20]}
 
 删除实体较为简单，进入对应菜单执行“删除”操作，输入所需的主键信息即可。
 请回顾@secref{dml}了解“删除”和“清理”相关语义。
@@ -194,7 +194,7 @@
 
 这几类数据操作本身没啥特别的。
 只是在实现上效仿了观察者模式，当数据操作正常完成时，
-会向主界面发送相应的业务事件(@tamer-code-ref{cpp:IModelListener})。
+会向主界面发送相应的业务事件(@tamer-code-ref{hpp:IModelListener})。
 特别的，对于@cpp:type{SeatEntity}和@cpp:type{GradeEntity}这两个非模型层透明的弱实体，
 它们的更新与否不以事件方式通知主界面，
 而是主界面根据自己的需要通过数据查询服务来拉取最新信息。
@@ -222,7 +222,7 @@ C++ STL 迭代器机制设计的是真的很不优雅。
 因此只能借助外部工具来查看运行效果。
 @tamer-figure-ref{s:delete}是在删除了1号学生和4号课程之后执行“清除游离成绩”的运行效果。
 
-@tamer-figure-here['s:delete "vimdiff 对比执行“清除游离成绩”后的文件"]{@image["stone/screenshots/clear.png" #:scale 0.24]}
+@tamer-figure!['s:delete "vimdiff 对比执行“清除游离成绩”后的文件"]{@image["stone/screenshots/clear.png" #:scale 0.24]}
 
 @handbook-action{去重和其他}
 

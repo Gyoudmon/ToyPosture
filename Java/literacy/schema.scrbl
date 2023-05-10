@@ -25,7 +25,7 @@
 ]
 
 可得如下实体关系图：
-@tamer-figure-here["erd" "实体-关系图"]{@image["stone/SE/ER.png" #:scale 0.75]}
+@tamer-figure!["erd" "实体-关系图"]{@image["stone/SE/ER.png" #:scale 0.75]}
 
 @handbook-scenario{逻辑模型设计}
 
@@ -74,7 +74,7 @@ Java 是静态强类型语言。即，每一个数据都必须显式声明其类
 但是语言层面的类型安全机制仍然不能确保数据满足业务契约。
 因此，开发者仍然需要自行负责对数据的有效性检查。
 
-在本系统中，关系模式各自实现为一个业务实体类(源码位于@filepath{gms/wargrey/model/entity}包中)，
+在本系统中，关系模式各自实现为一个业务实体类(源码位于@java:package{gms.wargrey.model.entity}包中)，
 这些类负责各自数据的内存布局、导入导出时的类型检查。
 
 @tamer-java-class['GMSEntity "业务实体类" "model/GMSEntity.java"]

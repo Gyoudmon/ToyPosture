@@ -26,7 +26,7 @@
 ]
 
 可得如下实体关系图：
-@tamer-figure-here["erd" "实体-关系图"]{@image["stone/SE/ER.png" #:scale 0.75]}
+@tamer-figure!["erd" "实体-关系图"]{@image["stone/SE/ER.png" #:scale 0.75]}
 
 @handbook-scenario{逻辑模型设计}
 
@@ -90,7 +90,7 @@ C++ 是静态强类型语言。即，每一个数据都必须显式声明其类�
 
 @tamer-c++-class['GMSEntity "业务实体类" "entity/entity.hpp"]
 
-@tamer-code-ref{cpp:GMSEntity}是业务实体类的公共父类@cpp:type{GMSEntity}。
+@tamer-code-ref{hpp:GMSEntity}是业务实体类的公共父类@cpp:type{GMSEntity}。
 它规定所有子类都必须实现 @cpp:function{primary_key()}
 和 @cpp:function{to_string()} 方法。
 前者仅对单字段主键实体类有意义(多字段主键实体对非模型层代码透明)；
@@ -100,7 +100,7 @@ C++ 是静态强类型语言。即，每一个数据都必须显式声明其类�
 
 @tamer-c++-class['ClassEntity "实体类 ClassEntity" "entity/class.hpp"]
 
-以@tamer-code-ref{cpp:ClassEntity}的@cpp:type{ClassEntity}为例，
+以@tamer-code-ref{hpp:ClassEntity}的@cpp:type{ClassEntity}为例，
 它有一种构造方法，用于从记录中导入实体对象(@tamer-code-ref{cpp:ClassEntity::ClassEntity})。
 记录来源有两种可能，一是存储文件，二是用户输入。
 后者不包括类型标记，记录的其他数据格式相同，

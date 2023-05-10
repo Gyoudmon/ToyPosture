@@ -72,29 +72,19 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define tamer-c++
-  (lambda [id caption subpath start [end #px"END"] [exlastline? #true]]
-    (tamer-code-here #:language "C++" #:exclude-lastline? exlastline?
-                     id caption
-                     (build-path "digitama" "IMS" subpath)
-                     start end)))
+  (lambda [id caption subpath start [end #px"END"] [open? #true]]
+    (tamer-code! #:open-range? open?
+                 id caption (build-path "digitama" "IMS" subpath)
+                 start end)))
 
 (define tamer-c++-class
   (lambda [id caption subpath]
-    (tamer-code-here #:language "C++" #:exclude-lastline? #false
-                     (format "cpp:~a" id) caption
-                     (build-path "digitama" "IMS" subpath)
-                     (pregexp (format "class\\s+~a\\s+(:[^{]+)?[{]" id))
-                     #px"[}];")))
-
+    (tamer-code-class id caption (build-path "digitama" "IMS" subpath))))
 
 (define tamer-c++-function
   (lambda [id caption subpath #:ns [ns 'WarGrey::IMS] #:subpattern [subpattern #false]]
-    (tamer-code-here #:language "C++" #:exclude-lastline? #false
-                     (format "cpp:~a" id) caption
-                     (build-path "digitama" "IMS" subpath)
-                     (cons (pregexp (format "~a::~a\\s*[(][^)]*[)]\\s*[{]" ns id))
-                           subpattern)
-                     #px"^[}]")))
+    (tamer-code-function #:ns ns #:subpattern subpattern
+                         id caption (build-path "digitama" "IMS" subpath))))
 
 (define pk
   (lambda [attr]

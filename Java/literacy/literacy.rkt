@@ -72,29 +72,20 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define tamer-java
-  (lambda [id caption subpath start [end #px"END"] [exlastline? #true]]
-    (tamer-code-here #:language "Java" #:exclude-lastline? exlastline?
-                     id caption
-                     (build-path "src" "gms" "wargrey" subpath)
-                     start end)))
+  (lambda [id caption subpath start [end #px"END"] [open-range? #true]]
+    (tamer-code! #:open-range? open-range?
+                 id caption
+                 (build-path "src" "gms" "wargrey" subpath)
+                 start end)))
 
 (define tamer-java-class
   (lambda [id caption subpath]
-    (tamer-code-here #:language "Java" #:exclude-lastline? #false
-                     (format "java:~a" id) caption
-                     (build-path "src" "gms" "wargrey" subpath)
-                     (pregexp (format "(class|interface)\\s+~a\\s+(extends[^{]+)?(implements[^{]+)?[{]" id))
-                     #px"^[}]")))
-
+    (tamer-code-class id caption (build-path "src" "gms" "wargrey" subpath))))
 
 (define tamer-java-function
   (lambda [id caption subpath #:class [cls-name #false] #:subpattern [subpattern #false]]
-    (tamer-code-here #:language "Java" #:exclude-lastline? #false
-                     (format "java:~a" (if cls-name (format "~a.~a" cls-name id) id)) caption
-                     (build-path "src" "gms" "wargrey" subpath)
-                     (cons (pregexp (format "~a\\s*[(][^)]*[)]\\s*(throws\\s+[^{]+)?[{]" id))
-                           subpattern)
-                     #px"^\\s{1,4}[}]")))
+    (tamer-code-function #:class cls-name
+                         id caption (build-path "src" "gms" "wargrey" subpath))))
 
 (define pk
   (lambda [attr]
@@ -111,3 +102,7 @@
 (define java:type
   (lambda body
     (apply racketvalfont body)))
+
+(define java:package
+  (lambda body
+    (apply racketmodfont body)))
