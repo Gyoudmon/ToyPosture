@@ -72,8 +72,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define tamer-c++
-  (lambda [id caption subpath start [end #px"END"] [open? #true]]
-    (tamer-code! #:open-range? open?
+  (lambda [id caption subpath start [end #px"END"] [ocness 'open]]
+    (tamer-code! #:oc-ness ocness
                  id caption (build-path "digitama" "IMS" subpath)
                  start end)))
 

@@ -72,8 +72,8 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define tamer-java
-  (lambda [id caption subpath start [end #px"END"] [open-range? #true]]
-    (tamer-code! #:open-range? open-range?
+  (lambda [id caption subpath start [end #px"END"] [ocness 'open]]
+    (tamer-code! #:oc-ness ocness
                  id caption
                  (build-path "src" "gms" "wargrey" subpath)
                  start end)))
