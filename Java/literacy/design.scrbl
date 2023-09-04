@@ -47,8 +47,18 @@
 
 @tamer-java['java:ems "实体操作语义" "GradeManagementSystem.java" #px"Entity Manipulation"]
 
-都是常规操作，需要特别说明的是“删除”语义，
-所有对实体的删除均只删除这个实体本身，不级联或递归，也无法撤销。
+@handbook-action{新建(create)}
+
+在内存中创建一个实体对象，并且在创建时确保主键不存在，否则创建失败。
+
+@handbook-action{更新(update)}
+
+在内存中更新指定主键的实体对象，主键不存在则更新失败。
+
+@handbook-action{删除(delete)}
+
+在内存中删除指定主键的实体对象，主键不存在则删除失败。
+所有删除操作均只删除指定实体本身，不级联或递归，也无法撤销。
 
 @handbook-scenario{用户工作流}
 

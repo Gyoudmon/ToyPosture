@@ -78,12 +78,27 @@
 
 @tamer-c++['cpp:ems "实体操作语义" "model.hpp" #px"Entity Manipulation"]
 
-都是常规操作，需要特别说明的是“删除”语义，
-所有对实体的删除均只删除这个实体本身，不级联或递归，也无法撤销。
+@handbook-action{新建(create/register)}
+
+在内存中创建一个实体对象，并且在创建时确保主键不存在，否则创建失败。
+
+@handbook-action{更新(update)}
+
+在内存中更新指定主键的实体对象，主键不存在则更新失败。
+
+@handbook-action{删除(delete)}
+
+在内存中删除指定主键的实体对象，主键不存在则删除失败。
+所有删除操作均只删除指定实体本身，不级联或递归，也无法撤销。
+
+@handbook-action{清除(clear)}
+
+在内存中删除游离的实体对象。
+
 对于“主实体已删除、其管理的实体依旧存在”的情况，本系统新增了“清理”语义，
-也即@cpp:function{clear_detached_students}和@cpp:function{clear_detached_grades}。
+也即 @cpp:function{clear_detached_students} 和 @cpp:function{clear_detached_grades}。
 用户自己决定是否通过菜单执行此操作，也算是一种比较弱的出错恢复途径。
-比如，用户执行“删了班级”操作时手误错删了别的班，可以直接通过创建班号相同的班来恢复。
+比如，用户执行“删除班级”操作时手误错删了别的班，可以直接通过创建班号相同的班来恢复。
 但当用户执行“清理游离学生”操作之后，被误删的班级的学生就真的找不回来了。
 “清理游离成绩”同理。
 
@@ -195,7 +210,7 @@
 这几类数据操作本身没啥特别的。
 只是在实现上效仿了观察者模式，当数据操作正常完成时，
 会向主界面发送相应的业务事件(@tamer-code-ref{hpp:IModelListener})。
-特别的，对于@cpp:type{SeatEntity}和@cpp:type{GradeEntity}这两个非模型层透明的弱实体，
+特别地，对于@cpp:type{SeatEntity}和@cpp:type{GradeEntity}这两个非模型层透明的弱实体，
 它们的更新与否不以事件方式通知主界面，
 而是主界面根据自己的需要通过数据查询服务来拉取最新信息。
 
